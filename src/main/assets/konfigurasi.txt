@@ -1,0 +1,50 @@
+# File Konfigurasi ....
+
+url client login    : http://api.muhajirin.net/v1/client/login
+url user login      : http://api.muhajirin.net/v1/user/login
+url user logout     : http://api.muhajirin.net/v1/user/logout
+url product index   : http://api.muhajirin.net/v1/product/index
+url customer index  : http://api.muhajirin.net/v1/customer/index
+url customer create : http://api.muhajirin.net/v1/customer/create
+url order create    : http://api.muhajirin.net/v1/order/create
+url order index     : http://api.muhajirin.net/v1/order/index
+
+Client Token        :
+
+
+
+Database : retail
+User     : root
+Password : "DXNuRgAgt2I69ntI0KfhCA==
+"
+Host     : localhost
+Socket   : 3306
+DBMS     : mysql
+
+User Login Default     : konsultasi@solusiprogram.com
+Password Login Default : "6zr1kHjqXq+zgkZ1EXbF6Q==
+"
+
+Direktori Gambar     : C:\Solusi Toko 1.0\file_gambar\
+Barcode Delay        : 100
+Panjang Barcode Masuk History Tambah Barang : 10
+Font di Tabel Transaksi         : Kartika
+Font Size di Tabel Transaksi    : 22
+Font Bold di Tabel Transaksi    : ya
+Font Italic di Tabel Transaksi  : ya
+Tinggi Baris di Tabel Transaksi : 90
+Lebar Kode di Tabel Transaksi   : 200
+Pembulatan Rupiah    :
+Print Barcode Skala Horizontal      :
+Print Barcode Skala Vertical        :
+Print Barcode Lebar Kolom           :
+Print Barcode Tinggi Baris          :
+Print Label Rak Skala Horizontal    :
+Print Label Rak Skala Vertical      :
+Print Label Rak Lebar Kolom         :
+Print Label Rak Tinggi Baris        :
+
+Aktifkan Suara       : tidak
+
+PPN aktif secara default : tidak
+PPN ditampilkan          : ya

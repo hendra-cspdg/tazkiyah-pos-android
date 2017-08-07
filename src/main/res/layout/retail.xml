@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+//The following layout is an alternative to the layout shown in the previous lesson that shows only one fragment at a time. In order to replace one fragment with another, the activity's layout includes an empty FrameLayout that acts as the fragment container.
+<!--FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fragment_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" /-->
+
+
+
+
+
+    <Button android:onClick="scanNow" android:id="@+id/scan_button" android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:text="@string/scan"
+    />
+    <TextView
+        android:id="@+id/scan_result"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12dp"
+        android:textColor="#fff"
+    />
+
+
+
+
+    <!--fragment android:name="dialog"
+              android:id="@+id/headlines_fragment"
+              android:layout_weight="1"
+              android:layout_width="0dp"
+              android:layout_height="match_parent" />
+
+    <fragment android:name="com.example.android.fragments.ArticleFragment"
+              android:id="@+id/article_fragment"
+              android:layout_weight="2"
+              android:layout_width="0dp"
+              android:layout_height="match_parent" /-->
+
+
+
+</LinearLayout>
+
+
+
+<!-- dari main.xml nya Zxing  ?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent">
+	<Button android:id="@+id/scan_button" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:text="@string/scan" />
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" android:text="@string/scan_result_label"
+		android:textColor="#fff" />
+	<TextView android:id="@+id/scan_result" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+</LinearLayout-->

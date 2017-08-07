@@ -1,0 +1,60 @@
+buildscript {
+    repositories {
+        maven {
+                url "D:/Program Files/Android/Android Studio/gradle/m2repository"
+            }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+buildDir = 'D:/Project/Java/deploy/build'
+
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {    //ini (selain applicationId) meng-override AndroidManifest.xml
+        applicationId "net.muhajirin.solusitoko"
+        minSdkVersion 7    //7  Error: minSdkVersion 7 cannot be smaller than version 9 declared in library [com.android.support:recyclerview-v7:25.0.1]     //5
+        targetSdkVersion 23    //Hi All, for those are getting communications link failure or unable to connect to host, set your midSdkVersion less than 10 and no targetSdkVersion.
+        versionCode 1
+        versionName "1.0.1"
+    }
+    signingConfigs {
+        release {
+            storeFile file("solusitoko.keystore")
+            storePassword "12muhajirin3"
+            keyAlias "solusitokoKey"
+            keyPassword "12muhajirin3"
+        }
+    }
+
+    lintOptions {
+        abortOnError false    //there are errors with my uncomplete values-zh-rCN\strings.xml :p
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            //The build system can run ProGuard to obfuscate your classes during the build process.
+            //ProGuard is A tool for code shrinking, will significantly reduce the static foot print. Note that it is very important to re-test all of the application after applying ProGuard since it may change the application behavior. As ProGuard replaces the application symbols, to make the code difficult to read, it is important that you retain the symbol mapping, so that you can translate a stack trace back to the original symbols if you have to investigate a crash in your application.
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            debuggable false
+            //jniDebugBuild false
+            signingConfig signingConfigs.release
+        }
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:23.2.1'
+    compile 'com.android.support:design:23.2.1'
+    compile 'com.android.support:recyclerview-v7:23.2.1'
+}
