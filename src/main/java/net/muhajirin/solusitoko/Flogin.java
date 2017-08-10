@@ -177,7 +177,7 @@ public class Flogin extends DialogFragment {
         }});
 
 
-Blogin.performClick();
+//Blogin.performClick();
 
         prms = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );
         prms.gravity = Gravity.CENTER_VERTICAL;
