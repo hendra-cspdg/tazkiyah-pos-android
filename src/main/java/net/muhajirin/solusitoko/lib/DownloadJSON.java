@@ -129,17 +129,21 @@ android.util.Log.e("onapi: ", "6");
 android.util.Log.e("onapi: ", "61");
                 byte[] post_data = null;
                 //post_data = args[2].getBytes();
-                try { post_data = args[2].getBytes( "UTF-8" );    } catch ( java.io.UnsupportedEncodingException ex) { android.util.Log.e("oncharset: ", "error: " + ex.toString() );}    //byte[] post_data = args[2].getBytes( java.nio.charset.StandardCharsets.UTF_8 );
+                try {
+                    post_data = args[2].getBytes( "UTF-8" );    //args[2].getBytes( java.nio.charset.StandardCharsets.UTF_8 );
 android.util.Log.e("onapi: ", "7");
-                con.setRequestProperty("Content-Length", Integer.toString( post_data.length ));
+                    con.setRequestProperty("Content-Length", Integer.toString( post_data.length ));
 android.util.Log.e("onapi: ", "8");
-                con.getOutputStream().write( post_data );    //java.io.OutputStreamWriter wr = new java.io.OutputStreamWriter(con.getOutputStream());    wr.write( args[2] );    wr.flush();    //try{ java.io.DataOutputStream wr = new java.io.DataOutputStream(con.getOutputStream());  wr.write( post_data ); } catch ( Exception exx) {}
+                    java.io.DataOutputStream wr = new java.io.DataOutputStream(con.getOutputStream());    wr.write( post_data );    wr.flush();    //java.io.OutputStreamWriter wr = new java.io.OutputStreamWriter(con.getOutputStream());    wr.write( args[2] );    wr.flush();    
+                    //ini sering ga tereksekusi >> con.getOutputStream().write( post_data );
 android.util.Log.e("onapi: ", "9");
+                } catch ( Exception ex ) {    //java.io.UnsupportedEncodingException ex) 
+                    return "Error: Gagal mengakses " + args[0] + "\nRespon: " + ex.toString();
+                }
             }
 
 
             //con.setDoInput(true); 
-
 android.util.Log.e("onapi: ", "10" );
 
 //android.util.Log.e("onapi: ", "stream: " + con.getInputStream().toString() );
@@ -175,25 +179,33 @@ private String getDataString(HashMap<String, String> params) throws UnsupportedE
         try {
             if( con.getResponseCode()==HttpURLConnection.HTTP_OK || con.getResponseCode()==HttpURLConnection.HTTP_BAD_REQUEST ) {    //read response
 android.util.Log.e("onapi: ", "11");
+//klo password salah, terjadi exception setelah ini
                 reader = new BufferedReader( new InputStreamReader( con.getInputStream(), "UTF-8" ) );
                 String line;
                 StringBuilder sb = new StringBuilder();
                 while( (line = reader.readLine()) != null ) {
 android.util.Log.e("onapi: ", "line=" + line);
 sb.append(line);
+android.util.Log.e("onapi: ", "after sb.append" );
 }
                                                           //sb.append(line + "
 //");
+android.util.Log.e("onapi: ", "12" );
                 result = sb.toString();
+android.util.Log.e("onapi: ", "13" );
             } else
                 result = "Error: Gagal mengakses " + args[0] + "\nRespon: " + con.getResponseMessage();
         } catch( IOException e ) {
             e.printStackTrace();
-            return "Error: Gagal mengakses " + args[0] + "\nRespon: " + "Tidak ada.";    //e.toString();
+            return "Error: Gagal mengakses " + args[0] + "\nMohon pastikan internet tersambung" + ( args[0].equals( retail.db.cfg.get("url_user_login") ) ? " dan isian email dan password sudah benar!" : "" ) + "\nRespon: " + e.toString();
         } finally {
+android.util.Log.e("onapi: ", "13" );
             if( reader!=null ) try { reader.close(); } catch( IOException e ) { e.printStackTrace(); } 
+android.util.Log.e("onapi: ", "14" );
             con.disconnect();
+android.util.Log.e("onapi: ", "15" );
         }
+android.util.Log.e("onapi: ", "16 "  + result );
         return result;    //Pass data to onPostExecute method
 
 

@@ -372,32 +372,36 @@ public class retail extends AppCompatActivity {
         }
 
         if( jp_submenu.getChildCount()>0 ) {  menu.add(submenu);  jp_menu.addView(jp_submenu,params_submenu);  }    //if( submenu.getItemCount()>0 ) {  menu.add(submenu);  jp_menu.add(jp_submenu);  }
-/*
-        submenu = new JMenu("Pelanggan");
-        submenu.setMnemonic(KeyEvent.VK_P);
+
+        submenu = new JMenu("Customer");
+        //submenu.setMnemonic(KeyEvent.VK_P);
         submenu.setIcon(R.drawable.system_users);
         jp_submenu = new JP_submenu("Pelanggan");
 
         if( hak_akses.indexOf("'Tambah Pelanggan'") >= 0 ) {
-            menuItem = new JMenuItem("Tambah Pelanggan Baru", R.drawable.user_group_new24));
-            menuItem.setMnemonic(KeyEvent.VK_T);
-            menuItem.setAccelerator(KeyStroke.getKeyStroke("F3"));
+            menuItem = new JMenuItem("Tambah Customer Baru", R.drawable.user_group_new24, new MenuItem.OnMenuItemClickListener() { @Override public boolean onMenuItemClick(MenuItem item) {    Ftambah_pelanggan.newInstance(app_name + "- Tambah Customer").show(fm, "Ftambah_pelanggan");  return true;   }}, i++ );    final int id = i-1;
+            //menuItem.setMnemonic(KeyEvent.VK_T);
+            //menuItem.setAccelerator(KeyStroke.getKeyStroke("F3"));
             //menuItem.getAccessibleContext().setAccessibleDescription("Tambah Pelanggan Baru ...");
-            Bmenu = new JBmenu( "<html><center>F3 - tambah pelanggan", R.drawable.user_group_new, new ActionListener() { public void actionPerformed(ActionEvent e) {     Ftambah_pelanggan fc = new Ftambah_pelanggan(f);   f.setVisible(true);  fc=null;  }});
-            menuItem.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {  Bmenu.doClick();  }});
-            submenu.add(menuItem);    jp_submenu.add(Bmenu);
+            Bmenu = new JBmenu( "tambah customer", R.drawable.user_group_new, new OnClickListener() { @Override public void onClick(View v) {    menuBar.performIdentifierAction(id, 0);    }});
+            //menuItem.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {  Bmenu.doClick();  }});
+            submenu.add(menuItem);
+            jp_submenu.addView(Bmenu,params_Bmenu);
         }
+/*
         if( hak_akses.indexOf("'Edit Pelanggan'") >= 0 ) {
-            menuItem = new JMenuItem("Edit Pelanggan", R.drawable.user_group_properties24));
-            menuItem.setMnemonic(KeyEvent.VK_E);
-            menuItem.setAccelerator(KeyStroke.getKeyStroke("F4"));
-            Bmenu = new JBmenu( "<html><center>F4 - edit pelanggan", R.drawable.user_group_properties, new ActionListener() { public void actionPerformed(ActionEvent e) {     Fedit_pelanggan fc = new Fedit_pelanggan(f);   f.setVisible(true);  fc=null;  }});
-            menuItem.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {  Bmenu.doClick();  }});
-            submenu.add(menuItem);    jp_submenu.add(Bmenu);
-        }
-        if( submenu.getItemCount()>0 ) {  menu.add(submenu);  jp_menu.add(jp_submenu);  }
- 
+            menuItem = new JMenuItem("Edit Customer", R.drawable.user_group_properties24, new MenuItem.OnMenuItemClickListener() { @Override public boolean onMenuItemClick(MenuItem item) {    Fedit_pelanggan.newInstance(app_name + "- Edit Customer").show(fm, "Fedit_pelanggan");  return true;   }}, i++ );    final int id = i-1;
+            //menuItem.setMnemonic(KeyEvent.VK_E);
+            //menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));    //kehabisan tombol ntar:) >> menuItem.setAccelerator(KeyStroke.getKeyStroke("F6"));
+            Bmenu = new JBmenu( "edit customer", R.drawable.user_group_properties, new OnClickListener() { @Override public void onClick(View v) {    menuBar.performIdentifierAction(id, 0);    }});
+            //menuItem.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {  Bmenu.doClick();  }});
+            submenu.add(menuItem);
+            jp_submenu.addView(Bmenu,params_Bmenu);
 
+        }
+*/
+        if( jp_submenu.getChildCount()>0 ) {  menu.add(submenu);  jp_menu.addView(jp_submenu,params_submenu);  }    //if( submenu.getItemCount()>0 ) {  menu.add(submenu);  jp_menu.add(jp_submenu);  }
+/* 
         submenu = new JMenu("Supplier");
         //submenu.setMnemonic(KeyEvent.VK_S);
         submenu.setIcon(R.drawable.meeting_chair);
@@ -1008,12 +1012,12 @@ android.util.Log.e("ongetbrg00:", "   brg_id=" + brg_id + "  Selectedpos=" + Cco
             new DownloadJSON(){
                 @Override protected void onPostExecute( String result ) {
                     super.onPostExecute(result);
-android.util.Log.e("flogin: ", "1");
+android.util.Log.e("get_brg json: ", "1");
                     if( result.startsWith( "Error:" ) ) {
                         return;
                     }
 
-android.util.Log.e("flogin: ", "2");
+android.util.Log.e("get_brg json: ", "2");
 
                     try {
                         org.json.JSONObject data = new org.json.JSONObject(result);
@@ -1030,17 +1034,13 @@ android.util.Log.e("flogin: ", "2");
                         org.json.JSONArray jArray = new org.json.JSONArray( data.getString( "products" ) );
                         for( int i=0; i<jArray.length(); i++ ) {
                             org.json.JSONObject product = jArray.getJSONObject(i);
-                            Cname_brg.items.add( new jcdb_item( i+1, product.getString( "label" ) ) );
-                            Ccode_brg.items.add( new jcdb_item( i+1, product.getString( "id" ) ) );    //should be code
+                            Cname_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "label" ) ) );    //i+1
+                            Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "barcode" ) ) );    //i+1
                             harga_brg.add( product.getInt( "price" ) );
                             diskon_brg.add("0");
                             gambar_brg.add("");
                         }
-                    } catch( org.json.JSONException e ) {
-                        android.util.Log.e("get_brg error: ", "e.toString()="+ e.toString() );
-                    }
 
-                    try {
                         ((android.widget.ArrayAdapter)Cname_brg.getAdapter()).notifyDataSetChanged();    ((android.widget.ArrayAdapter)Ccode_brg.getAdapter()).notifyDataSetChanged();
 android.util.Log.e("ongetbrg:", " 42 Code_brg.getCount()" + Ccode_brg.getAdapter().getCount() + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount()  + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount() );
 android.util.Log.e("ongetbrg:", " 42 name_brg.getCount()" + Cname_brg.getAdapter().getCount() + " name_brg.items.getCount()" + Cname_brg.getAdapter().getCount()  + " name_brg.getAdapter().getCount()" + Cname_brg.getAdapter().getCount() );
@@ -1053,11 +1053,12 @@ android.util.Log.e("ongetbrg:", "   after setlistener "   + "    Ccode_brg.getCo
 
                         if( Ftransaksi.form!=null ) Ftransaksi.form.after_get_brg();
 android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=null)   + "    Code_brg.getCount()" + Ccode_brg.getCount() );
-
-                    } catch (Exception e) {
-                        db.err_msg += "\nMaaf, Data \"Barang\" gagal diinisialisasi!\n\n\n(" + e + ")";
+                    } catch( Exception e ) {    //org.json.JSONException 
+                        db.err_msg += "\nMaaf, Data \"Barang\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
                         show_error( db.err_msg, "Pembacaan Data Barang" );
+                        android.util.Log.e("get_brg error: ", "e.toString()="+ e.toString() );
                     }
+
                 }
             }.execute(
                        db.cfg.get( "url_product_index" )    //url to call
@@ -1475,6 +1476,9 @@ class JP_menu extends JP_submenu {
 //    }
 }
 class JP_submenu extends LinearLayoutCompat {    //JPanel
+    public JP_submenu() {
+        this("");
+    }
     public JP_submenu(String title) {
         super( retail.get_my_app_context() );    //klo mau flowlayout, bikin custom layout!!! >> super( new FlowLayout(FlowLayout.CENTER, 13, 13) );
         setOrientation(LinearLayoutCompat.HORIZONTAL);
@@ -1530,14 +1534,14 @@ class JCdb extends android.widget.AutoCompleteTextView {    //MultiAutoCompleteT
     public static JCdb newInstance( Boolean async, String table, final AppCompatActivity act ) {
 android.util.Log.e("jcdb: ", "1");
         //if( android.os.Build.VERSION.SDK_INT < 11 )
-        jcdb = new JCdb(async, table, act, 3);
+        jcdb = new JCdb(async, table, act, 1);
 //        after_create(jcdb);
         return jcdb;
         //else                                 return new JCdb(async, table, act, true);
     }
     public static JCdb newInstance( String table, final AppCompatActivity act ) {
         //if( android.os.Build.VERSION.SDK_INT < 11 )
-        jcdb = new JCdb(true, table, act, 3);
+        jcdb = new JCdb(true, table, act, 1);
 //        after_create(jcdb);
         return jcdb;
         //else                                 return new JCdb(true, table, act, true);
@@ -1574,8 +1578,11 @@ android.util.Log.e("jcdb: ", "1");
     }
 
     public void after_create() {
+android.util.Log.e("after_create: ", "1" );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+android.util.Log.e("after_create: ", "2" );
         setAdapter(adapter);
+android.util.Log.e("after_create: ", "3" );
         setOnItemClickListener( new android.widget.AdapterView.OnItemClickListener() {    //perlu utk lakukan setSelectedItemPosition
             @Override public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
 android.util.Log.e("jcdb setonitemclicklistener: ", "position before: " + position);
@@ -1585,6 +1592,7 @@ android.util.Log.e("jcdb setonitemclicklistener: ", "position after: " + positio
             }
             //public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
+android.util.Log.e("after_create: ", "4" );
     }
 
 
@@ -1671,7 +1679,7 @@ android.util.Log.e("jcdb: ", "  results != null && results.count > 0'" +   (resu
 
                     //ini sepertinya malah bikin error >> postDelayed(new Runnable() { @Override public void run() {
 
-//                    /*new android.os.Handler().*/post(new Runnable() { @Override public void run() {
+//                    post(new Runnable() { @Override public void run() {    //new android.os.Handler().
 //hm, tetap aja error walo yg di bawah dah kudisable!!!
                     if( results != null && results.count > 0 ) notifyDataSetChanged();
                     else                                       notifyDataSetInvalidated();
@@ -1682,7 +1690,6 @@ android.util.Log.e("jcdb: ", "  results != null && results.count > 0'" +   (resu
             };
 
         };
-//*/
 
 
 android.util.Log.e("jcdb create: ", "1c");
@@ -1812,15 +1819,15 @@ android.util.Log.e("jcdb create: ", "5");
     public jcdb_item getItemAtPosition(int i) {
         return (jcdb_item) getAdapter().getItem(i);
     }
-    int selected_idx;
+    //?! >> int selected_idx;
     public int getSelectedItemPosition() {
-        return selected_idx;
+        return getListSelection();    //return selected_idx;
     }
     public void setSelectedItemPosition(int i) {
-        selected_idx = i;
+        setListSelection(i);    //selected_idx = i;
     }
     public jcdb_item getSelectedItem() {
-        return getItemAtPosition(selected_idx);
+        return (jcdb_item) getAdapter().getItem(getListSelection());
     }
     public int getCount() {
         if( getAdapter()==null ) return 0;

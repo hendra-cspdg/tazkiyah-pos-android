@@ -19,7 +19,6 @@
 
 package net.muhajirin.solusitoko;
 
-//import android.support.v7.widget.AppCompatButton;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -37,6 +36,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.sql.Types;
 import java.util.ArrayList;
+import android.widget.AutoCompleteTextView;
+import android.widget.ArrayAdapter;
 
 public class Ftransaksi extends Fedit {
     JCdb Ccode_brg, Cname_brg;    ArrayList<Integer> harga_brg;    ArrayList<String> diskon_brg, gambar_brg;
@@ -48,7 +49,7 @@ public class Ftransaksi extends Fedit {
     int last_inserted_id = 0;
     String no_faktur_date_format = retail.user_id + "_%1$td.%<tm.%<ty.%2$tH.%<tM.%<tS";
     //JXDatePicker Dtgl_faktur;
-    //JComboBox Cname_agent;
+
     String sql_get_brg = "SELECT id, name, code, harga_jual, CAST( CONCAT_WS(',',diskon_jual,disc_qty1,disc_amount1,disc_qty2,disc_amount2,disc_qty3,disc_amount3,disc_qty4,disc_amount4) AS char ) AS diskon, gambar FROM barang " +(retail.convert_null(retail.setting.get("Jangan Jual Barang Habis Stok")).toLowerCase().equals("ya") ? "WHERE stok>0" : "" )+ " ORDER BY name";    //mending by name, krn klo BY code dia pastinya udah hafal (ato ada guideline dari kode barcode)
 
     //must be public to let retail.click_button() ...
@@ -89,7 +90,8 @@ public class Ftransaksi extends Fedit {
     //public JLabel Ltotal_blink = new JLabel();    JLabel Lbanyak_blink = new JLabel("", JLabel.CENTER);
     //JTextField Tpoin;
     //JComboBox Ckontak_agent;
-    //public JCdb Ccode_agent;    //dibaca di class celleditor untuk otomatis beralih dari scan barcode barang
+    //AutoCompleteTextView Cname_agent;
+    public JCdb Ccode_agent, Cname_agent;    //dibaca di class celleditor untuk otomatis beralih dari scan barcode barang
 
 //    public EditText Tdibayar;    //must be public to let requestFocus() from retail ...
 //    EditText Lkembali;
@@ -109,7 +111,7 @@ public class Ftransaksi extends Fedit {
         //if( form instanceof Fpembelian ) {
         //    modul_table = "beli";    agent = "supplier";    stok_sign = "1*";
         //} else {
-            modul_table = "jual";    agent = "pelanggan";   stok_sign = "-1*";
+            modul_table = "jual";    agent = "Customer";   stok_sign = "-1*";    //pelanggan
         //} 
     }
     static String modul_table, agent, stok_sign;
@@ -260,6 +262,7 @@ android.util.Log.e( "build: ", "3" );
 
 
         //db.column_model = table.getColumnModel();
+//ini ga boleh dipindah deh >> //pindah bawah krn build_sql sudah di async thread, begitu juga get_brg >>
         if( modul_table.equals("jual") ) retail.get_brg(table, sql_get_brg);  else retail.get_brg(table);
 
         //new android.os.Handler().post(new Runnable() { public void run() {    //nyang di atas ada db.exec(sql)nya sehingga ada di dalam asyncthread, suck android api developer
@@ -320,6 +323,10 @@ android.util.Log.e( "build: ", "10" );
     int min_width = (int) ( 80 * retail.scale_width ), disabled_background_color = android.graphics.Color.TRANSPARENT ;    //0xff663399
     LayoutParams prms_tv, prms;
     @Override public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//        new android.os.Handler().postDelayed(new Runnable() { public void run() {        }}, 200);
+
+
+
         //min_width = (int) ( min_width * retail.scale_width );
         sql ="";
 android.util.Log.e( "penjual: ", "1" );
@@ -425,12 +432,136 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
 
 
 
-        Ttotal = new EditText(form.getActivity());    Ttotal.setEnabled(false);     Ttotal.setMinWidth(min_width+40);    //Ttotal.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Ttotal = new EditText(form.getActivity());    Ttotal.setText("0");    Ttotal.setEnabled(false);     Ttotal.setMinWidth(min_width+40);    //Ttotal.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Ttotal.setHint( "Total" );    Ttotal.setTextColor( android.graphics.Color.GREEN );    Ttotal.setBackgroundColor( disabled_background_color );    Ttotal.setTextSize(28f);    //0xff060018
         TL = new TextInputLayout(form.getActivity());    TL.addView( Ttotal, prms_tv );
         prms.setMargins( 0, 7, 0, 0 );
         toolbar.addView( TL, prms );
-        //footer_panel.addView( TL, prms );
+
+
+        /*LayoutParams prms_right = new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );
+        prms_right.setMargins( 0, 7, 0, 0 );
+        prms_right.gravity = Gravity.RIGHT;
+        */
+
+        LinearLayoutCompat jp_sub = new LinearLayoutCompat(form.getActivity());
+        jp_sub.setOrientation(LinearLayoutCompat.VERTICAL);
+
+/*
+        floating_label Lname_agent = new floating_label(form.getActivity());
+        Lname_agent.setText(agent);    Lname_agent.setTextColor( android.graphics.Color.LTGRAY );
+        LinearLayoutCompat.LayoutParams prms_sub = new LinearLayoutCompat.LayoutParams( 150, 12 );    //setPreferredSize(new Dimension(115,115));
+        jp_sub.addView( Lname_agent, prms_sub );
+*/
+
+        Cname_agent = JCdb.newInstance(false, "", form.getActivity());    /*new AutoCompleteTextView(form.getActivity());*/    Cname_agent.setMinWidth(min_width+40);    //Cname_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Cname_agent.setHint( agent );    Cname_agent.setTextColor( android.graphics.Color.YELLOW );    Cname_agent.setTextSize(18f);
+        Cname_agent.setGravity( Gravity.TOP );
+        //Cname_agent.setAdapter( new ArrayAdapter<String>( form.getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>() ) );
+        LinearLayoutCompat.LayoutParams prms_sub = new LinearLayoutCompat.LayoutParams( 150, 30 );
+        //jp_sub.addView( Cname_agent, prms_sub );
+
+        footer_panel.addView( Cname_agent, prms );    //footer_panel.addView( jp_sub, prms );
+
+
+        jp_sub = new LinearLayoutCompat(form.getActivity());
+        jp_sub.setOrientation(LinearLayoutCompat.VERTICAL);
+
+/*
+        floating_label Lcode_agent = new floating_label(form.getActivity());
+        Lcode_agent.setText("Id");    Lcode_agent.setTextColor( android.graphics.Color.LTGRAY );
+        prms_sub = new LinearLayoutCompat.LayoutParams( 150, 12 );
+        jp_sub.addView( Lcode_agent, prms_sub );
+*/
+
+        Ccode_agent = JCdb.newInstance(false, "", form.getActivity());    Ccode_agent.setMinWidth(min_width+10);    //Ccode_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Ccode_agent.setHint( "Id" );    Ccode_agent.setTextColor( android.graphics.Color.YELLOW );    Ccode_agent.setTextSize(18f);
+        Ccode_agent.setGravity( Gravity.TOP );
+        prms_sub = new LinearLayoutCompat.LayoutParams( 150, 30 );
+        //jp_sub.addView( Ccode_agent, prms_sub );
+
+        footer_panel.addView( Ccode_agent, prms );    //footer_panel.addView( jp_sub, prms );
+
+
+        android.widget.AdapterView.OnItemClickListener sync_agent = new android.widget.AdapterView.OnItemClickListener() { @Override public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {    //public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+android.util.Log.e("onlistener:", "aa1");
+            if( agent_id>-13 ) return;  //supaya tidak listen setSelectedIndex yg dilakukan program.
+android.util.Log.e("onlistener:", "2");
+
+            int Ccode_agent_idx = Ccode_agent.my_key_of( Ccode_agent.getText().toString().trim() );    //Ccode_agent.my_index_of( Ccode_agent.getText().toString().trim() );
+            int Cname_agent_idx = Cname_agent.my_key_of( Cname_agent.getText().toString().trim() );
+/*
+            int Cname_agent_idx = -1;
+            for( int i=0; i < ((ArrayAdapter) Cname_agent.getAdapter()).getCount() ; i++ )
+                if( Cname_agent.getText().toString().trim().equals( ((ArrayAdapter) Cname_agent.getAdapter()).getItem(i).toString().trim() ) )
+                    Cname_agent_idx = (int) ((ArrayAdapter) Cname_agent.getAdapter()).getItemId(i);
+
+android.util.Log.e("onlistener:", "Cname_agent_idx=" + Cname_agent_idx + "   Ccode_agent_idx=" + Ccode_agent_idx + "  Ccode_agent.getText()=" + Ccode_agent.getText().toString().trim()    + "  Cname_agent.getText()=" + Cname_agent.getText().toString().trim()   );
+*/
+            if( Cname_agent_idx==Ccode_agent_idx ) return;  //if( Cname_agent.getListSelection()==Ccode_agent.getListSelection() ) return;  //&& Cname_agent.getSelectedIndex()==Ckontak_agent.getSelectedIndex()     //supaya tidak ngulang ampe 2 kali:p
+
+            AutoCompleteTextView Csrc, Cdst;
+            if( parent.getAdapter()==Ccode_agent.getAdapter()  ) {  agent_id = Ccode_agent_idx;    Csrc = Ccode_agent;    Cdst = Cname_agent;  } else {  agent_id = Cname_agent_idx;    Csrc = Cname_agent;    Cdst = Ccode_agent;  }
+            //agent_id = (int) id;    //position;
+
+            //Csrc.setListSelection(position);
+android.util.Log.e("onlistener:", "position=" + position + "   id=" + id + "  Cname_agent.getListSelection()=" + Cname_agent.getListSelection()   + "  Ccode_agent.getListSelection()=" + Ccode_agent.getListSelection()  );
+
+            /*
+            if( (AutoCompleteTextView)parent == Ccode_agent && agent_id == -1 ) {
+                JTextComponent text_editor = (JTextComponent) Ccode_agent.getEditor().getEditorComponent();
+                String text = text_editor.getText().trim();    //text_editor ga pernah lakukan setselectedindex otomatis:(
+                agent_id = Ccode_agent.my_index_of(text);
+                if( agent_id == -1 ) {
+                    if( retail.hak_akses.indexOf("'Tambah Pelanggan di Fitur Transaksi'") >= 0 ) {
+                        if( 0 == JOptionPane.showOptionDialog( table, "\nMaaf, Pelanggan dengan Kode '" +text+ "' tidak ditemukan!\n\nApakah anda ingin menambahkan data pelanggan baru?" + "\n\n\n\n\n\n", "Pelanggan tidak ditemukan", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, retail.icon_confirm, retail.Boptions2, null ) )  tambah_agn(text);
+                    } else
+                        JOptionPane.showMessageDialog( table, "Maaf, Pelanggan dengan Kode '" +text+ "' tidak ditemukan!\nSilahkan ketikkan kode/nama pelanggan untuk mencari atau jalankan Modul Tambah Pelanggan." + "\n\n\n", "Pelanggan tidak ditemukan", JOptionPane.ERROR_MESSAGE ) ;
+                    Ccode_agent.setListSelection(Cname_agent.getListSelection());    //balikin    //text_editor.setText( Ccode_agent.getItemAt( Cname_agent.getSelectedIndex() ).toString() );    //text_editor.setText("");
+                } else
+                    Ccode_agent.setListSelection(agent_id);
+            }
+            */
+android.util.Log.e("onlistener:", "3");
+
+            if( agent_id == -1 ) {
+                agent_id = -13;
+                return;  //force it to selectable index
+            }
+android.util.Log.e("onlistener:", "4");
+            Cdst.setText( ((ArrayAdapter) Cdst.getAdapter()).getItem( agent_id ).toString()     );
+
+//            if( parent != Cname_agent.getAdapter()   ) {    Cname_agent.setSelection   ( agent_id );    Cname_agent.setText( ((ArrayAdapter) Cname_agent.getAdapter()).getItem( agent_id ).toString()     );    }
+android.util.Log.e("onlistener:", "5");
+//            if( parent != Ccode_agent.getAdapter()   ) {    Ccode_agent.setSelection   ( agent_id );    Ccode_agent.setText( ((ArrayAdapter) Ccode_agent.getAdapter()).getItem( agent_id ).toString()     );    }
+android.util.Log.e("onlistener:", "6");
+            //if( e.getItemSelectable() != Ckontak_agent ) Ckontak_agent.setSelection ( agent_id );
+            //Tdiskon_edit.setText( String.valueOf(diskon_agent[agent_id]) );
+            //show_poin();
+            agent_id = -13;
+        }};	
+        //Ccode_agent.setSelection(-1);    Cname_agent.setSelection(-1);    //Ckontak_agent.setSelectedIndex(-1);    //supaya bisa langsung in action at the first time saat di bawah diset Cname_agent.setSelectedIndex(0)
+        Cname_agent.setOnItemClickListener(sync_agent);  Ccode_agent.setOnItemClickListener(sync_agent);  //Ckontak_agent.addItemListener(sync_agent);
+
+        //if( retail.hak_akses.indexOf("'Tambah Pelanggan di Fitur Transaksi'") >= 0 ) {
+            //Cname_agent.setSize(Cname_agent.getWidth()-73, Cname_agent.getHeight());
+            final android.support.v7.widget.AppCompatButton Btambah_agn    = new android.support.v7.widget.AppCompatButton(form.getActivity());
+            //Btambah_agn.setText( "Tambah " + agent );
+            //Btambah_agn.setHint( "Tambah " + agent );
+            Btambah_agn.setMinWidth(min_width);    //Btambah_agn.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+            LayoutParams prms2 = new LayoutParams( 50, 50 );
+            //prms.setMargins( 10, 7, 10, 0 );
+            prms2.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL ;
+            footer_panel.addView( Btambah_agn, prms2 );
+
+            //Btambah_agn.setBackgroundColor(0x5500ff00);
+            //Btambah_agn.setCompoundDrawablesWithIntrinsicBounds( 0, icon_path, 0, 0 ) ;
+            Btambah_agn.setBackgroundResource( R.drawable.symbol_add_1 );
+            Btambah_agn.setOnClickListener( new View.OnClickListener() { @Override public void onClick(View v) {
+                tambah_agn("");
+            }});
+
+        //}
 
 
 
@@ -498,6 +629,11 @@ android.util.Log.e( "penjual: ", "17"  /*+ ( form.getActivity().getCurrentFocus(
 android.util.Log.e( "penjual: ", "18"  /*+ ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) )*/);
 
         //Lkembali.performClick();    //form.table.col[0].requestFocus();    //Tdibayar.requestFocus();    retail.hideSoftKeyboard( (android.app.Activity) form.getActivity() );    //entah kenapa softkeyboardnya muncul:p
+
+        new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
+            refresh_agn();
+        }});
+
 
         return ret;
     }
@@ -620,7 +756,7 @@ android.util.Log.e( "simpan: ", "9");
                     String banyak = db.to_db( 3, db.getValueAt(i,3) );
                     if(r==0) sql +=  " INSERT INTO " +modul_table+ " ( faktur_id,      no      ,     barang_id    ,                           total          ,     banyak       ,                      diskon            ) VALUES \n" ;    //jika @id is null query berikut gak jalan (Column 'faktur_id' cannot be null) >> sql =  " SET @id='fail'    ;\n"  //ah, ternyata dia tetap insert dengan @id=0 ... so biarin ajaahhhh, paling2 datanya banjir :) //biar ga lanjut klo query sebelum ini fail.
                     else     sql +=  " , " ;
-                    sql +=           "                  (       @id, " + (i+1) + ", " + barang_id + ", " + db.to_db( 5, db.getValueAt(i,5) ) + ", " + banyak + ", " + db.to_db( 4, db.getValueAt(i,4) ) + " )  \n"  ;         //sql +=  "(@id, " + (1+Ccode_brg.getSelectedIndex()) + ", " + (Integer)db.getValueAt(i,5) + ", " + (Integer)db.getValueAt(i,3) + ", " + (Integer)db.getValueAt(i,4) + ")  \n"  ;
+                    sql +=           "                  (       @id, " + (i+1) + ", " + barang_id + ", " + db.to_db( 5, db.getValueAt(i,5) ) + ", " + banyak + ", " + db.to_db( 4, db.getValueAt(i,4) ) + " )  \n"  ;         //sql +=  "(@id, " + (1+Ccode_brg.getSelectedItemPosition()) + ", " + (Integer)db.getValueAt(i,5) + ", " + (Integer)db.getValueAt(i,3) + ", " + (Integer)db.getValueAt(i,4) + ")  \n"  ;
                     //tapi apa iya ada yg bawa barang ke kasir, padahal stoknya ga ada:) ... anyway, barang.stok need to NOT unsigned >> dari Fpenjualan, sebaiknya si cek dulu apa stok cukup ... klo dari form interface, kurang perfect deh:)
                     //sql_stock += " UPDATE barang SET stok = stok - IF(stok<0,0," +banyak+ ") WHERE id = " + barang_id + " ;\n" ;
                     banyak_cases += " WHEN " + barang_id + " THEN " + banyak ;
@@ -855,8 +991,85 @@ android.util.Log.e( "simpan berhasil: ", " Tno_faktur.getText()=" + Tno_faktur.g
         set_enable_tombol2(false);
     }
 
-    void refresh_agn() {
+    void tambah_agn( final String barcode_init ) {
+        //kan emg dimungkinakan mendahului table creation >> if( table==null ) return;
+        final Ftambah_pelanggan fc = Ftambah_pelanggan.newInstance(retail.app_name + "- Tambah Customer", barcode_init, this );    //Fedit_barang fc = new Fedit_barang( Fpenjualan.this, barcode );
+android.util.Log.e("ftransaksi:", "tambah_agn 2" );
+        fc.show(retail.fm, "Ftambah_pelanggan");
+android.util.Log.e("ftransaksi:", "tambah_agn 3" );
+        //let tambah_pelanggan.simpan do this or just merely modify Ccode_agn and Cname_agn there >> refresh_agn(barcode_init);    //Brefresh.doClick();    //Fpenjualan.this.setVisible(true);
+
+        //fc=null;
     }
+
+    void refresh_agn() {
+        refresh_agn("");
+    }
+    void refresh_agn(final String barcode_init) {
+        //fill Ccode_agent dan Cname_agent with http://api.muhajirin.net/v1/customer/index
+        //kan emg dimungkinakan mendahului table creation >> if( table==null ) return;
+        final String table="customers";
+        new DownloadJSON(){
+            @Override protected void onPostExecute( String result ) {
+                super.onPostExecute(result);
+android.util.Log.e(table+": ", "1");
+                if( result.startsWith( "Error:" ) ) return;
+android.util.Log.e(table+": ", "2");
+
+                try {
+                    org.json.JSONObject data = new org.json.JSONObject(result);
+android.util.Log.e(table+": ", "3");
+
+                    if( !data.has( table ) ) {
+                        retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
+                        return;
+                    }
+android.util.Log.e(table+": ", "4");
+                    agent_id = 0;    //supaya itemlistener tidak listen setSelectedIndex yg dilakukan program di bawah ini.
+                    int temp_selectedItem = Cname_agent.getListSelection();
+                    if( temp_selectedItem<0 ) temp_selectedItem=0;
+android.util.Log.e(table+": ", "5");
+                    ArrayAdapter Cname_agent_adapter = (ArrayAdapter) Cname_agent.getAdapter();
+                    Ccode_agent.items.clear();
+android.util.Log.e(table+": ", "6");
+    Cname_agent_adapter.clear();
+android.util.Log.e(table+": ", "7");
+                    int init_idx = -1;
+                    Cname_agent.items.add( new jcdb_item( 0, "" ) );    //Cname_agent_adapter.add( "" );
+android.util.Log.e(table+": ", "8");
+                    Ccode_agent.items.add( new jcdb_item( 0, "" ) );    //sebaiknya di table customer ada minimal 1 customers yaitu: umum    //( -1, "" )    //as long as I remember, I never use Ccode_agent.get_id() and Cname_agent.get_id(), then I can use it to save originate position while filtering:p
+android.util.Log.e(table+": ", "9");
+                    org.json.JSONArray jArray = new org.json.JSONArray( data.getString(table) );
+android.util.Log.e(table+": ", "10");
+                    for( int i=0; i<jArray.length(); i++ ) {
+                        org.json.JSONObject jtable = jArray.getJSONObject(i);
+                        Cname_agent.items.add( new jcdb_item( jtable.getInt("id"), jtable.getString("username") ) );    //Cname_agent_adapter.add( jtable.getString( "username" ) );
+                        String code = jtable.getString( "id" );    //harusnya barcode
+                        if( init_idx<0 && code.equals(barcode_init) ) init_idx = i+1;
+                        Ccode_agent.items.add( new jcdb_item( jtable.getInt("id"), code ) );    //i+1
+                    }
+
+                    Cname_agent_adapter.notifyDataSetChanged();    ((ArrayAdapter)Ccode_agent.getAdapter()).notifyDataSetChanged();
+android.util.Log.e("ongetagent:", " 42 name_agent.getCount()" + Cname_agent_adapter.getCount() + " name_agent.items.getCount()" + Cname_agent_adapter.getCount()  + " name_agent.getAdapter().getCount()" + Cname_agent_adapter.getCount() );
+                    if( init_idx>=0 ) Cname_agent.setSelection(init_idx);    else Cname_agent.setSelection(temp_selectedItem);
+                    agent_id = -13;
+android.util.Log.e("ongetagent:", "   after setselection "   + "    Ccode_agent.getCount()" + Ccode_agent.getCount()  );
+                    } catch( Exception e ) {    //org.json.JSONException 
+                        db.err_msg += "\nMaaf, Data \"" +table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
+                        retail.show_error( db.err_msg, "Pembacaan Data Barang" );
+                        android.util.Log.e("get " +table+ " error: ", "e.toString()="+ e.toString() );
+                    }
+                }
+            }.execute(
+                       db.cfg.get( "url_customer_index" )    //url to call
+                     , db.cfg.get( "client_token" )    //auth header to send
+                     , "access_token=" + retail.db.cfg.get( "access_token" )    //post params
+                     );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
+
+
+
+    }
+
 
 /*
     void refresh_brg() {
