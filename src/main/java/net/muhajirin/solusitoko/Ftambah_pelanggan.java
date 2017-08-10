@@ -99,8 +99,8 @@ android.util.Log.e("after_save_succeed: ", " 1");
         //Ftransaksi.form.refresh_agn();
         //merely additem to Ccode_agn and Cname_agn    //refresh_agn(barcode_init);
         ((android.widget.ArrayAdapter)Ftransaksi.form.Cname_agent.getAdapter()).add( Tname.getText().toString() );
-        String code = jtable.getString( "id" );    //harusnya barcode
-        Ftransaksi.form.Ccode_agent.items.add( new jcdb_item( jtable.getString( "id" ), code ) );    //i+1
+//        String code = jtable.getString( "id" );    //harusnya barcode
+//        Ftransaksi.form.Ccode_agent.items.add( new jcdb_item( jtable.getString( "id" ), code ) );    //i+1
 
         ((android.widget.ArrayAdapter)Ftransaksi.form.Cname_agent.getAdapter()).notifyDataSetChanged();    ((android.widget.ArrayAdapter)Ftransaksi.form.Ccode_agent.getAdapter()).notifyDataSetChanged();
 //android.util.Log.e("ongetagent:", " 42 name_agent.getCount()" + Cname_agent.getAdapter().getCount() + " name_agent.items.getCount()" + Cname_agent.getAdapter().getCount()  + " name_agent.getAdapter().getCount()" + Cname_agent.getAdapter().getCount() );
