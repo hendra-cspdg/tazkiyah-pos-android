@@ -261,8 +261,8 @@ android.util.Log.e("tambah: ", " build_sql = " + sql );
         }
 
         String gambar_filename = "";
-        String[] params_ = { Tname.getText().toString(), code, Tberat.getText().toString(), Tstok.getText().toString(), Tomset.getText().toString(), Tsize.getText().toString(), Tdeskripsi.getText().toString(), Tharga_beli.getText().toString(), Tdiskon_beli.getText().toString(), Tharga_jual.getText().toString(), Tdiskon_jual.getText().toString(), gambar_filename, (sup_akses?String.valueOf(((jcdb_item)Cagent.getSelectedItem()).get_id()):"0"), Tqty1.getText().toString(), Tdisc_amount1.getText().toString()  , Tqty2.getText().toString(), Tdisc_amount2.getText().toString()  , Tqty3.getText().toString(), Tdisc_amount3.getText().toString()  , Tqty4.getText().toString(), Tdisc_amount4.getText().toString() };
-        this.params=params_;
+        //String[] params_ = { Tname.getText().toString(), code, Tberat.getText().toString(), Tstok.getText().toString(), Tomset.getText().toString(), Tsize.getText().toString(), Tdeskripsi.getText().toString(), Tharga_beli.getText().toString(), Tdiskon_beli.getText().toString(), Tharga_jual.getText().toString(), Tdiskon_jual.getText().toString(), gambar_filename, (sup_akses?String.valueOf(((jcdb_item)Cagent.getSelectedItem()).get_id()):"0"), Tqty1.getText().toString(), Tdisc_amount1.getText().toString()  , Tqty2.getText().toString(), Tdisc_amount2.getText().toString()  , Tqty3.getText().toString(), Tdisc_amount3.getText().toString()  , Tqty4.getText().toString(), Tdisc_amount4.getText().toString() };
+        //this.params=params_;
         return true;
     }
     @Override void after_save_succeed() {

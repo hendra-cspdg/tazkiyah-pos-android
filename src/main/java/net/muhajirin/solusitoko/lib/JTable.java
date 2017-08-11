@@ -226,12 +226,10 @@ android.util.Log.e("onConstructor:", "1" );
 android.util.Log.e("getCellEditorValue:", "1");
 //pindah ke remove_editor >> ((JCdb)editor).clear_filter();
 android.util.Log.e("getCellEditorValue:", "count=" + ((JCdb)editor).getAdapter().getCount()  );    //getSelectedItemPosition() di sini dlm keadaan masih terfilter()
-ret = String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString());    //getSelectedItem()
-android.util.Log.e("getCellEditorValue:", "return=" + String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString())  );
-
+            ret = ((JCdb)editor).getText().toString().trim();    //String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString());    //getSelectedItem()
+            if( ((JCdb)editor).my_index_of(ret) < 0 ) ret="";
+//android.util.Log.e("getCellEditorValue:", "return=" + String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString())  );
                 return ret;
-
-
             } else if( editor instanceof EditText ) {
                 ret = ((EditText)editor).getText().toString();
                 if( db.getColumnName( editor.getId() ).toLowerCase().contains("harga") ) ret = retail.add_ribuan(ret);
@@ -256,9 +254,13 @@ android.util.Log.e("onremove:", "5"  );
                 //berat >> android.util.Log.e("removing :", "async=" + async + "   editor!!! db.setValueAt( " + getCellEditorValue(editor) + " ,  " + Integer.valueOf(editor.getTag().toString()) + " ,  " + editor.getId() );
 android.util.Log.e("onremove:", "6"  );
                 if( editor instanceof JCdb ) ((JCdb)editor).clear_filter();
+android.util.Log.e("onremove:", "7"  );
                 if( post_update ) db.setValueAt( async, getCellEditorValue(editor), Integer.valueOf(editor.getTag().toString()), editor.getId() );
+android.util.Log.e("onremove:", "8"  );
                 col_switcher_this.showPrevious();
+android.util.Log.e("onremove:", "9"  );
                 col_switcher_this.removeViewAt(1);
+android.util.Log.e("onremove:", "10"  );
             }
         }
         void remove_editor( View v ) {

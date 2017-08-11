@@ -127,7 +127,9 @@ public class Flogin extends DialogFragment {
                     if( token.length()>0 ) cfg.put( client_token_is_exist ? "access_token" : "client_token", token );
 
                     if( client_token_is_exist ) {
-                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan'" ;    //may got from the db
+                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
+                        retail.setting.put( "Maximum Autocomplete Ribuan", "300" );
+
                         //retail.play_wav("sound/plunger.wav");  //yippee.wav   Door Unlock-SoundBible.com-1558114225.wav //
                         setShowsDialog( false );    //setVisible(false);    //supaya ga saru:)
                         retail.after_login(true);
@@ -148,7 +150,7 @@ public class Flogin extends DialogFragment {
                             java.io.FileWriter writer = new java.io.FileWriter( cfg.get("file_konfigurasi") ); // burn file_content to file konfigurasi.txt
                             writer.write( file_content.toString() );    writer.flush();    writer.close();
 
-//                            retail.show_error( "\n" + "Client Authentication Succeed" + "\n\n\n\n", "Succeed" );
+                            retail.show_error( "\n" + "Client Authentication Succeed" + "\n\n\n\n", "Succeed" );
 
                             //just change the UI :D for user auth
                             client_token_is_exist = true;

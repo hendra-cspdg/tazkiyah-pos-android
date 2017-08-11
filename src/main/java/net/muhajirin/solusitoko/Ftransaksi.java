@@ -38,6 +38,8 @@ import java.sql.Types;
 import java.util.ArrayList;
 import android.widget.AutoCompleteTextView;
 import android.widget.ArrayAdapter;
+import android.text.InputType;
+import java.net.URLEncoder;
 
 public class Ftransaksi extends Fedit {
     JCdb Ccode_brg, Cname_brg;    ArrayList<Integer> harga_brg;    ArrayList<String> diskon_brg, gambar_brg;
@@ -667,176 +669,102 @@ android.util.Log.e( "penjual: ", "18"  /*+ ( form.getActivity().getCurrentFocus(
         /*Bsimpan.setEnabled(false);*/    final String no_faktur_text = Tno_faktur.getText().toString();
 android.util.Log.e( "simpan 1st: ", " Tno_faktur.getText()=" + no_faktur_text);
 
-        new android.os.AsyncTask<Void, Void, String> () {
-            @Override protected String doInBackground( Void... v ) {
-android.util.Log.e( "simpan: ", "1");
 
-android.util.Log.e( "simpan: ", "5");
+        final String api_table = "order";
+        String url   = "url_" +api_table+ "_create";
 
-                //if( open_drawer_sebelum_simpan ) retail.draw_open();
+/*
+"outlet_id","value": "1",
+"customer_id","value": "1",
+"products","value": "1,2,3,4",
+"product_attributes","value": "0,0,0,0"
+"product_quantities","value": "1,2,2,5\n"
+"product_discounts" ,"value": "1,2,1,1",
+"product_notes","value": "[\"Note 1\",\"Note 2\", \"Note 3\", \"Note 4\"]",
+"tax","value": "10000",
+"note","value": "Order Note",
+"discount","value": "100000",
+"status","value": "ordered",
 
-                String no_faktur_new   = retail.escape( no_faktur_text.trim() );    //Tno_faktur.getText().toString()
-                String agent_id        = "'" + "1" /*((jcdb_item)Ccode_agent.getSelectedItem()).get_id()*/ + "'";
-                jam_faktur             = new SimpleDateFormat("HH:mm:ss").format(new Date());    //nanti akan dipakai saat print
-                String tgl_faktur      = "'" + new SimpleDateFormat("yyyy-MM-dd").format( new Date() /*Dtgl_faktur.getDate()*/ ) + " " + jam_faktur + "'";    //String tgl_faktur      = "CONCAT( '" + new SimpleDateFormat("yyyy-MM-dd").format( Dtgl_faktur.getDate() ) + " ',  CURRENT_TIME )";
-                String diskon          = (-1 * Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))) + "";    //klo - gmn:p >> "-" + Tdiskon.getDocument().getProperty("plain_num").toString().replace("-","");    //Tdiskon_edit
-                String sql_insert_faktur = "";    //manfaatin autoincrement aja, toh records table ini ga pernah didelete kan?
-                //String sql = " SET @succeed=0, @id = null, @no_faktur =  " + (no_faktur.length()==0?"''":no_faktur) + ", @no_faktur_new =  " +no_faktur_new+ "  ;\n" ;   //SET @id sebenarnya ga perlu amat krn gimanapun jg, @id kan kereset di bawah ini.   //ga iso >> " DECLARE id INT DEFAULT NULL ;\n";    //jika @id tetap is null, query berikutnya gak jalan (Column 'faktur_id' cannot be null)
-                String[] params = {no_faktur_new};
-                if( no_faktur.length()==0 ) {    //utk dapat last_inserted_id, sementara ini kudu no params :p
-                    sql_insert_faktur = " INSERT INTO " +modul_table+ "_faktur (  id  , no_faktur ,    " +agent+ "_id    ,    tgl_faktur    ,    total          ,       ppn                                           ,    diskon    ,    sub_total    ,           user_id    )  \n"
-                                           + "                     VALUES      ( null ,     ?     ,    " +agent_id+ "    , " +tgl_faktur+ " , " +total_round+ " , " +"0" /*(CHppn.isSelected()?prosentase_ppn:0)*/+ " , " +diskon+ " , " +sub_total+ " , " +retail.user_id+ " )";    // ;\n  ga iso:) .. " SET id   = (SELECT IFNULL( MAX(id), 0) + 1 FROM jual_faktur)  ;\n"  ;       //+  " SET id   = LAST_INSERT_ID(id+1)"
-                                           //+ " SET @succeed=(SELECT IF(MAX(id)=@id,1,0) FROM jual_faktur) ;\n"   //klo mo aman ya pake ini aja (walopun sepertinya lebih lambat) >> " SELECT @succeed:=1 FROM jual_faktur WHERE id=@id ;\n"    //bikin lambat? ... hmm    //ini ga iso krn autoincrementnya harusnya diisi null:p >> " SET @succeed=IF(LAST_INSERT_ID()=@id,1,0) ;\n"  ;  //berat g ya :p
-                                           //+ " SET @id=IF(@succeed=1,@id,null) ;\n" ;   //klo mo aman ya pake ini aja (walopun sepertinya lebih lambat) >> " SELECT @succeed:=1 FROM jual_faktur WHERE id=@id ;\n"    //bikin lambat? ... hmm    //ini ga iso krn autoincrementnya harusnya diisi null:p >> " SET @succeed=IF(LAST_INSERT_ID()=@id,1,0) ;\n"  ;  //berat g ya :p
-                                           //cannot issue select on executed batch :p >> + " SELECT @succeed:=IF(MAX(id)=@id,1,0), @id:=IF(@succeed=1,@id,null) FROM jual_faktur ;\n" ;   //klo mo aman ya pake ini aja (walopun sepertinya lebih lambat) >> " SELECT @succeed:=1 FROM jual_faktur WHERE id=@id ;\n"    //bikin lambat? ... hmm    //ini ga iso krn autoincrementnya harusnya diisi null:p >> " SET @succeed=IF(LAST_INSERT_ID()=@id,1,0) ;\n"  ;  //berat g ya :p
-                                           //+ " SELECT @id:=IF(@succeed=1,@id,null) ;\n"  ;    //" SET @id=IF(@succeed=1,@id,null) ;\n"
-                } else {    //berarti sudah pernah disimpan, hapus dulu data penjualan yg sudah ada utk faktur ini, lalu update jual_faktur.
-                    //the best shoot will be the trigger which call stored procedure ... but trigger only enable on > 5.0 version anyway:p and I need to download it first.
-                    //I have 6.0 (not supported) version but it doesn't match jdbc driver:p ... I have tried to copy proc and help* table from 6.0 to 5.0 also ... but stored procedure doesn't work either
-                    sql_insert_faktur =
-                    //untested (kadang2 @id tak pasti!!!) >>   sql_hapus_item +
-                           " UPDATE " +modul_table+ "_faktur"
-                        +  "     SET   no_faktur      = '" +no_faktur_new+ "'"
-                        +  "         , " +agent+ "_id = " + agent_id
-                        +  "         , tgl_faktur     = " + tgl_faktur
-                        +  "         , total          = " + total_round
-                        +  "         , ppn          = " + "0"  //(CHppn.isSelected()?prosentase_ppn:0)
-                        +  "         , diskon       = " + diskon
-                        +  "         , sub_total    = " + sub_total
-                        +  "         , user_id      = " + retail.user_id
-                        +  "     WHERE id = (@id:=" +last_inserted_id+ ") ;\n"    //LAST_INSERT_ID();    //@id + (@succeed:=1) -1 
-                        +  sql_hapus_item;
-                    params = null;    //utk batch file, no params:p
-                }
+"response": []
+*/
 
-android.util.Log.e( "simpan: ", "6");
-                db.exec(sql_insert_faktur, params, true);
-                try { while( db.in_progress>0 ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
+android.util.Log.e( "simpan: ", "2" );
+        String params = "";
+        try {
 
-android.util.Log.e( "simpan: ", "7 db.err_msg=" + db.err_msg + "   sql=" + sql_insert_faktur+ "   no_faktur=" + no_faktur_new);
-
-                //saat simpan no_faktur, anyway tetap hrs tangani duplicate dengan autoinsert dengan cara nambahin auto number krn dia boleh diedit user!
-                //The value of LAST_INSERT_ID() is not changed if you update the AUTO_INCREMENT column of a row with a non-magic value (that is, a value that is not NULL and not 0). >> sql += " SET @id = IF( @id=LAST_INSERT_ID(id+1)  ;\n" ;
-                if( db.err_msg.indexOf("sudah ada" ) >= 0)    //loop ini hanya ngulang klo duplicate jual_faktur.id
-                    for( int i=0; i<1000; i++ ) {
-                        String no_faktur_loop = no_faktur_new + "#" + String.valueOf(i+1) ;    //no_faktur_new.substring( 0, no_faktur_new.length()-1 ) + "#" + String.valueOf(i+1) + "'";
-                        //sql = " SET @no_faktur_new = " +no_faktur_loop+ "  ;\n" + sql_insert_faktur ;
-                        params = new String[]{no_faktur_loop};
-                        db.exec(sql_insert_faktur, params, true);
-                        try { while( db.in_progress>0 ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
-                        if( db.err_msg.indexOf("sudah ada") < 0 ) { //berhasil insert tanpa duplikasi
-                            no_faktur_new     = no_faktur_loop  ;   //to use next
-                            //???ret="sudah ada>"+no_faktur_new;
-                            //Tno_faktur.setText(no_faktur_new);
-                            //Bsimpan.setEnabled(false);    //gara2 di atas:)
-                            break;
-                        }
-                    }   //end of for loop
-
-
-android.util.Log.e( "simpan: ", "8");
-
-                String sql="";
-                if( db.err_msg.equals("") )   // {    //the best way should be db compound or procedure statement
-                    if( no_faktur.length()==0 ) last_inserted_id = db.last_inserted_id;    //mencoba mengambil jalan paling aman aja :p
-
-android.util.Log.e( "simpan: ", "9");
-
-                //sql tetap dibuild agar bisa masuk ke error.log walaupun tidak dieksekusi
-                sql += " SET @id = " +last_inserted_id+ "  ;\n" ;
-                if( modul_table.equals("jual") && poin_aktif && !agent_id.equals("'1'") )  sql += " UPDATE pelanggan \n "   //update pelanggan.poin
-                                                                                               +  "     SET poin = poin + " +poin+ "   \n"
-                                                                                               +  "     WHERE id = " +agent_id+ " ;\n"  ;  // AND @succeed=1    //@id IS NOT NULL    //ini beresiko tapi daripada lelet, lebih baik pelanggan 'umum' ini dideteksi:p
-                //gmn klo hanya ada satu record dan itu masih default (tak perlu diinsert)?  << Bsimpan dah ga enabled:)
-                int r=0;    String banyak_cases="";    String barang_ids="";    //sql_stock="";
-                for( int i=0; i<db.getRowCount(); i++ ) {
-                    String barang_id = db.getValueAt(i,0).toString();
-                    if( barang_id.length()==0 ) continue;  //user batal nginsert row
-                    barang_id = db.to_db( 0, barang_id );
-                    String banyak = db.to_db( 3, db.getValueAt(i,3) );
-                    if(r==0) sql +=  " INSERT INTO " +modul_table+ " ( faktur_id,      no      ,     barang_id    ,                           total          ,     banyak       ,                      diskon            ) VALUES \n" ;    //jika @id is null query berikut gak jalan (Column 'faktur_id' cannot be null) >> sql =  " SET @id='fail'    ;\n"  //ah, ternyata dia tetap insert dengan @id=0 ... so biarin ajaahhhh, paling2 datanya banjir :) //biar ga lanjut klo query sebelum ini fail.
-                    else     sql +=  " , " ;
-                    sql +=           "                  (       @id, " + (i+1) + ", " + barang_id + ", " + db.to_db( 5, db.getValueAt(i,5) ) + ", " + banyak + ", " + db.to_db( 4, db.getValueAt(i,4) ) + " )  \n"  ;         //sql +=  "(@id, " + (1+Ccode_brg.getSelectedItemPosition()) + ", " + (Integer)db.getValueAt(i,5) + ", " + (Integer)db.getValueAt(i,3) + ", " + (Integer)db.getValueAt(i,4) + ")  \n"  ;
-                    //tapi apa iya ada yg bawa barang ke kasir, padahal stoknya ga ada:) ... anyway, barang.stok need to NOT unsigned >> dari Fpenjualan, sebaiknya si cek dulu apa stok cukup ... klo dari form interface, kurang perfect deh:)
-                    //sql_stock += " UPDATE barang SET stok = stok - IF(stok<0,0," +banyak+ ") WHERE id = " + barang_id + " ;\n" ;
-                    banyak_cases += " WHEN " + barang_id + " THEN " + banyak ;
-                    if( r>0 ) barang_ids += ", " ;
-                    barang_ids += barang_id;
-                    r++;
-                }
-                if( r>0 )  sql += " ;\n UPDATE barang SET stok = stok + " +stok_sign+ " IF( stok<0, 0, CASE id " +banyak_cases+ " ELSE 0 END ) WHERE id IN (" + barang_ids + ") ;\n" ;    //sql_stock;
-
-android.util.Log.e( "simpan: ", "10");
-                if( db.err_msg.equals("") ) {
-android.util.Log.e( "simpan: ", "11");
-                    db.exec(sql, null, true);
-                    try { while( db.in_progress>0 ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
-android.util.Log.e( "simpan: ", "12 db.err_msg=" + db.err_msg + "   no_faktur=" + no_faktur_new);
-
-                    if( db.err_msg.equals("") ) {
-                        no_faktur=no_faktur_new;
-                        poin_last_saved=poin;    //utk dipakai di poin_actual() jika simpan dilakukan setelah print!    //bikin ribet sebenarnya ni, apalagi klo tetap aja simpan dulu baru draw_open kan? Lambatnya ngeprint terjadi karena print menunggu draw_open selesai dulu!
-                        //Bhapus_faktur.setEnabled(true);
-                        //Bkosongkan.doClick();
-
-                        //if( modul_table.equals("jual") && Bsimpan.getTitle().toString().indexOf("tunggu")<0 &&  retail.convert_null(retail.setting.get("Buka Faktur Baru Setelah Simpan")).toLowerCase().equals("ya") )
-                            //baru_action = true;    //Bbaru.doClick();    //jika textnya tunggu, berarti printing akan jalan setelah ini dan abis itu baru si Bprint yang akan jalanin Bbaru.doClick();
-
-                        //else
-                            //Bbaru.requestFocus();
-                        //supaya form bisa dibuka banyak, letakkan ini di method print. Lambat? later to check:p
-                        //tapi tetap ga bisa juga. Mungkin krn lambat?! ... retail.draw_init();
-                    //    if( !open_drawer_sebelum_simpan ) retail.draw_open();    //if( Bsimpan.getText().indexOf("tunggu")<0 ) retail.draw_open();    //otherwise, Bprint yg akan mbuka drawer!!!    //kayaknya ini deh yg bikin lambat banget klo ia diproses sebelum printing ... tp klo kutaruh sebelum simpan, jadi ga baik krn data ga kesimpan tapi laci kok da kebuka?!
-                        //tapi tetap ga bisa juga. Mungkin krn lambat?! ... retail.draw_close();
-                    } else {
-                        //justru sekarang kudu insert terus krn semua query dah ga jalan klo yg pertama gagal (krn duplikat nomor faktur) >> if( no_faktur.isEmpty() ) no_faktur=no_faktur_new;    //hanya biar ga insert melulu .... banjir ntar
-                        String msg=db.err_msg;
-                        if( msg.indexOf("'faktur_id' cannot be null")>=0 ) msg = "\nMaaf, data gagal diupdate!\nPesan kesalahan: " + "Penyimpanan faktur gagal (kemungkinan karena duplikat Nomor Faktur)" + ".\nCoba perbaiki Nomor Faktur!\n\n\n\n\n";    //berarti gagal pas insert jual gara2 insert jual_faktur juga gagal:)
-                        if( no_faktur.length()>0 || !no_faktur_new.equals(no_faktur_log) ) {
-                            no_faktur_log = no_faktur_new;
-                            retail.log_error( "Modul: " + modul + ". Penyimpanan Data " + modul + " Gagal setelah penyimpan nomor faktur berhasil! Pesan: " + msg.replace("\n", " ") + " HATI-HATI JIKA INGIN MENGULANG QUERY BERIKUT INI KARENA MUNGKIN SAJA SEBAGIAN SUDAH BERHASIL TEREKSEKUSI: \r\n" + sql );    //log error dan tambahkan  + "\r\n" supaya sql setelahnya bisa dieksekusi later :p
-                        }
-                        db.exec( " REPAIR TABLE " +modul_table+ "_faktur, " +modul_table+ ", barang", null, true);    //just try to repair ... table jual juga sering corrupt saat server mati mendadak.
-                        try { while( db.in_progress>0 ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
-                        db.err_msg = msg;
-                        return "Penyimpanan Data " + modul + " Gagal";
-                        //retail.show_error( msg, "Penyimpanan Data " + modul + " Gagal" );
-                        //Bsimpan.setEnabled(true);
-                    }
-
-                } else {
-                    if( no_faktur.length()>0 || !no_faktur_new.equals(no_faktur_log) ) {
-                        no_faktur_log = no_faktur_new;
-                        //sql_insert_faktur = db.cmdp.toString();    //EXCEPTION: com.mysql.jdbc.exceptions.jdbc4.MySQLNonTransientConnectionException: No operations allowed after statement closed.
-                        //sql_insert_faktur = sql_insert_faktur.substring( sql_insert_faktur.indexOf(":") + 1 );
-                        for( String param : params ) sql_insert_faktur = sql_insert_faktur.replaceFirst( "\\?", "'"+retail.escape(param)+"'" );   //seharusnya escape juga "?" yang ada di dalam quote atau didahului "/":p
-                        retail.log_error( "Modul: " + modul + ". Penyimpanan nomor faktur gagal! Pesan: " + db.err_msg.replace("\n", " ")  + "\r\n" + sql_insert_faktur + " ;\n" + sql );    //log error dan tambahkan  + "\r\n" supaya sql setelahnya bisa dieksekusi later :p
-                    }
-                    db.exec( " REPAIR TABLE " +modul_table+ "_faktur, " +modul_table, null, true);    //just try to repair ... table jual_faktur sering corrupt saat server mati mendadak.
-                    try { while( db.in_progress>0 ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
-                    db.err_msg = "Penyimpanan nomor faktur gagal!\nMohon ulangi!\n" + db.err_msg;
-                    return "Penyimpanan Data " + modul + " Gagal";
-                    //retail.show_error( "Penyimpanan nomor faktur gagal!\nMohon ulangi!\n" + db.err_msg, "Penyimpanan Data " + modul + " Gagal" );
-                    //Bsimpan.setEnabled(true);
-                }
-                //table.requestFocus();
-                return "";
+        int r=0;    String products="", product_attributes="", product_quantities="", product_discounts="", product_notes="[";
+        for( int i=0; i<db.getRowCount(); i++ ) {
+android.util.Log.e( "simpan: ", "3 i=" + i );
+            String barang_id = db.getValueAt(i,0).toString();
+android.util.Log.e( "simpan: ", "4 i=" + i );
+            if( barang_id.length()==0 ) continue;  //user batal nginsert row
+android.util.Log.e( "simpan: ", "5 i=" + i );
+            barang_id = db.to_db( 0, barang_id );
+android.util.Log.e( "simpan: ", "6 i=" + i );
+            if( r>0 ) {
+                products += ","; product_attributes += ","; product_quantities += ","; product_discounts += ","; product_notes += ",";
             }
+            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += "\"Note "+r+"\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
+android.util.Log.e( "simpan: ", "7 i=" + i );
+            r++;
+        }
+        product_notes += "]";
 
-            @Override protected void onPostExecute( String ret ) {
-                if( ret.length()==0 ) {
-                    Tno_faktur.setText(no_faktur);    //Tno_faktur.setText( ret.startsWith("sudah ada>") ? ret.substring( "sudah ada>".length() ) : ret );
+//        String params = "";
+//        try {
+android.util.Log.e( "simpan: ", "8" );
+               params = "&outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
+                      + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + product_notes    //URLEncoder.encode( product_notes, "UTF-8" )
+                      + "&tax=" +"0"
+                      + "&note=" +URLEncoder.encode( "OrderNote", "UTF-8" )
+                      + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
+                      + "&status=" +"ordered"
+                      ;
+android.util.Log.e( "simpan: ", "9" );
+        } catch ( java.io.UnsupportedEncodingException ex) {
+            android.util.Log.e("oncharset: ", "error: " + ex.toString() );
+        }
+
+
+
+            new DownloadJSON(){
+                @Override protected void onPostExecute( String result ) {
+                    super.onPostExecute(result);
+android.util.Log.e(api_table+": ", "1");
+                    if( result.startsWith( "Error:" ) ) {
+                        Bsimpan.setEnabled(true);
+                        return;
+                    }
+android.util.Log.e(api_table+": ", "2");
+
+                    try {
+                        org.json.JSONObject data = new org.json.JSONObject(result);
+android.util.Log.e(api_table+": ", "3");
+                        if( !data.has( api_table ) ) {
+                            retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
+                            Bsimpan.setEnabled(true);
+                            return;
+                        }
+android.util.Log.e(api_table+": ", "4");
+                        org.json.JSONObject json_table = new org.json.JSONObject(data.getString(api_table));
+
+                        //after_save_succeed(json_table.getInt("id"));
+                        //no_faktur=no_faktur_new;    //Tno_faktur.setText(no_faktur);
 android.util.Log.e( "simpan berhasil: ", " Tno_faktur.getText()=" + Tno_faktur.getText().toString() );
-                    Bsimpan.setEnabled(false);    //gara2 di atas:)
-                } else {
-                    retail.show_error( "\n" +db.err_msg+ "\n\n\n\n\n", ret );
-                    Bsimpan.setEnabled(true);
-                    return;
+                        Bsimpan.setEnabled(false);    //gara2 di atas:)
+                        if( baru_action ) baru_action();
+                    } catch( org.json.JSONException e ) {
+                        db.err_msg += "\nMaaf, Data \"" +api_table+ "\" gagal disimpan!\n\n\n(" + e.toString() + ")";
+                        retail.show_error( db.err_msg, "Pembacaan Data \"" +api_table+ "\"" );
+                        android.util.Log.e("get " +api_table+ " error: ", "e.toString()="+ e.toString() );
+                    }
                 }
-                if( baru_action ) baru_action();
-            }
-        }.execute();
-
+            }.execute(
+                       retail.db.cfg.get( url )    //url to call
+                     , retail.db.cfg.get( "client_token" )    //auth header to send
+                     , "access_token=" + retail.db.cfg.get( "access_token" ) + params   //post params
+                     );
     }
 
 
@@ -1056,13 +984,13 @@ android.util.Log.e("ongetagent:", " 42 name_agent.getCount()" + Cname_agent_adap
 android.util.Log.e("ongetagent:", "   after setselection "   + "    Ccode_agent.getCount()" + Ccode_agent.getCount()  );
                     } catch( Exception e ) {    //org.json.JSONException 
                         db.err_msg += "\nMaaf, Data \"" +table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
-                        retail.show_error( db.err_msg, "Pembacaan Data Barang" );
+                        retail.show_error( db.err_msg, "Pembacaan Data \"" +table+ "\"" );
                         android.util.Log.e("get " +table+ " error: ", "e.toString()="+ e.toString() );
                     }
                 }
             }.execute(
-                       db.cfg.get( "url_customer_index" )    //url to call
-                     , db.cfg.get( "client_token" )    //auth header to send
+                       retail.db.cfg.get( "url_customer_index" )    //url to call
+                     , retail.db.cfg.get( "client_token" )    //auth header to send
                      , "access_token=" + retail.db.cfg.get( "access_token" )    //post params
                      );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
 

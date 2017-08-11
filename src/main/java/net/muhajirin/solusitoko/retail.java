@@ -78,9 +78,13 @@ public class retail extends AppCompatActivity {
     static View.OnFocusChangeListener add_ribuan_when_lost_focus = new View.OnFocusChangeListener() { @Override public void onFocusChange( View v, boolean hasFocus ) {
         Log.e("add_ribuan:", "hasFocus:"+ hasFocus );    //ingat: lost focus terjadi setelah onclick di cell lain!!!
         if( hasFocus ) return;
+        Log.e("add_ribuan:", "2" );
         String s_old = ((TextView)v).getText().toString().replace(digit_separator,"").trim();
+        Log.e("add_ribuan:", "3 s_old:"+ s_old );
         String s_new = add_ribuan(s_old);
+        Log.e("add_ribuan:", "3 s_new:"+ s_new );
         if( s_old.length() != s_new.length() ) ((TextView)v).setText(s_new);
+        Log.e("add_ribuan:", "last");
     }};
 
     static TextView barcode_target;

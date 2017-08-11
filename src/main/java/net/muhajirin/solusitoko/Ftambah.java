@@ -48,12 +48,12 @@ import java.util.*;
 public class Ftambah extends DialogFragment {
     public AppCompatButton Bsimpan, Bkosongkan;
     protected db_connection db = retail.db; //hanya alias aja:p agar ga kepanjangan
-    protected static String modul;    protected String sql;    protected View default_focused_comp;    protected int default_combo_index=0;
+    protected static String modul;    protected String table, url, sql;    protected View default_focused_comp;    protected int default_combo_index=0;
     protected android.widget.AdapterView.OnItemClickListener enable_on_change_combo;    //protected android.widget.AdapterView.OnItemSelectedListener enable_on_change_combo;    //ItemListener;
     protected android.widget.CompoundButton.OnCheckedChangeListener enable_on_change_checkbox;
     protected android.text.TextWatcher enable_on_change;
     protected static LinearLayoutCompat panel;
-    protected String[] params;
+    protected String params;
     ArrayList<EditText> mandatory = new ArrayList<EditText>();
     ArrayList<EditText> comp_number = new ArrayList<EditText>();
     ArrayList<View> comps = new ArrayList<View>();
@@ -144,29 +144,58 @@ android.util.Log.e("Ftambah: ", "3" );
 try{
             if( retail.empty( mandatory.toArray( new EditText[mandatory.size()] ) )) return;
             if( !build_sql() ) return;
-android.util.Log.e("Ftambah: ", "sql=" + sql );
+android.util.Log.e("Ftambah: ", "table=" + table );
             v.requestFocusFromTouch();
             v.setEnabled(false);
 
-            new android.os.AsyncTask<Void, Void, Void> () {
-                @Override protected Void doInBackground( Void... v ) {
-android.util.Log.e("Ftambah: ", " before exec sql=" + sql );
-                    db.exec(sql, params, true, false/*, true*/);
-                    return null;
-                }
-                @Override protected void onPostExecute(Void v) {
-                    //public void run() {
-                        if( db.err_msg.equals("") ) {
-                            after_save_succeed();
-                            Bkosongkan.performClick();    //doClick()
-                        } else{
-                            retail.show_error( db.err_msg, modul + " Gagal" );
-                            Bsimpan.setEnabled(true);
-                        }
-                    //}
-                }
 
-            }.execute();
+
+            new DownloadJSON(){
+                @Override protected void onPostExecute( String result ) {
+                    super.onPostExecute(result);
+android.util.Log.e(table+": ", "1");
+                    if( result.startsWith( "Error:" ) ) {
+                        Bsimpan.setEnabled(true);
+                        return;
+                    }
+android.util.Log.e(table+": ", "2");
+
+                    try {
+                        org.json.JSONObject data = new org.json.JSONObject(result);
+android.util.Log.e(table+": ", "3");
+/*
+{
+"status":200
+,"message":"Customer saved"
+,"customer":{"id":18,"username":"rafik","phone_number":"0893222222","address":"jl. heappy nO. 1 & 2","gender":"male"}
+}
+*/
+
+                        if( !data.has( table ) ) {
+                            retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
+                            Bsimpan.setEnabled(true);
+                            return;
+                        }
+android.util.Log.e(table+": ", "4");
+                        org.json.JSONObject json_table = new org.json.JSONObject(data.getString(table));
+                        after_save_succeed(json_table.getInt("id"));
+                        Bkosongkan.performClick();
+                    } catch( org.json.JSONException e ) {
+                        db.err_msg += "\nMaaf, Data \"" +table+ "\" gagal disimpan!\n\n\n(" + e.toString() + ")";
+                        retail.show_error( db.err_msg, "Pembacaan Data \"" +table+ "\"" );
+                        android.util.Log.e("get " +table+ " error: ", "e.toString()="+ e.toString() );
+                    }
+                }
+            }.execute(
+                       retail.db.cfg.get( url )    //url to call
+                     , retail.db.cfg.get( "client_token" )    //auth header to send
+                     , "access_token=" + retail.db.cfg.get( "access_token" ) + params   //post params
+                     );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
+
+
+
+
+
 
 } catch (Exception ex) {    retail.show_error( "from regfresss\n. Pesan Kesalahan: " + ex, "refress" ); }
         }});
@@ -374,6 +403,9 @@ or this
         return false;
     }
     void after_save_succeed() {
+        after_save_succeed(-1);
+    }
+    void after_save_succeed( int id ) {
     }
     void close() {
         //try { db.rs.close(); } catch (Exception e) {}

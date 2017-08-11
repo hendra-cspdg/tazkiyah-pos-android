@@ -1,25 +1,5 @@
 No resolved dependencies found when searching for the jacoco version.
-D:\Project\Java\src\retail-muhajirin\src\main\java\net\muhajirin\solusitoko\Ftambah_pelanggan.java:102: error: cannot find symbol
-        String code = jtable.getString( "id" );    //harusnya barcode
-                      ^
-  symbol:   variable jtable
-  location: class Ftambah_pelanggan
-D:\Project\Java\src\retail-muhajirin\src\main\java\net\muhajirin\solusitoko\Ftambah_pelanggan.java:103: error: cannot find symbol
-        Ftransaksi.form.Ccode_agent.items.add( new jcdb_item( jtable.getString( "id" ), code ) );    //i+1
-                                                              ^
-  symbol:   variable jtable
-  location: class Ftambah_pelanggan
 Note: Some input files use or override a deprecated API.
 Note: Recompile with -Xlint:deprecation for details.
 Note: Some input files use unchecked or unsafe operations.
 Note: Recompile with -Xlint:unchecked for details.
-2 errors
-
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':retail-muhajirin:compileDebugJavaWithJavac'.
-> Compilation failed; see the compiler error output for details.
-
-* Try:
-Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
