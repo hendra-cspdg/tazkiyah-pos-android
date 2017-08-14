@@ -78,13 +78,9 @@ public class retail extends AppCompatActivity {
     static View.OnFocusChangeListener add_ribuan_when_lost_focus = new View.OnFocusChangeListener() { @Override public void onFocusChange( View v, boolean hasFocus ) {
         Log.e("add_ribuan:", "hasFocus:"+ hasFocus );    //ingat: lost focus terjadi setelah onclick di cell lain!!!
         if( hasFocus ) return;
-        Log.e("add_ribuan:", "2" );
         String s_old = ((TextView)v).getText().toString().replace(digit_separator,"").trim();
-        Log.e("add_ribuan:", "3 s_old:"+ s_old );
         String s_new = add_ribuan(s_old);
-        Log.e("add_ribuan:", "3 s_new:"+ s_new );
         if( s_old.length() != s_new.length() ) ((TextView)v).setText(s_new);
-        Log.e("add_ribuan:", "last");
     }};
 
     static TextView barcode_target;
@@ -454,6 +450,11 @@ public class retail extends AppCompatActivity {
             menu.add(menuItem);
             jp_submenu.addView(Bmenu,params_Bmenu);
             //Bmenu_default=(JButton)Bmenu;
+
+            final JBmenu final_Bmenu = Bmenu;
+            final_Bmenu.post(new Runnable() { @Override public void run() {    //form.view
+                final_Bmenu.performClick();
+            }});
         }
 
 /*
@@ -489,6 +490,36 @@ public class retail extends AppCompatActivity {
         //if( menu.getItemCount()>0 ) {  menuBar.add(menu);  jp_menu.add(jp_submenu);  }    //p_wrap.add(jp_submenu);
         if( jp_submenu.getChildCount()>0 ) {  menu.add_to(menuBar);    /*menuBar.add(menu);*/  p_wrap.addView(jp_submenu,params_submenu);  }    //if( menu.getItemCount()>0 ) {  menuBar.add(menu);  p_wrap.add(jp_submenu);  }
 
+
+        menu = new JMenu("Laporan");
+        //menu.setMnemonic(KeyEvent.VK_L);
+        //menu.getAccessibleContext().setAccessibleDescription("Laporan ...");
+        //final int width = 500;    final int height = 300;
+        //final JPanel jp_before = jp_submenu;
+        jp_submenu = new JP_submenu("Laporan");//{ public Dimension getPreferredSize() { return new Dimension( jp_before.getWidth(), (int)jp_before.getHeight()*7/4 ); }};
+
+        if( hak_akses.indexOf("'Laporan Penjualan'") >= 0 ) {
+            menuItem = new JMenuItem( "Order List", R.drawable.view_time_schedule_calculus, new MenuItem.OnMenuItemClickListener() {
+            @Override public boolean onMenuItemClick(MenuItem item) {
+                Flaporan.newInstance(app_name + "- Order List").show(fm, "Flaporan");  return true;    //Flaporan fc = new Flaporan(f, "Penjualan") {};    //jika ga pake {} maka dia bukan superclass ... sehingga ga detect keydispatcherku:)    //fc.setVisible(true);    f.setVisible(true);  fc=null;
+            }}, i++ );    final int id = i-1;
+            //menuItem = new JMenuItem("Laporan Penjualan", R.drawable.view_time_schedule_calculus24));
+            //menuItem.setMnemonic(KeyEvent.VK_J);
+            //menuItem.setAccelerator(KeyStroke.getKeyStroke("F9"));
+            Bmenu = new JBmenu( "Order list", R.drawable.view_time_schedule_calculus, new OnClickListener() { @Override public void onClick(View v) {    menuBar.performIdentifierAction(id, 0);    }});    //f.setVisible(true);  fc=null;  }});
+            //menuItem.addActionListener(new ActionListener() { public void actionPerformed(ActionEvent e) {  Bmenu.doClick();  }});
+            menu.add(menuItem);
+            jp_submenu.addView(Bmenu,params_Bmenu);    //Bmenu_laporan_penjualan = Bmenu;
+
+            /*
+            final JBmenu final_Bmenu = Bmenu;
+            final_Bmenu.post(new Runnable() { @Override public void run() {    //form.view
+                final_Bmenu.performClick();
+            }});
+            */
+        }
+ 
+        if( jp_submenu.getChildCount()>0 ) {  menu.add_to(menuBar);    /*menuBar.add(menu);*/  p_wrap.addView(jp_submenu,params_submenu);  }    //if( menu.getItemCount()>0 ) {  menuBar.add(menu);  p_wrap.add(jp_submenu);  }
 
 
 /*
@@ -901,6 +932,7 @@ public static Boolean add_row_sync(JTable table) {
     static void _sync_brg(final JCdb Csrc, final int position) {
         _sync_brg(Csrc, position, 0);
     }
+    //brg_id adalah index dari Ccode_brg.items unfiltered
     static void _sync_brg(final JCdb Csrc, final int position, final int filter_position) {
 android.util.Log.e("onlistener:", "first Csrc=" + (Csrc==Ccode_brg ? "Ccode" : "Cname" ));
         if( brg_id != -13 ) return;  //supaya tidak listen setSelection yg dilakukan method ini.
@@ -931,18 +963,18 @@ android.util.Log.e("onlistener:", "5 tbl_brg==null" + (tbl_brg==null) );
 
             Cdst.post(new Runnable() { public void run() {    //well, perlu untuk memastikan clear_filter() dah selesai di remove_editor()    //I can't remember why I did this >> new android.os.Handler().post(new Runnable() { public void run() {    //new android.os.AsyncTask<Void, Void, Void> () {   @Override protected Void doInBackground( Void... v ) {
                 //percuma si >> Csrc.dismissDropDown();
-                brg_id = ((jcdb_item)Csrc.getItemAtPosition(position)).get_id();    //position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
+                brg_id = Csrc.items.indexOf( Csrc.getItemAtPosition(position) );    //((jcdb_item)Csrc.getItemAtPosition(position)).get_id();    //position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
 android.util.Log.e("onlistener:", "inside handler  brg_id=" + brg_id );
 android.util.Log.e("onlistener:", "inside handler  db.getValueAt(row, col_dst).toString()=" + db.getValueAt(row, col_dst).toString() );
 android.util.Log.e("onlistener:", "inside handler  Cdst.my_index_of( )=" + Cdst.my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) );
             if( brg_id != Cdst.my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) ) {
 android.util.Log.e("onlistener:", "555 brg_id=" + brg_id  + " Cdst.getCount()" + Cdst.getCount() );
-android.util.Log.e("onlistener:", "Cdst.getItemAt(brg_id).toString()=" + Cdst.getItemAt(brg_id).toString() );
+//android.util.Log.e("onlistener:", "Cdst.getItemAt(brg_id).toString()=" + Cdst.getItemAt(brg_id).toString() );
             //Csrc.clear_filter();
                 //Csrc.setSelectedItemPosition(filter_position);
                 //int bid = brg_id;
                 //brg_id = -12;    //supaya harga, total, dkk tidak terset dua kali oleh Fpenjualan.setValue
-                db.setValueAt( false, ( brg_id==-1 ? "" : Cdst.getItemAt(brg_id).toString() ), row, col_dst );    //brg_id==-1 bisa terjadi jika baru mulai ngedit tapi user mencet Esc
+                db.setValueAt( false, ( brg_id==-1 ? "" : Cdst.items.get(brg_id).toString() ), row, col_dst );    //Cdst.getItemAt(brg_id)    //brg_id==-1 bisa terjadi jika baru mulai ngedit tapi user mencet Esc
                 //db.setValueAt( ( brg_id==-1 ? "" : gambar_brg.get(brg_id)                ), row, 6       );
 android.util.Log.e("onlistener:", "after set dst value"  );
 
@@ -1038,6 +1070,8 @@ android.util.Log.e("get_brg json: ", "2");
                         org.json.JSONArray jArray = new org.json.JSONArray( data.getString( "products" ) );
                         for( int i=0; i<jArray.length(); i++ ) {
                             org.json.JSONObject product = jArray.getJSONObject(i);
+                            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
+                            if( attributes.length()>0 ) continue;    //sementara, abaikan product dgn attributes
                             Cname_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "label" ) ) );    //i+1
                             Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "barcode" ) ) );    //i+1
                             harga_brg.add( product.getInt( "price" ) );
@@ -1045,7 +1079,7 @@ android.util.Log.e("get_brg json: ", "2");
                             gambar_brg.add("");
                         }
 
-                        ((android.widget.ArrayAdapter)Cname_brg.getAdapter()).notifyDataSetChanged();    ((android.widget.ArrayAdapter)Ccode_brg.getAdapter()).notifyDataSetChanged();
+                        Cname_brg.adapter.notifyDataSetChanged();    Ccode_brg.adapter.notifyDataSetChanged();
 android.util.Log.e("ongetbrg:", " 42 Code_brg.getCount()" + Ccode_brg.getAdapter().getCount() + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount()  + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount() );
 android.util.Log.e("ongetbrg:", " 42 name_brg.getCount()" + Cname_brg.getAdapter().getCount() + " name_brg.items.getCount()" + Cname_brg.getAdapter().getCount()  + " name_brg.getAdapter().getCount()" + Cname_brg.getAdapter().getCount() );
                         Ccode_brg.setSelection(0);    Cname_brg.setSelection(0);    //supaya ItemListener aktif saat item pertama dipilih....
@@ -1064,12 +1098,7 @@ android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=n
                     }
 
                 }
-            }.execute(
-                       db.cfg.get( "url_product_index" )    //url to call
-                     , db.cfg.get( "client_token" )    //auth header to send
-                     , "access_token=" + db.cfg.get( "access_token" )    //post params
-                     );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
-
+            }.execute( db.cfg.get( "url_product_index" ) );
 
 /*
 
@@ -1504,7 +1533,7 @@ class JBmenu extends AppCompatButton {    //android.widget.ImageButton    //JBut
         setText(title);
         //setBackgroundDrawable()
         //setCompoundDrawablesWithIntrinsicBounds ( null, android.graphics.drawable.Drawable.createFromPath( android.net.Uri.parse( "android.resource://com.solusiprogram.solusitoko/drawable/" + icon_path ).getPath()  ), null,null ) ;
-        setCompoundDrawablesWithIntrinsicBounds( 0, icon_path, 0, 0 ) ;
+//        setCompoundDrawablesWithIntrinsicBounds( 0, icon_path, 0, 0 ) ;
         //android.content.res.Resources res = getResources();
         //icon_path = icon_path.replace("/",".");
         //createFromPath (String pathName)
@@ -1621,8 +1650,8 @@ android.util.Log.e("jcdb: ", "BuildConfig.VERSION_CODE " + BuildConfig.VERSION_C
 //setText("");
 //showDropDown();
         //performFiltering("", 0);
-        ((android.widget.ArrayAdapter)getAdapter()).getFilter().filter(null);
-        ((android.widget.ArrayAdapter)getAdapter()).notifyDataSetChanged();
+        adapter.getFilter().filter(null);
+        adapter.notifyDataSetChanged();
     }
 
 
@@ -1819,26 +1848,29 @@ android.util.Log.e("jcdb create: ", "5");
 
     }
 
+    //below, we need i in unfiltered items
 
     public jcdb_item getItemAtPosition(int i) {
-        return (jcdb_item) getAdapter().getItem(i);
+        return (jcdb_item) items.get(i);    //getAdapter().getItem(i)
     }
-    //?! >> int selected_idx;
+    //int selected_idx;
     public int getSelectedItemPosition() {
-        return getListSelection();    //return selected_idx;
+        return items.indexOf( getSelectedItem() );    //return getListSelection();    //return selected_idx;
     }
     public void setSelectedItemPosition(int i) {
+        //int selected_key = ((jcdb_item) items.get(i) ).get_id;
+        //my_index_of_key(selected_key);
         setListSelection(i);    //selected_idx = i;
     }
     public jcdb_item getSelectedItem() {
-        return (jcdb_item) getAdapter().getItem(getListSelection());
+        return (jcdb_item) getItemAt(getListSelection());
     }
     public int getCount() {
-        if( getAdapter()==null ) return 0;
-        return getAdapter().getCount();
+        //if( getAdapter()==null ) return 0;
+        return getItemCount();    //getAdapter().getCount();
     }
     public int getItemCount() {
-        return getCount();
+        return items.size();    //getCount();
     }
 
 
@@ -1848,17 +1880,18 @@ android.util.Log.e("jcdb create: ", "5");
                 setSelection(i);   break;
             }
     }
-    public Object[] my_item_of(String search) {
+    public Object[] my_item_of(String search, Boolean filtered) {
         Object[] ret = new Object[] {-1, null};
         search=search.trim();
 //is_android... kutambahin dummy item "" krn dia tak bisa disetSelection(-1), tetap ngeset ke 0 saat showdropdownlist >>        if( search.equals("") ) return ret;
         //aku mo modif retail.is_number() utk mengexclude "." dan ".." tapi takutnya beresiko mempengaruhi callers yg lain :D
         Boolean is_number = search.indexOf(retail.digit_separator)!=0 && search.indexOf(retail.digit_separator+retail.digit_separator)<0 && retail.is_number(search);
         jcdb_item combo_item=null;    String combo_string="";
-        for( int i=getItemCount()-1; i>=0; i-- ) {    //jika nama barang boleh duplicate, baca yg terakhir aja >> for( int i=0; i<getItemCount(); i++ ) {
+        int count = filtered ? getAdapter().getCount(): getItemCount() ;
+        for( int i=count-1; i>=0; i-- ) {    //jika nama barang boleh duplicate, baca yg terakhir aja >> for( int i=0; i<getItemCount(); i++ ) {
             //biar faster, ganti jadi yg di bawah ?! >> if( !getItemAtPosition(i).toString().equals("") ) if( search.toUpperCase().equals( getItemAtPosition(i).toString().toUpperCase() ) )
             //combo_item = getItemAtPosition(i).toString();
-            combo_item = (jcdb_item)getItemAtPosition(i);
+            combo_item = (jcdb_item) ( filtered ? getAdapter().getItem(i) : getItemAtPosition(i) );
             combo_string = combo_item.toString();
             //bialin ... if( combo_item.equals("") ) continue;
             if( !is_number ) {
@@ -1872,9 +1905,14 @@ android.util.Log.e("jcdb create: ", "5");
         }
         return ret;
     }
-    public int my_filtered_index_of(String search) {    //utk JCdb terfilter di Ftransaksi yg menyimpan index asli di get_id()
-        return ((jcdb_item)my_item_of(search)[1]).get_id();
+    public Object[] my_item_of(String search) {
+        return my_item_of(search, false);
     }
+
+    public int my_filtered_index_of(String search) {    //ga jadi, gunakan arraylist items aja:p    //utk JCdb terfilter di Ftransaksi yg menyimpan index asli di get_id()
+        return Integer.valueOf( my_item_of(search, true)[0].toString() );    //((jcdb_item)my_item_of(search)[1]).get_id();
+    }
+
     public int my_index_of(String search) {
         return Integer.valueOf( my_item_of(search)[0].toString() );
     }
@@ -1905,7 +1943,7 @@ android.util.Log.e("jcdb create: ", "5");
         return my_item_of_key(search)[1].toString();
     }
     public void my_setSelectedItem(String search) {
-        int index = my_index_of( search );
+        int index = my_filtered_index_of( search );    //my_index_of( search )
         //biar ajalah ngeset ke -1 >> if( index>=0 )
         android.util.Log.e("on my_setSelectedItem index:", index + "  search:" + search + "   brg_id=" + retail.brg_id + " getSelectedItemPosition()=" + getSelectedItemPosition() );
         setSelection(index);    //klo tanpa if( index>=0 ) , dia ngeset ke ??

@@ -83,10 +83,26 @@ android:Theme.Material
     <style name="AppTheme.Dark" parent="android:Theme.Holo">
         <!--ini klo diperlukan aja ... item name="@attr/InputLabelStyle">@style/InputLabel</item-->  <!--utk label mirip TextInputLayout bagi spinner, dll-->
     </style>
+
+
+    <!--style name="RobotoTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+    <style name="RobotoButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style-->
+
     <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
         <!--item name="windowActionBar">false</item--><!--to let toolbar as actionbar-->
         <!--item name="windowNoTitle">true</item-->
         <item name="android:windowSoftInputMode">stateHidden</item>
+
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textStyle">normal</item>
+        <!--item name="android:typeface">sans</item--> <!--normal, sans, serif, or monospace.-->
+        <!--item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
+        <item name="buttonStyle">@style/RobotoButtonStyle</item-->
+
         <!--ga kerja >> item name="alertDialogTheme">@style/AppAlertTheme</item-->
         <!--ini klo diperlukan aja ... item name="@attr/InputLabelStyle">@style/InputLabel</item-->  <!--utk label mirip TextInputLayout bagi spinner, dll-->
     </style>
@@ -109,6 +125,11 @@ android:Theme.Material
 
         <item name="android:windowSoftInputMode">stateHidden</item>
 
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textStyle">normal</item>
+        <!--item name="android:typeface">sans</item--> <!--normal, sans, serif, or monospace.-->
+        <!--item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
+        <item name="buttonStyle">@style/RobotoButtonStyle</item-->
     </style>
 
     <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">

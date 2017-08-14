@@ -228,14 +228,21 @@ android.util.Log.e( "setval: ", "4" );
 android.util.Log.e( "setval: ", "col_idx=" + col_idx );
                 String val_str = val.toString().trim();
                 int val_int = val_str.length()==0 ? 0 : Integer.valueOf(val_str);
+android.util.Log.e( "setval: 1", "col_idx=" + col_idx );
                 int harga  = col_idx==2 ? val_int : getIntAt(row_idx, 2);    //ini diperlukan karena super.setvalue() ada dalam asyncthread sehingga tabel belum terupdate >> col_idx==2?val_int:getIntAt(row_idx, 2)
+android.util.Log.e( "setval: 2", "col_idx=" + col_idx );
                 int banyak = col_idx==3 ? val_int : getIntAt(row_idx, 3);
-                if(col_idx==3) bid = Ccode_brg.my_filtered_index_of( getValueAt(row_idx, 0).toString() );    //Ccode_brg.my_index_of( getValueAt(row_idx, 0).toString() )  ;    //user ngedit manual ...
+android.util.Log.e( "setval: 3", getValueAt(row_idx, 0).toString() + "  col_idx=" + col_idx );
+                if(col_idx==3) bid = Ccode_brg.my_index_of( getValueAt(row_idx, 0).toString() )  ;    //user ngedit manual ...
+android.util.Log.e( "setval: ", "col_idx=" + col_idx );
                 int diskon = bid<0 ? 0 : retail.get_diskon( diskon_brg.get(bid), harga, banyak );
+android.util.Log.e( "setval: ", "col_idx=" + col_idx );
                 super.setValueAt( false, diskon, row_idx, 4 );    //jika harga dan banyak berubah, diskon harus berubah juga
+android.util.Log.e( "setval: ", "col_idx=" + col_idx );
                 int total_i = harga * banyak - diskon ;
                 //int total_i = retail.round( (long) getIntAt(row_idx, 2) * (100 - getIntAt(row_idx, 4)) * getIntAt(row_idx, 3) , 100 );
                 if( total_i<0 ) {   //exceed int max: 2.147.483.647  .. sebetulnya ini blm bs detect klo dia pas 2.147.483.647 krn total_i akan samadengan 0 :D .. luweh
+android.util.Log.e( "setval: ", "col_idx=" + col_idx );
                     retail.show_error( "Total harga terlalu besar.", "Kesalahan" );
                     total_i=0;
                 }               //false, perlu agar jangan bikin thread baru agar hitung_sub_total valid
@@ -705,7 +712,7 @@ android.util.Log.e( "simpan: ", "6 i=" + i );
             if( r>0 ) {
                 products += ","; product_attributes += ","; product_quantities += ","; product_discounts += ","; product_notes += ",";
             }
-            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += "\"Note "+r+"\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
+            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" ) ;    //"\\\"" + URLEncoder.encode( "Note "+r, "UTF-8" ) + "\\\"";    //"\"" + "Note "+r + "\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
 android.util.Log.e( "simpan: ", "7 i=" + i );
             r++;
         }
@@ -714,8 +721,8 @@ android.util.Log.e( "simpan: ", "7 i=" + i );
 //        String params = "";
 //        try {
 android.util.Log.e( "simpan: ", "8" );
-               params = "&outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
-                      + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + product_notes    //URLEncoder.encode( product_notes, "UTF-8" )
+               params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
+                      + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + product_notes    //URLEncoder.encode( product_notes, "UTF-8" )    //
                       + "&tax=" +"0"
                       + "&note=" +URLEncoder.encode( "OrderNote", "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
@@ -762,8 +769,7 @@ android.util.Log.e( "simpan berhasil: ", " Tno_faktur.getText()=" + Tno_faktur.g
                 }
             }.execute(
                        retail.db.cfg.get( url )    //url to call
-                     , retail.db.cfg.get( "client_token" )    //auth header to send
-                     , "access_token=" + retail.db.cfg.get( "access_token" ) + params   //post params
+                     , params   //post params
                      );
     }
 

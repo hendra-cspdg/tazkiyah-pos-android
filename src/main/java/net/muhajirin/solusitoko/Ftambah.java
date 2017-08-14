@@ -125,7 +125,7 @@ public void onFocusChange(View v, boolean hasFocus) {
         Bsimpan    = new AppCompatButton(this.getActivity());
         Bsimpan.setText( "simpan" );
         //Bsimpan.setBackgroundColor(android.graphics.Color.GREEN);
-        Bsimpan.setCompoundDrawablesWithIntrinsicBounds( retail.icon_save, 0, 0, 0 ) ;
+        //Bsimpan.setCompoundDrawablesWithIntrinsicBounds( retail.icon_save, 0, 0, 0 ) ;
         prms = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.5f );
         prms.setMargins( 10+20, 25, 10+20, 0 );    panel.addView( Bsimpan, prms );
         Bsimpan.setEnabled(false);
@@ -133,7 +133,7 @@ public void onFocusChange(View v, boolean hasFocus) {
         Bkosongkan    = new AppCompatButton(this.getActivity());
         Bkosongkan.setText( "kosongkan" );
         //Bkosongkan.setBackgroundColor(0x5500ff00);
-        Bkosongkan.setCompoundDrawablesWithIntrinsicBounds( retail.icon_reset, 0, 0, 0 ) ;
+        //Bkosongkan.setCompoundDrawablesWithIntrinsicBounds( retail.icon_reset, 0, 0, 0 ) ;
         prms = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0.5f );    //100, 80
         //params.setPaddings(12, 12, 12, 12);
         prms.setMargins( 10+20, 5, 10+20, 0 );    panel.addView( Bkosongkan, prms );
@@ -188,8 +188,7 @@ android.util.Log.e(table+": ", "4");
                 }
             }.execute(
                        retail.db.cfg.get( url )    //url to call
-                     , retail.db.cfg.get( "client_token" )    //auth header to send
-                     , "access_token=" + retail.db.cfg.get( "access_token" ) + params   //post params
+                     , params   //post params
                      );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
 
 

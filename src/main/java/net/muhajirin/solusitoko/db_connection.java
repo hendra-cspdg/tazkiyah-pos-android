@@ -392,6 +392,7 @@ static: bisa diakses sebagai elemen class, tidak harus object.
         put( "url_order_create"             , "" );
         put( "url_order_index"              , "" );
         put( "client_token"             , "" );
+        put( "access_token"             , "" );
 
         put( "database"                 , "" );
         put( "user"                     , "" );

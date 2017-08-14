@@ -102,11 +102,12 @@ android.util.Log.e("onapi: ", "1");
             con.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");    //"application/x-www-form-urlencoded;charset=UTF-8"
 android.util.Log.e("onapi: ", "4");
             //con.setRequestProperty("charset", "utf-8");
-android.util.Log.e("onapi454s: ", " args[1]=" + args[1] + " post data=" + args[2] );
-            if( args.length>1 && args[1].length()>0 ) {
+android.util.Log.e("onapi454s: ", ( args.length>1 ? " args[1]=" + args[1] : "" ) );
+            String client_token = retail.db.cfg.get("client_token").trim();
+            if( client_token.length()>0 ) {
                 byte[] auth=null;
                 //auth=args[1].getBytes();
-                try { auth=args[1].getBytes( "UTF-8" );    } catch ( java.io.UnsupportedEncodingException ex) { android.util.Log.e("oncharset: ", "error: " + ex.toString() );}
+                try { auth = client_token.getBytes( "UTF-8" );    } catch ( java.io.UnsupportedEncodingException ex) { android.util.Log.e("oncharset: ", "error: " + ex.toString() );}
 android.util.Log.e("onapi: ", "auth=" + "Basic " + android.util.Base64.encodeToString( auth, android.util.Base64.NO_PADDING | android.util.Base64.NO_WRAP ) + "6" );    //DEFAULT
                 con.setRequestProperty( "Authorization", "Basic " + android.util.Base64.encodeToString( auth, android.util.Base64.NO_PADDING | android.util.Base64.NO_WRAP ) + "6" );    //URL_SAFE//DEFAULT    //"Basic {base64encode(*client_token*)}"
             }
@@ -122,15 +123,15 @@ android.util.Log.e("onapi: ", "3");
             //con.setRequestProperty("User-Agent", "my-rest-app-v0.1");
             //con.setInstanceFollowRedirects(false);
 
-
-            if( args.length>2 && args[2].length()>0 ) {    //ada params yg ingin diPOST
-android.util.Log.e("onapi: ", "6");
+            String post_data_ = retail.db.cfg.get("access_token").trim();    if( post_data_.length()>0 ) post_data_ = "access_token=" + post_data_ ;
+            post_data_ += args.length>1 && args[1].length()>0 ? ( post_data_.length()>0?"&":"" ) + args[1]: "" ;
+            if( post_data_.length()>0 ) {    //ada params yg ingin diPOST
+android.util.Log.e("onapi: ", "6 post_data_=" + post_data_ );
                 con.setDoOutput(true);
 android.util.Log.e("onapi: ", "61");
                 byte[] post_data = null;
-                //post_data = args[2].getBytes();
                 try {
-                    post_data = args[2].getBytes( "UTF-8" );    //args[2].getBytes( java.nio.charset.StandardCharsets.UTF_8 );
+                    post_data = post_data_.getBytes( "UTF-8" );    //args[2].getBytes( java.nio.charset.StandardCharsets.UTF_8 );
 android.util.Log.e("onapi: ", "7");
                     con.setRequestProperty("Content-Length", Integer.toString( post_data.length ));
 android.util.Log.e("onapi: ", "8");
@@ -180,7 +181,7 @@ private String getDataString(HashMap<String, String> params) throws UnsupportedE
             if( con.getResponseCode()==HttpURLConnection.HTTP_OK || con.getResponseCode()==HttpURLConnection.HTTP_BAD_REQUEST ) {    //read response
 android.util.Log.e("onapi: ", "11");
 //klo password salah, terjadi exception setelah ini
-                reader = new BufferedReader( new InputStreamReader( con.getInputStream(), "UTF-8" ) );
+                reader = new BufferedReader( new InputStreamReader( con.getResponseCode()==HttpURLConnection.HTTP_OK ? con.getInputStream() : con.getErrorStream(), "UTF-8" ) );
 android.util.Log.e("onapi: ", "11a");
                 String line;
                 StringBuilder sb = new StringBuilder();
@@ -197,7 +198,7 @@ android.util.Log.e("onapi: ", "13" );
                 result = "Error: Gagal mengakses " + args[0] + "\nRespon: " + con.getResponseMessage();
         } catch( IOException e ) {
             e.printStackTrace();
-            return "Error: Gagal mengakses " + args[0] + "\nMohon pastikan internet tersambung" + ( args[0].equals( retail.db.cfg.get("url_user_login") ) ? " dan isian email dan password sudah benar!" : " dan isian data sudah benar!" ) + "\nRespon: " + e.toString();
+            return "Error: Gagal mengakses " + args[0] + "\nMohon pastikan internet tersambung!" + "\nRespon: " + e.toString();    // + ( args[0].equals( retail.db.cfg.get("url_user_login") ) ? " dan isian email dan password sudah benar!" : " dan isian data sudah benar!" ) 
         } finally {
 android.util.Log.e("onapi: ", "14" );
             if( reader!=null ) try { reader.close(); } catch( IOException e ) { e.printStackTrace(); } 

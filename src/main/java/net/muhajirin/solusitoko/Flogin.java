@@ -127,8 +127,9 @@ public class Flogin extends DialogFragment {
                     if( token.length()>0 ) cfg.put( client_token_is_exist ? "access_token" : "client_token", token );
 
                     if( client_token_is_exist ) {
-                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
+                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Laporan Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
                         retail.setting.put( "Maximum Autocomplete Ribuan", "300" );
+                        retail.setting.put( "Buka Faktur Baru Setelah Simpan", "ya" );
 
                         //retail.play_wav("sound/plunger.wav");  //yippee.wav   Door Unlock-SoundBible.com-1558114225.wav //
                         setShowsDialog( false );    //setVisible(false);    //supaya ga saru:)
@@ -149,8 +150,7 @@ public class Flogin extends DialogFragment {
                             br.close();
                             java.io.FileWriter writer = new java.io.FileWriter( cfg.get("file_konfigurasi") ); // burn file_content to file konfigurasi.txt
                             writer.write( file_content.toString() );    writer.flush();    writer.close();
-
-                            retail.show_error( "\n" + "Client Authentication Succeed" + "\n\n\n\n", "Succeed" );
+                            android.widget.Toast.makeText( form.getActivity(), "Client Authentication Succeed!", android.widget.Toast.LENGTH_LONG).show();
 
                             //just change the UI :D for user auth
                             client_token_is_exist = true;
@@ -159,6 +159,7 @@ public class Flogin extends DialogFragment {
                             Tuser.setText( cfg.get("user_login_default"), TextView.BufferType.EDITABLE );
                             Ppassword.setText( "tazkiyah499", TextView.BufferType.EDITABLE );
                             Blogin.setEnabled(true);
+//Blogin.performClick();
 
                         } catch (Exception e) {
                             retail.show_error( "\n" + "Modifikasi File '" +cfg.get("file_konfigurasi")+ "' Gagal!\n" + e.getMessage() + "\n\n\n\n", "Gagal Simpan Client Token" );
@@ -167,7 +168,7 @@ public class Flogin extends DialogFragment {
                 }
             }.execute(
                        cfg.get( client_token_is_exist ? "url_user_login" : "url_client_login" )    //url to call
-                     , ( client_token_is_exist?cfg.get("client_token"):"" )    //auth header to send
+                     //, ( client_token_is_exist?cfg.get("client_token"):"" )    //auth header to send
                      , post_data    //post params
                      );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
 

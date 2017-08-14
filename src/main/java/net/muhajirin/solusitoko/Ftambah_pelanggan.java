@@ -110,7 +110,7 @@ android.util.Log.e("Ftambah_pelanggan: ", "7" );
             retail.show_error( "\nMohon perbaiki isian \"Gender\"" + "\n\n\n\n", "Isian salah" );
             return false;
         }
-        try { params = "&username="+URLEncoder.encode( Tname.getText().toString().trim(), "UTF-8" ) + "&phone_number="+URLEncoder.encode( Tno_hp.getText().toString().trim(), "UTF-8" ) + "&gender="+URLEncoder.encode( Cgender.getText().toString().trim(), "UTF-8" ) + "&address="+URLEncoder.encode( Talamat.getText().toString().trim(), "UTF-8" );    } catch ( java.io.UnsupportedEncodingException ex) { android.util.Log.e("oncharset: ", "error: " + ex.toString() );}
+        try { params = "username="+URLEncoder.encode( Tname.getText().toString().trim(), "UTF-8" ) + "&phone_number="+URLEncoder.encode( Tno_hp.getText().toString().trim(), "UTF-8" ) + "&gender="+URLEncoder.encode( Cgender.getText().toString().trim(), "UTF-8" ) + "&address="+URLEncoder.encode( Talamat.getText().toString().trim(), "UTF-8" );    } catch ( java.io.UnsupportedEncodingException ex) { android.util.Log.e("oncharset: ", "error: " + ex.toString() );}
  android.util.Log.e("Ftambah_pelanggan: ", "8" );
         return true;
     }
