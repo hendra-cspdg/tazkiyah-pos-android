@@ -95,7 +95,7 @@ public class Ftransaksi extends Fedit {
     //AutoCompleteTextView Cname_agent;
     public JCdb Ccode_agent, Cname_agent;    //dibaca di class celleditor untuk otomatis beralih dari scan barcode barang
 
-//    public EditText Tdibayar;    //must be public to let requestFocus() from retail ...
+    EditText Tdibayar;    //must be public to let requestFocus() from retail ...
 //    EditText Lkembali;
     //JLabel Ldialog_kembali = new JLabel();
     //JLabel Ldialog_dibayar = new JLabel();
@@ -103,7 +103,6 @@ public class Ftransaksi extends Fedit {
     //blink listener_blink;    clock listener_clock;    Timer timer_title;    Timer timer_total;    Timer timer_kembalian;    //Timer timer_refresh;
 //    android.os.CountDownTimer timer_kembalian;
     String last_refresh = "";
-
 
     static Ftransaksi form;
     //public Ftransaksi() { super(); }
@@ -639,6 +638,8 @@ android.util.Log.e( "penjual: ", "18"  /*+ ( form.getActivity().getCurrentFocus(
 
         //Lkembali.performClick();    //form.table.col[0].requestFocus();    //Tdibayar.requestFocus();    retail.hideSoftKeyboard( (android.app.Activity) form.getActivity() );    //entah kenapa softkeyboardnya muncul:p
 
+
+
         new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
             refresh_agn();
         }});
@@ -712,7 +713,7 @@ android.util.Log.e( "simpan: ", "6 i=" + i );
             if( r>0 ) {
                 products += ","; product_attributes += ","; product_quantities += ","; product_discounts += ","; product_notes += ",";
             }
-            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" ) ;    //"\\\"" + URLEncoder.encode( "Note "+r, "UTF-8" ) + "\\\"";    //"\"" + "Note "+r + "\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
+            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += "\"Note "+r+"\"" ;    //"\\\"" + URLEncoder.encode( "Note "+r, "UTF-8" ) + "\\\"";    //"\"" + "Note "+r + "\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
 android.util.Log.e( "simpan: ", "7 i=" + i );
             r++;
         }
@@ -722,7 +723,7 @@ android.util.Log.e( "simpan: ", "7 i=" + i );
 //        try {
 android.util.Log.e( "simpan: ", "8" );
                params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
-                      + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + product_notes    //URLEncoder.encode( product_notes, "UTF-8" )    //
+                      + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + URLEncoder.encode( product_notes, "UTF-8" )    //
                       + "&tax=" +"0"
                       + "&note=" +URLEncoder.encode( "OrderNote", "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
@@ -755,12 +756,22 @@ android.util.Log.e(api_table+": ", "3");
                         }
 android.util.Log.e(api_table+": ", "4");
                         org.json.JSONObject json_table = new org.json.JSONObject(data.getString(api_table));
-
-                        //after_save_succeed(json_table.getInt("id"));
+                        Tno_faktur.setText( json_table.getString("code") );
                         //no_faktur=no_faktur_new;    //Tno_faktur.setText(no_faktur);
-android.util.Log.e( "simpan berhasil: ", " Tno_faktur.getText()=" + Tno_faktur.getText().toString() );
+
+
+android.util.Log.e( "simpan berhasil: ", "VERSION.SDK_INT kok 15?" + android.os.Build.VERSION.SDK_INT + " Tno_faktur.getText()=" + Tno_faktur.getText().toString() );
                         Bsimpan.setEnabled(false);    //gara2 di atas:)
-                        if( baru_action ) baru_action();
+
+                        //if( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT )
+                        new android.os.Handler().post(new Runnable() { public void run() {
+ retail.print( title_header(), table_summary(), db );    //if( retail.db.cfg.get("otomatis_print") )
+                        }});
+
+                        new android.os.Handler().post(new Runnable() { public void run() {
+                            if( baru_action ) baru_action();
+                        }});
+
                     } catch( org.json.JSONException e ) {
                         db.err_msg += "\nMaaf, Data \"" +api_table+ "\" gagal disimpan!\n\n\n(" + e.toString() + ")";
                         retail.show_error( db.err_msg, "Pembacaan Data \"" +api_table+ "\"" );
@@ -772,7 +783,6 @@ android.util.Log.e( "simpan berhasil: ", " Tno_faktur.getText()=" + Tno_faktur.g
                      , params   //post params
                      );
     }
-
 
     void baru() {
         if( !Bsimpan.isEnabled() ) {  baru_action();     return;  }
@@ -942,39 +952,39 @@ android.util.Log.e("ftransaksi:", "tambah_agn 3" );
     void refresh_agn(final String barcode_init) {
         //fill Ccode_agent dan Cname_agent with http://api.muhajirin.net/v1/customer/index
         //kan emg dimungkinakan mendahului table creation >> if( table==null ) return;
-        final String table="customers";
+        final String api_table="customers";
         new DownloadJSON(){
             @Override protected void onPostExecute( String result ) {
                 super.onPostExecute(result);
-android.util.Log.e(table+": ", "1");
+android.util.Log.e(api_table+": ", "1");
                 if( result.startsWith( "Error:" ) ) return;
-android.util.Log.e(table+": ", "2");
+android.util.Log.e(api_table+": ", "2");
 
                 try {
                     org.json.JSONObject data = new org.json.JSONObject(result);
-android.util.Log.e(table+": ", "3");
+android.util.Log.e(api_table+": ", "3");
 
-                    if( !data.has( table ) ) {
+                    if( !data.has( api_table ) ) {
                         retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
                         return;
                     }
-android.util.Log.e(table+": ", "4");
+android.util.Log.e(api_table+": ", "4");
                     agent_id = 0;    //supaya itemlistener tidak listen setSelectedIndex yg dilakukan program di bawah ini.
                     int temp_selectedItem = Cname_agent.getListSelection();
                     if( temp_selectedItem<0 ) temp_selectedItem=0;
-android.util.Log.e(table+": ", "5");
+android.util.Log.e(api_table+": ", "5");
                     ArrayAdapter Cname_agent_adapter = (ArrayAdapter) Cname_agent.getAdapter();
                     Ccode_agent.items.clear();
-android.util.Log.e(table+": ", "6");
+android.util.Log.e(api_table+": ", "6");
     Cname_agent_adapter.clear();
-android.util.Log.e(table+": ", "7");
+android.util.Log.e(api_table+": ", "7");
                     int init_idx = -1;
                     Cname_agent.items.add( new jcdb_item( 0, "" ) );    //Cname_agent_adapter.add( "" );
-android.util.Log.e(table+": ", "8");
+android.util.Log.e(api_table+": ", "8");
                     Ccode_agent.items.add( new jcdb_item( 0, "" ) );    //sebaiknya di table customer ada minimal 1 customers yaitu: umum    //( -1, "" )    //as long as I remember, I never use Ccode_agent.get_id() and Cname_agent.get_id(), then I can use it to save originate position while filtering:p
-android.util.Log.e(table+": ", "9");
-                    org.json.JSONArray jArray = new org.json.JSONArray( data.getString(table) );
-android.util.Log.e(table+": ", "10");
+android.util.Log.e(api_table+": ", "9");
+                    org.json.JSONArray jArray = new org.json.JSONArray( data.getString(api_table) );
+android.util.Log.e(api_table+": ", "10");
                     for( int i=0; i<jArray.length(); i++ ) {
                         org.json.JSONObject jtable = jArray.getJSONObject(i);
                         Cname_agent.items.add( new jcdb_item( jtable.getInt("id"), jtable.getString("username") ) );    //Cname_agent_adapter.add( jtable.getString( "username" ) );
@@ -989,19 +999,12 @@ android.util.Log.e("ongetagent:", " 42 name_agent.getCount()" + Cname_agent_adap
                     agent_id = -13;
 android.util.Log.e("ongetagent:", "   after setselection "   + "    Ccode_agent.getCount()" + Ccode_agent.getCount()  );
                     } catch( Exception e ) {    //org.json.JSONException 
-                        db.err_msg += "\nMaaf, Data \"" +table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
-                        retail.show_error( db.err_msg, "Pembacaan Data \"" +table+ "\"" );
-                        android.util.Log.e("get " +table+ " error: ", "e.toString()="+ e.toString() );
+                        db.err_msg += "\nMaaf, Data \"" +api_table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
+                        retail.show_error( db.err_msg, "Pembacaan Data \"" +api_table+ "\"" );
+                        android.util.Log.e("get " +api_table+ " error: ", "e.toString()="+ e.toString() );
                     }
                 }
-            }.execute(
-                       retail.db.cfg.get( "url_customer_index" )    //url to call
-                     , retail.db.cfg.get( "client_token" )    //auth header to send
-                     , "access_token=" + retail.db.cfg.get( "access_token" )    //post params
-                     );    //.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR); // we target SDK > API 11
-
-
-
+            }.execute( retail.db.cfg.get( "url_customer_index" ) );
     }
 
 
@@ -1289,6 +1292,41 @@ android.util.Log.e("hitung_total:", "7" );
         //Bsimpan.setEnabled( total_round>0 );
         Tdibayar.setEnabled( total_round>0 );    //aku pinter ga ya:)
 */
+    }
+
+
+
+    //to print
+    //Boolean print_small = retail.convert_null(retail.setting.get("Print Small")).toLowerCase().equals("ya") || retail.is_number( retail.db.cfg.get("print_normal_page_width" ) ) && (int) Integer.valueOf( retail.db.cfg.get("print_normal_page_width") ) / 10 < 100 ;
+    public Object[][] title_header() {
+        String no_faktur_print = Tno_faktur.getText().toString().trim();    //print_sebelum_simpan ? retail.escape( Tno_faktur.getText().trim() ) : ( no_faktur.isEmpty()?"":no_faktur ) ;
+        jam_faktur = new SimpleDateFormat("HH:mm:ss").format(new Date());
+            Boolean member = Ccode_agent.my_key_of( Ccode_agent.getText().toString().trim() ) > 0 ;
+                Object[][] title_header = {
+                      {new SimpleDateFormat("EEEE, d MMMM yyyy").format( new Date() ) + " - " + jam_faktur }
+                    , {"No. Faktur"    , ":  " + no_faktur_print                                             }    //pada Bexport_xls onclick, ini dipanggil dua kali, yg pertama hanya utk ambil nama file:p ... pdhl no_faktur belum ada krn belum disimpan
+                    , {"Kasir"         , ":  " + retail.nama                                                 }
+                    , {"Kepada Yth."   , ":  " + ( member ? Cname_agent.getSelectedItem().toString() : "-" ) }
+                    , {"Kode Pelanggan", ":  " + ( member ? Ccode_agent.getSelectedItem().toString() : "-" ) }
+                    };
+                return title_header;
+    }
+    public Object[][] table_summary() {
+            Boolean member = Ccode_agent.my_key_of( Ccode_agent.getText().toString().trim() ) > 0 ;
+            Object[][] table_summary = {
+                  { "Sub Total"      , " : Rp. ", Tsub_total.getText()   }
+                , { "Potongan"       , " : Rp. ", Tdiskon.getText()      }
+                //, {"PPN"             , " : Rp. ", Tppn.getText()         }
+                                                   //Ltotal_blink.getText().trim() }
+                , {"Total"           , " : Rp. ", String.format("%,d", total_round) }
+                                                   //( Lkembali.getText().equals("-") ? "-" : Tdibayar.getText() ) }
+                , {"Dibayar"         , " : Rp. ", ( kembali<0 ? "-" : Tdibayar.getText().toString() ) }
+                                                   //Lkembali.getText() }
+                , {"Kembali"         , " : Rp. ", ( kembali<0 ? "-" : String.format( "%,d", kembali ) ) }
+                , {"Jumlah Item"     , " : " + banyak_total       }
+
+                };
+            return diskon>0 ? table_summary : java.util.Arrays.copyOfRange( table_summary, 2, table_summary.length );
     }
 
     @Override void close() {

@@ -44,7 +44,7 @@ import java.util.ArrayList;
 public class Fpenjualan extends Ftransaksi {
     //String sql_get_brg = "SELECT id, name, code, harga_jual, CAST( CONCAT_WS(',',diskon_jual,disc_qty1,disc_amount1,disc_qty2,disc_amount2,disc_qty3,disc_amount3,disc_qty4,disc_amount4) AS char ) AS diskon, gambar FROM barang ORDER BY name";    //mending by name, krn klo BY code dia pastinya udah hafal (ato ada guideline dari kode barcode)
 
-    public EditText Tdibayar;    //must be public to let requestFocus() from retail ...
+    //public EditText Tdibayar;    //must be public to let requestFocus() from retail ...
     EditText Lkembali;
     //JLabel Ldialog_kembali = new JLabel();
     //JLabel Ldialog_dibayar = new JLabel();

@@ -224,259 +224,6 @@ android.util.Log.e( "penjual: ", "17"  + ( form.getActivity().getCurrentFocus()=
         //    lihat();
         //}});
 
-
-
-
-
-
-/*
-{
-    "status": 200,
-    "orders": [
-        {
-            "id": 4,
-            "outlet_id": 1,
-            "customer": {
-                "id": null,
-                "username": ""
-            },
-            "items": [
-                {
-                    "id": 1,
-                    "product_id": 10,
-                    "product_label": "Cappucino",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "11000.00",
-                    "note": ""
-                },
-                {
-                    "id": 2,
-                    "product_id": 7,
-                    "product_label": "Teh Tarik",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "9000.00",
-                    "note": ""
-                }
-            ],
-            "code": "739WJ",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "20000.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502568182,
-            "updated_at": 1502568182
-        },
-        {
-            "id": 5,
-            "outlet_id": 1,
-            "customer": {
-                "id": null,
-                "username": ""
-            },
-            "items": [
-                {
-                    "id": 3,
-                    "product_id": 10,
-                    "product_label": "Cappucino",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "11000.00",
-                    "note": ""
-                },
-                {
-                    "id": 4,
-                    "product_id": 6,
-                    "product_label": "Pastel",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "4500.00",
-                    "note": ""
-                }
-            ],
-            "code": "PG4FM",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "15500.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502568277,
-            "updated_at": 1502568278
-        },
-        {
-            "id": 6,
-            "outlet_id": 1,
-            "customer": {
-                "id": null,
-                "username": ""
-            },
-            "items": [
-                {
-                    "id": 5,
-                    "product_id": 10,
-                    "product_label": "Cappucino",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "3.00",
-                    "discount": "0.00",
-                    "unit_price": "11000.00",
-                    "note": ""
-                },
-                {
-                    "id": 6,
-                    "product_id": 9,
-                    "product_label": "Lemon Tea",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "4.00",
-                    "discount": "0.00",
-                    "unit_price": "7000.00",
-                    "note": ""
-                }
-            ],
-            "code": "XAA3N",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "61000.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502575875,
-            "updated_at": 1502575875
-        },
-        {
-            "id": 7,
-            "outlet_id": 1,
-            "customer": {
-                "id": 4,
-                "username": "Kris Bone"
-            },
-            "items": [
-                {
-                    "id": 7,
-                    "product_id": 11,
-                    "product_label": "Susu Coklat",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "3.00",
-                    "discount": "0.00",
-                    "unit_price": "8000.00",
-                    "note": ""
-                },
-                {
-                    "id": 8,
-                    "product_id": 5,
-                    "product_label": "Risoles",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "6.00",
-                    "discount": "0.00",
-                    "unit_price": "5000.00",
-                    "note": ""
-                }
-            ],
-            "code": "N3DWW",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "54000.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502576040,
-            "updated_at": 1502576040
-        },
-        {
-            "id": 10,
-            "outlet_id": 1,
-            "customer": {
-                "id": null,
-                "username": ""
-            },
-            "items": [
-                {
-                    "id": 9,
-                    "product_id": 10,
-                    "product_label": "Cappucino",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "11000.00",
-                    "note": ""
-                },
-                {
-                    "id": 10,
-                    "product_id": 5,
-                    "product_label": "Risoles",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "5000.00",
-                    "note": ""
-                }
-            ],
-            "code": "PHTAY",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "16000.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502579634,
-            "updated_at": 1502579635
-        },
-        {
-            "id": 11,
-            "outlet_id": 1,
-            "customer": {
-                "id": null,
-                "username": ""
-            },
-            "items": [
-                {
-                    "id": 11,
-                    "product_id": 10,
-                    "product_label": "Cappucino",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "11000.00",
-                    "note": ""
-                },
-                {
-                    "id": 12,
-                    "product_id": 11,
-                    "product_label": "Susu Coklat",
-                    "product_attribute_id": null,
-                    "attribute_label": "",
-                    "quantity": "1.00",
-                    "discount": "0.00",
-                    "unit_price": "8000.00",
-                    "note": ""
-                }
-            ],
-            "code": "AHMWM",
-            "tax": "0.00",
-            "discount": "0.00",
-            "total_price": "19000.00",
-            "status": "ordered",
-            "note": "",
-            "created_at": 1502580133,
-            "updated_at": 1502580133
-        }
-    ]
-}
-
-*/
         new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
             lihat();    //Blihat.performClick();
         }});
@@ -488,25 +235,25 @@ android.util.Log.e( "penjual: ", "17"  + ( form.getActivity().getCurrentFocus()=
     byte disc_sign;
     void lihat() {
         disc_item=0;  sub_total_faktur=0;  potongan=0;  ppn=0;  total_faktur=0;
-        final String json_tbl="orders";
+        final String api_table="orders";
         new DownloadJSON(){
             @Override protected void onPostExecute( String result ) {
                 super.onPostExecute(result);
-android.util.Log.e(json_tbl+": ", "1");
+android.util.Log.e(api_table+": ", "1");
                 if( result.startsWith( "Error:" ) ) return;
-android.util.Log.e(json_tbl+": ", "2");
+android.util.Log.e(api_table+": ", "2");
 
                 Boolean record_found=false;
 String debug="";
                 try {
                     org.json.JSONObject data = new org.json.JSONObject(result);
-android.util.Log.e(json_tbl+": ", "3");
+android.util.Log.e(api_table+": ", "3");
 
-                    if( !data.has( json_tbl ) ) {
+                    if( !data.has( api_table ) ) {
                         retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
                         return;
                     }
-android.util.Log.e(json_tbl+": ", "4");
+android.util.Log.e(api_table+": ", "4");
 
 
 debug+="1";
@@ -518,8 +265,8 @@ debug+="5";
 
 
 
-                    org.json.JSONArray jArray = new org.json.JSONArray( data.getString(json_tbl) );
-android.util.Log.e(json_tbl+": ", "10");
+                    org.json.JSONArray jArray = new org.json.JSONArray( data.getString(api_table) );
+android.util.Log.e(api_table+": ", "10");
                     record_found = jArray.length()>0;
 
                     Object[] rs_row = new Object[db.col_width.length];
@@ -537,7 +284,7 @@ android.util.Log.e("lihat:", "1 c=" + c );
 android.util.Log.e("lihat:", "2 c=" + c + " field="+field );
                             if( field.equals("code") || field.equals("unit_price") || field.equals("discount") ) rs_row[c] = jtable.getString( field );
                             else if( field.equals("ppn") ) rs_row[c] = jtable.getInt( "tax" );
-                            else if( field.equals("updated_at") ) rs_row[c] = new SimpleDateFormat("d MMM yyyy").format( jtable.getInt( field ) );
+                            else if( field.equals("updated_at") ) rs_row[c] = new SimpleDateFormat("d MMM yyyy").format( jtable.getLong( field )  * 1000L );
                             else if( field.equals("product") ) {
 android.util.Log.e("lihat:", "3 c=" + c + " field="+field );
                                 org.json.JSONArray jArray2 = new org.json.JSONArray( jtable.getString("items") );
@@ -590,9 +337,9 @@ debug+="22";
 
 
                 } catch( Exception e ) {    //org.json.JSONException 
-                    db.err_msg += debug+"<debug\nMaaf, Data \"" +json_tbl+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
-                    retail.show_error( db.err_msg, "Pembacaan Data \"" +json_tbl+ "\"" );
-                    android.util.Log.e("get " +json_tbl+ " error: ", "e.toString()="+ e.toString() );
+                    db.err_msg += debug+"<debug\nMaaf, Data \"" +api_table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
+                    retail.show_error( db.err_msg, "Pembacaan Data \"" +api_table+ "\"" );
+                    android.util.Log.e("get " +api_table+ " error: ", "e.toString()="+ e.toString() );
                 }
 
                 if( !record_found )      {

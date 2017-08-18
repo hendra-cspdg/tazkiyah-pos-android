@@ -451,10 +451,12 @@ public class retail extends AppCompatActivity {
             jp_submenu.addView(Bmenu,params_Bmenu);
             //Bmenu_default=(JButton)Bmenu;
 
+///*
             final JBmenu final_Bmenu = Bmenu;
             final_Bmenu.post(new Runnable() { @Override public void run() {    //form.view
                 final_Bmenu.performClick();
             }});
+//*/
         }
 
 /*
@@ -728,6 +730,8 @@ public class retail extends AppCompatActivity {
     }
 
     @Override public void onBackPressed() {
+        webView = null;
+
             //just to make sure :)
             db.close(true);    db=null;
             //Ccode_brg=null;    Cname_brg=null;    harga_brg=null;    diskon_brg=null;    gambar_brg=null;
@@ -1073,7 +1077,7 @@ android.util.Log.e("get_brg json: ", "2");
                             org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
                             if( attributes.length()>0 ) continue;    //sementara, abaikan product dgn attributes
                             Cname_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "label" ) ) );    //i+1
-                            Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "barcode" ) ) );    //i+1
+                            Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "id" ) ) );    //barcode //i+1
                             harga_brg.add( product.getInt( "price" ) );
                             diskon_brg.add("0");
                             gambar_brg.add("");
@@ -1099,256 +1103,6 @@ android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=n
 
                 }
             }.execute( db.cfg.get( "url_product_index" ) );
-
-/*
-
-{
-    "status": 200,
-    "products": [
-        {
-            "id": 1,
-            "label": "Nasi Goreng Seafood",
-            "description": "Nasi Goreng Seafood",
-            "price": "18000.00",
-            "position": 0,
-            "attributes": [
-                {
-                    "id": 2,
-                    "price": "0.00",
-                    "label": "Tidak Pedas"
-                },
-                {
-                    "id": 3,
-                    "price": "0.00",
-                    "label": "Sedang"
-                },
-                {
-                    "id": 4,
-                    "price": "0.00",
-                    "label": "Pedas"
-                }
-            ]
-        },
-        {
-            "id": 11,
-            "label": "Susu Coklat",
-            "description": "Susu Coklat",
-            "price": "8000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 10,
-            "label": "Cappucino",
-            "description": "Cappucino",
-            "price": "11000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 9,
-            "label": "Lemon Tea",
-            "description": "Lemon Tea",
-            "price": "7000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 8,
-            "label": "Es Jeruk",
-            "description": "Es Jeruk",
-            "price": "8000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 7,
-            "label": "Teh Tarik",
-            "description": "Teh Tarik",
-            "price": "9000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 6,
-            "label": "Pastel",
-            "description": "Pastel",
-            "price": "4500.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 5,
-            "label": "Risoles",
-            "description": "Risoles",
-            "price": "5000.00",
-            "position": 0,
-            "attributes": []
-        },
-        {
-            "id": 4,
-            "label": "Roti Bakar",
-            "description": "Roti Bakar",
-            "price": "8000.00",
-            "position": 0,
-            "attributes": [
-                {
-                    "id": 21,
-                    "price": "0.00",
-                    "label": "Reguler, Keju"
-                },
-                {
-                    "id": 22,
-                    "price": "0.00",
-                    "label": "Reguler, Coklat"
-                },
-                {
-                    "id": 23,
-                    "price": "0.00",
-                    "label": "Reguler, Strawberry"
-                },
-                {
-                    "id": 24,
-                    "price": "0.00",
-                    "label": "Reguler, Kacang"
-                },
-                {
-                    "id": 25,
-                    "price": "2000.00",
-                    "label": "Extra, Keju"
-                },
-                {
-                    "id": 26,
-                    "price": "2000.00",
-                    "label": "Extra, Coklat"
-                },
-                {
-                    "id": 27,
-                    "price": "2000.00",
-                    "label": "Extra, Strawberry"
-                },
-                {
-                    "id": 28,
-                    "price": "2000.00",
-                    "label": "Extra, Kacang"
-                }
-            ]
-        },
-        {
-            "id": 3,
-            "label": "Roti Maryam",
-            "description": "Roti Maryam",
-            "price": "5500.00",
-            "position": 0,
-            "attributes": [
-                {
-                    "id": 7,
-                    "price": "0.00",
-                    "label": "Reguler, Daging Ayam"
-                },
-                {
-                    "id": 8,
-                    "price": "1000.00",
-                    "label": "Reguler, Daging Sapi"
-                },
-                {
-                    "id": 9,
-                    "price": "1000.00",
-                    "label": "Reguler, Keju"
-                },
-                {
-                    "id": 10,
-                    "price": "0.00",
-                    "label": "Reguler, Sayur"
-                },
-                {
-                    "id": 11,
-                    "price": "2000.00",
-                    "label": "Extra, Daging Ayam"
-                },
-                {
-                    "id": 12,
-                    "price": "3000.00",
-                    "label": "Extra, Daging Sapi"
-                },
-                {
-                    "id": 13,
-                    "price": "3000.00",
-                    "label": "Extra, Keju"
-                },
-                {
-                    "id": 14,
-                    "price": "2000.00",
-                    "label": "Extra, Sayur"
-                }
-            ]
-        },
-        {
-            "id": 2,
-            "label": "Kentang Goreng",
-            "description": "Kentang Goreng",
-            "price": "8000.00",
-            "position": 0,
-            "attributes": [
-                {
-                    "id": 5,
-                    "price": "0.00",
-                    "label": "Reguler"
-                },
-                {
-                    "id": 6,
-                    "price": "2000.00",
-                    "label": "Extra"
-                }
-            ]
-        },
-        {
-            "id": 12,
-            "label": "Jus Buah",
-            "description": "Jus Buah",
-            "price": "10000.00",
-            "position": 0,
-            "attributes": [
-                {
-                    "id": 15,
-                    "price": "1000.00",
-                    "label": "Alpukat"
-                },
-                {
-                    "id": 16,
-                    "price": "0.00",
-                    "label": "Jambu"
-                },
-                {
-                    "id": 17,
-                    "price": "0.00",
-                    "label": "Mangga"
-                },
-                {
-                    "id": 18,
-                    "price": "0.00",
-                    "label": "Buah Naga"
-                },
-                {
-                    "id": 19,
-                    "price": "0.00",
-                    "label": "Campuran"
-                },
-                {
-                    "id": 20,
-                    "price": "0.00",
-                    "label": "Apel"
-                }
-            ]
-        }
-    ]
-}
-
-
-*/
-
-
-
     }
 
     public static void reset_brg() {
@@ -1364,6 +1118,191 @@ android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=n
         }
         harga_brg.clear();    diskon_brg.clear();    gambar_brg.clear();    //harga_brg=null;    diskon_brg=null;    gambar_brg=null;
     }
+
+
+
+    static android.webkit.WebView webView;
+    static String faktur_template = "";
+    static void print( Object[][] title_header, Object[][] table_summary, db_connection db ) {
+        if( webView==null ) {
+            webView = new android.webkit.WebView( (AppCompatActivity)get_my_app_context() );
+            webView.setWebViewClient(new android.webkit.WebViewClient() {
+                public boolean shouldOverrideUrlLoading( android.webkit.WebView view, String url ) {
+                    return false;
+                }
+                @Override public void onPageFinished( android.webkit.WebView view, String url ) {
+try{
+
+android.util.Log.e( "onpage", "1");
+                    android.print.PrintManager printManager = (android.print.PrintManager) ((AppCompatActivity)get_my_app_context()).getSystemService(android.content.Context.PRINT_SERVICE);
+android.util.Log.e( "onpage", "2");
+                    android.print.PrintDocumentAdapter printAdapter =  webView.createPrintDocumentAdapter();
+android.util.Log.e( "onpage", "3");
+                    printManager.print( "net.muhajirin.solusitoko: Print Transaksi", printAdapter, new android.print.PrintAttributes.Builder().build());
+android.util.Log.e( "onpage", "4");
+                    //webView = null;
+
+} catch (Exception e) {
+                  //retail.show_error( "onPageFinished Error: " + e.getMessage(), "Error!" );
+                  android.util.Log.e( "onPageFinished", " Error: " + e.getMessage());
+}
+
+                }
+            });
+
+            String dst_dir = ((AppCompatActivity)get_my_app_context()).getFilesDir().getAbsolutePath() ;
+            if( dst_dir.endsWith("/files") ) dst_dir = dst_dir.substring( 0, dst_dir.length() - "/files".length() );
+            String file_name = "faktur_template.html";
+            copy_asset_dir( file_name, dst_dir ) ;
+            file_name = dst_dir + java.io.File.separator + file_name;
+            java.io.File file = new java.io.File(file_name);
+            if( !file.exists() ) {
+                try {
+                    retail.show_error( "File \"" +file.getCanonicalPath()+ "\" tidak ditemukan!\nMohon hubungi administrator!", "File Print Template" );
+                } catch (Exception e) {}
+                return;
+            }
+            String line = null;
+            try {
+                java.io.BufferedReader br = new java.io.BufferedReader( new java.io.FileReader(file) );
+                while ((line = br.readLine()) != null) {
+                    faktur_template += line.trim();    //.replaceAll("[ \x0B\f\r]","")
+                }
+                br.close();
+            } catch (Exception e) {
+                retail.show_error( "File \"" + file_name /*file.getCanonicalPath()*/+ "\" tidak ditemukan!\nMohon hubungi administrator!\nPesan Error: " + e.getMessage(), "File Print Template" );
+            //} finally { br.close();
+
+
+/*
+try {
+    java.io.RandomAccessFile file = new java.io.RandomAccessFile(src, "r");    //java.io.FileReader reader = new java.io.FileReader(file);    //BufferedReader reader = new BufferedReader( r );
+    byte[] bytes = new byte[(int)file.length()];    //char[] chars = new char[(int) file.length()];
+    file.read(bytes);    //reader.read(chars);
+    file.close();    //reader.close();
+    String newline = "\r\n"; //"\\n";  //kok unix version semua :p >> java.lang.Character newline = java.lang.Character.LINE_SEPARATOR;    //System.lineSeparator()
+    java.io.FileWriter writer = new java.io.FileWriter( dst ); // creates or overrides existing file
+    int i=0;    int col_start=0;    int col=0;
+    byte[] vals = new byte[64];    //null;    //
+    for( byte Byte : bytes ) {    //for( char c : chars ) {
+        if( i == col_start ) {
+            Arrays.fill( vals, (byte)0 );     //ga iso diset ulang >> //vals = null;   //byte[] vals_dummy = new byte[ len[col] ];    //vals = vals_dummy;
+            if(i>0) writer.append(";") ;  //field separator
+        }
+                                   //if( (int)c==13 || (int)c==9 || (int)c==10 ) c=' ';    //escape the stupid newline / enter karakter !!!
+        if( (int)Byte!=0 ) vals[i-col_start] = Byte;        //byte[] data = { (byte) (6500 & 0xFF), (byte) ((6500 >> 8) & 0xFF) };    //writer.append(data[0] +"|"+ data[1] + "~"+ ( ((c & 0xff)<< 8) | (c_temp & 0xff) ) +"`"+newline);  //writer.append(c);    //writer.append(c+"#"+((int)c)+"  end"+newline);
+
+        i++;
+        if( i == col_start+len[col] ) {        //if( i>=escape_length ) writer.append(c+"~"+((int)c)+"`"+newline);  //writer.append(c);    //writer.append(c+"#"+((int)c)+"  end"+newline);
+            if( i>=escape_length ) {           //if( i>=escape_length ) writer.append(c+"~"+((int)c)+"`"+newline);  //writer.append(c);    //writer.append(c+"#"+((int)c)+"  end"+newline);
+                if( type[col].equals("int") ) writer.append( ""+(  (((vals[3]) & 0xff)<< 24) | (((vals[2]) & 0xff)<< 16) | (((vals[1]) & 0xff)<< 8) |  ((vals[0]) & 0xff)  ) );    //if( type[col].equals("int") ) writer.append( ""+(  (((vals[3]==null?(byte)0:vals[3]) & 0xff)<< 24) | (((vals[2]==null?(byte)0:vals[2]) & 0xff)<< 16) | (((vals[1]==null?(byte)0:vals[1]) & 0xff)<< 8) |  ((vals[0]==null?(byte)0:vals[0]) & 0xff)  ) );
+                else                          writer.append( "\"" + new String(vals).replace("\"", "\"\"").replace("\\", "\\\\").trim() + "\"" );  //writer.append(c+"#"+((int)c)+"  end"+newline);    //.replace("\"", "\\\"").replace("\\", "\\\\")      //writer.append( "col_start="+col_start + "  len=" + vals.length  + "   i=" + i + " col=" + col + " len[col]=" + len[col] + "\"" + new String(vals).replace("\"", "\\\"").trim() + "\"" );  //writer.append(c+"#"+((int)c)+"  end"+newline);
+            }
+            col_start = i;
+            col++;
+        }
+        if( i>=panjang_baris ) {
+            writer.append(newline);
+            writer.flush();
+            i=0;    col_start=0;    col=0;
+        }
+    }
+    writer.close();
+} catch( Exception ex ) {
+    JOptionPane.showMessageDialog( f, "\nfile add line!\nPesan Kesalahan: " + ex + "\n\n\n\n" , "Kesalahan", JOptionPane.ERROR_MESSAGE );
+}
+
+*/
+            }
+
+        }    //end of if( webView==null )
+
+
+        retail.setting.put("Print Small Line Max Chars", "40" );
+        int width = Integer.valueOf( retail.setting.get("Print Small Line Max Chars") ) ;    //40
+
+        String title_header_str="";
+        String line="";
+        int col_width = width - 28;
+        for( Object[] row : title_header ) {
+            line="";
+            int x=0;
+            for( Object cell : row ) {
+                if(x==1) title_header_str += retail.space( col_width-line.length() ) ;
+                title_header_str += cell.toString();        //g.drawString( cell.toString(), x, y - font_descent);
+                x++;
+            }
+            title_header_str += "</br>";
+        }
+
+
+        String data_str="";
+        int harga_width_def = 10;
+        //col_width = width - harga_width;
+        int rowCount = db.getRowCount();
+        byte shift_col = /*parent.getName().indexOf("Fretur")>=0*/ 1==0 ? (byte)1 : (byte)0 ;
+        for( int i=0; i<rowCount; i++ ) {    //start loop table
+            String kode  = db.getValueAt(i,0).toString();
+            if( kode.isEmpty() ) continue;    //user batal nginsert row ini
+            String item   = db.getValueAt(i,1).toString();
+            String diskon = db.getValueAt(i,4+shift_col).toString();
+            diskon = diskon.equals("0") ? "" : " (Disc. " + String.format( "%,d", Integer.valueOf(diskon) ) + ")";
+            String banyak = db.getValueAt(i,3+shift_col).toString();
+            String harga  = banyak.equals("1") || banyak.equals("0") ? "" : " @" + String.format( "%,d", Integer.valueOf( db.getValueAt(i,2).toString() ) ) ;
+            banyak        = banyak.equals("1") || banyak.equals("0") ? "" : " X" + banyak;
+            String total  = String.format( "%,d", Integer.valueOf( db.getValueAt(i,5+shift_col+shift_col).toString() ) );    //total di Fretur jadi bergeser ke posisi 7 krn pake db.getValue rather than table.getValue
+            int harga_width = total.length()+3 <= harga_width_def ? harga_width_def : total.length() +3 ;
+            col_width = width - harga_width;
+
+            if( item.length() + harga.length() + banyak.length() + diskon.length() > col_width ) {    //jika dua baris, print baris pertama dulu....
+                data_str += item.substring( 0, item.length()<col_width ? item.length() : col_width -1 ) + "-" ;
+                int len_item_sisa = item.length()-col_width +1;    //+1 krn ada tambahan "-" di atas
+                int len_width_available = -3 + col_width - (harga.length() + banyak.length() + diskon.length());    //-3 krn ada tambahan 3 spasi di depan
+                if( len_item_sisa > len_width_available ) len_item_sisa = len_width_available;
+                item   = "   " + ( len_item_sisa<=0 ? "" : item.substring( col_width-1,  col_width-1 + len_item_sisa ) ) ;
+            }
+            item += retail.space( col_width-item.length() - (harga.length() + banyak.length() + diskon.length()) ) + harga + banyak + diskon ;
+            data_str += item + " : " + retail.space( harga_width-total.length()-3 ) + total + "</br>";
+        }
+
+        String table_summary_str="";
+        col_width = width - harga_width_def;
+        col_width -= 15;    //7
+        int len=table_summary.length;
+        for( Object[] row : table_summary ) {
+            line="";
+            int x=0;
+            for( Object cell : row ) {
+                     if(x==1) line  = retail.space( col_width-line.length() ) + line ;    //tambah spasi sebelum col 0
+                else if(x==2) line += retail.space( width - col_width - row[1].toString().length() - cell.toString().length() ) ;   //tambah spasi sebelum value
+                table_summary_str += cell.toString();
+                x++;
+            }
+            table_summary_str += "</br>";
+        }
+
+        faktur_template = faktur_template.replace("{title_header}",title_header_str)
+                          .replace("{table_summary}",table_summary_str)
+                          .replace("{data}",data_str);
+
+android.util.Log.e( "print", "1");
+
+try{
+android.util.Log.e( "print", "3");
+        webView.loadDataWithBaseURL(null, faktur_template, "text/HTML", "UTF-8", null);
+android.util.Log.e( "print", "4");
+            } catch (Exception e) {
+                  retail.show_error( "onprint Error: " + e.getMessage(), "Error!" );
+                  android.util.Log.e( "onprint", " Error: " + e.getMessage());
+            }
+        //myWebView = webView;
+
+
+
+
+    }
+
+
 
 
     //https://www.codota.com/android/scenarios/52fcbc8eda0a0bd4740ef489/android.net.wifi.WifiManager.WifiLock?tag=dragonfly
