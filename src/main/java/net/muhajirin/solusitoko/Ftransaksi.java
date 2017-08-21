@@ -85,10 +85,10 @@ public class Ftransaksi extends Fedit {
     String sound = "sound/terimakasih" + ( retail.convert_null(retail.setting.get("Seragamkan Suara Terimakasih")).toLowerCase().equals("ya") ? "" : retail.user_id ) + ".wav" ;
 
     //JTextField Tdiskon_edit = new JTextField();
-    EditText Tdiskon;
+    EditText Tdiskon_edit, Tdiskon;
     //JCheckBox CHppn = new JCheckBox("PPN", retail.db.cfg.get("ppn_aktif_secara_default").equals("ya"));
-    //JTextField Tppn = new JTextField();
-    EditText Tsub_total, Ttotal, Tno_faktur;
+    android.widget.CheckBox CHppn;
+    EditText Tsub_total, Ttotal, Tno_faktur, Tppn;
     //public JLabel Ltotal_blink = new JLabel();    JLabel Lbanyak_blink = new JLabel("", JLabel.CENTER);
     //JTextField Tpoin;
     //JComboBox Ckontak_agent;
@@ -365,10 +365,42 @@ android.util.Log.e( "penjual: ", "2" + ( form.getActivity().getCurrentFocus()==n
         TextInputLayout TL = new TextInputLayout(form.getActivity());    TL.addView( Tsub_total, prms_tv );
         footer_panel.addView( TL, prms );
 
-        Tdiskon = new EditText(form.getActivity());    Tdiskon.setMinWidth(min_width);    Tdiskon.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-        Tdiskon.setHint( "Potongan" );    Tdiskon.setInputType( InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL );    //Tdiskon.setBackgroundColor( disabled_background_color );
+        Tdiskon_edit = new EditText(form.getActivity());    Tdiskon_edit.setMinWidth(30);    Tdiskon_edit.setGravity( Gravity.CENTER_VERTICAL | Gravity.RIGHT );
+        /*Tdiskon_edit.setHint( "Potongan" );*/    Tdiskon_edit.setInputType( InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL );    //Tdiskon_edit.setBackgroundColor( disabled_background_color );
+        TL = new TextInputLayout(form.getActivity());    TL.addView( Tdiskon_edit, prms_tv );    footer_panel.addView( TL, prms );
+
+        Tdiskon_edit.addTextChangedListener( new android.text.TextWatcher() {
+            public void afterTextChanged( android.text.Editable s ) {
+android.util.Log.e( "discedit: ", "1" );
+                String o = s.toString().trim();
+                if( o.length()==0 ) o="0";
+android.util.Log.e( "discedit: ", "2" );
+                if( o!=null ) {
+android.util.Log.e( "discedit: ", "3" );
+                    current_Tdiskon_edit = Integer.valueOf(o);
+android.util.Log.e( "discedit: ", "4" );
+                    if( current_Tdiskon_edit==last_Tdiskon_edit ) return;
+android.util.Log.e( "discedit: ", "5" );
+                }
+android.util.Log.e( "discedit: ", "6" );
+                last_Tdiskon_edit = current_Tdiskon_edit;
+android.util.Log.e( "discedit: ", "7" );
+                hitung_total();
+android.util.Log.e( "discedit: ", "8" );
+            }
+            public void onTextChanged( java.lang.CharSequence s, int start, int before, int count ) {}
+            public void beforeTextChanged( java.lang.CharSequence s, int start, int count, int after ) {}
+        });
+
+
+        TextView Lpersen = new TextView(form.getActivity());    Lpersen.setText("%");    Lpersen.setMaxWidth(20);    Lpersen.setGravity( Gravity.BOTTOM | Gravity.LEFT );
+        //TL = new TextInputLayout(form.getActivity());    TL.addView( Lpersen, prms_tv );    footer_panel.addView( TL, prms );
+        footer_panel.addView( Lpersen, prms );
+
+        Tdiskon = new EditText(form.getActivity());    Tdiskon.setMinWidth(min_width-15);    Tdiskon.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Tdiskon.setHint( "Potongan" );
+        Tdiskon.setInputType( InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL );    //Tdiskon.setBackgroundColor( disabled_background_color );
         TL = new TextInputLayout(form.getActivity());    TL.addView( Tdiskon, prms_tv );
-android.util.Log.e( "penjual: ", "8 edit_potongan_aktif" + edit_potongan_aktif  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
 
         if( edit_potongan_aktif ) {
             footer_panel.addView( TL, prms );
@@ -381,16 +413,16 @@ android.util.Log.e( "penjual: ", "8 edit_potongan_aktif" + edit_potongan_aktif  
                         current_Tdiskon = Integer.valueOf(o);
                         if( current_Tdiskon==last_Tdiskon ) return;
                     }
-                    last_Tdiskon = current_Tdiskon;
+                    //last_Tdiskon = current_Tdiskon;
                     int percent = sub_total==0 ? 0 : Math.abs( retail.round( (long) 10000 * current_Tdiskon / sub_total , 100 ) );
                     //Object percent_view = Tdiskon_edit.getDocument().getProperty("plain_num");
                     //if( percent_view != null ) if( percent == (Integer)percent_view ) {
-                    if( percent<=100 ) {
+                    /*if( percent<=100 ) {
                         calculate_disc_rupiah=false;    //supaya ga circular lock:p
                         hitung_total();
                         calculate_disc_rupiah=true;
                         return;
-                    }
+                    }*/
                     if( percent>100 ) {
                         final int backup_Tdiskon = last_Tdiskon;
                         //SwingUtilities.invokeLater( new Runnable() { public void run() {
@@ -410,9 +442,13 @@ Tdiskon.setText( retail.numeric_format.format( -1* Math.abs(backup_Tdiskon) ) );
                         //}
                         return;
                     }
-                    //calculate_disc_rupiah=false;    //supaya ga circular lock:p
-                    //Tdiskon_edit.setText(String.valueOf(Math.abs(percent))) ;
-                    //calculate_disc_rupiah=true;
+                    last_Tdiskon = current_Tdiskon;
+                    calculate_disc_rupiah=false;    //supaya ga circular lock:p
+
+android.util.Log.e( "before edit: ", "8" );
+                    Tdiskon_edit.setText(String.valueOf(Math.abs(percent))) ;
+android.util.Log.e( "after edit: ", "8" );
+                    calculate_disc_rupiah=true;
                 }
                 public void onTextChanged( java.lang.CharSequence s, int start, int before, int count ) {    //This method is called to notify you that, within s, the count characters beginning at start have just replaced old text that had length before.
                 }
@@ -420,6 +456,27 @@ Tdiskon.setText( retail.numeric_format.format( -1* Math.abs(backup_Tdiskon) ) );
                 }
             });
         } //else {    Tdiskon.setEnabled(false);  Tdiskon.setBackgroundColor( disabled_background_color );    }
+
+android.util.Log.e( "penjual: ", "8 edit_potongan_aktif" + edit_potongan_aktif  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
+
+
+        Tppn = new EditText(form.getActivity());    Tppn.setText("0");    Tppn.setEnabled(false);    Tppn.setMinWidth(min_width+20);    Tppn.setGravity( Gravity.CENTER_VERTICAL | Gravity.LEFT );
+        Tppn.setHint( "" );    Tppn.setBackgroundColor( disabled_background_color );    Tppn.setTextSize(18f);    Tppn.setTextColor( android.graphics.Color.LTGRAY );    //0xff060018
+        TL = new TextInputLayout(form.getActivity());    TL.addView( Tppn, prms_tv );
+
+        CHppn = new android.widget.CheckBox(form.getActivity());    CHppn.setText( "Tax" );    CHppn.setChecked( retail.db.cfg.get("ppn_aktif_secara_default").equals("ya") );    CHppn.setMaxWidth(min_width-20);
+        CHppn.setOnCheckedChangeListener( new android.widget.CompoundButton.OnCheckedChangeListener() { public void onCheckedChanged( android.widget.CompoundButton buttonView, boolean isChecked ) {
+            //ppn = e.getStateChange()==ItemEvent.SELECTED ? sub_total*15/100 : 0 ;   //((Float)( 15/100*sub_total )).intValue() : 0 ;
+            //Tppn.setText( String.format("%,d", ppn) ) ;
+            hitung_total();
+        }});
+
+        if( retail.db.cfg.get("ppn_ditampilkan").equals("ya") ) {
+            footer_panel.addView( CHppn, prms );
+            footer_panel.addView( TL, prms );
+        }
+
+
 
 android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
 
@@ -482,10 +539,10 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
         jp_sub.addView( Lcode_agent, prms_sub );
 */
 
-        Ccode_agent = JCdb.newInstance(false, "", form.getActivity());    Ccode_agent.setMinWidth(min_width+10);    //Ccode_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Ccode_agent = JCdb.newInstance(false, "", form.getActivity());    Ccode_agent.setMinWidth(min_width-20);    //Ccode_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Ccode_agent.setHint( "Id" );    Ccode_agent.setTextColor( android.graphics.Color.YELLOW );    Ccode_agent.setTextSize(18f);
         Ccode_agent.setGravity( Gravity.TOP );
-        prms_sub = new LinearLayoutCompat.LayoutParams( 150, 30 );
+        prms_sub = new LinearLayoutCompat.LayoutParams( 150, 10 );
         //jp_sub.addView( Ccode_agent, prms_sub );
 
         footer_panel.addView( Ccode_agent, prms );    //footer_panel.addView( jp_sub, prms );
@@ -724,7 +781,7 @@ android.util.Log.e( "simpan: ", "7 i=" + i );
 android.util.Log.e( "simpan: ", "8" );
                params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
                       + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + URLEncoder.encode( product_notes, "UTF-8" )    //
-                      + "&tax=" +"0"
+                      + "&tax=" + Tppn.getText().toString()
                       + "&note=" +URLEncoder.encode( "OrderNote", "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
                       + "&status=" +"ordered"
@@ -826,6 +883,9 @@ android.util.Log.e( "simpan berhasil: ", "VERSION.SDK_INT kok 15?" + android.os.
             }
             Ccode_agent.setSelectedIndex(0);
             */
+
+            Ccode_agent.setListSelection(0);
+            CHppn.setChecked( retail.db.cfg.get("ppn_aktif_secara_default").equals("ya") );
 
             if( retail.setting.get("Auto Refresh Delay Item & Barang Di Transaksi") == null ) {
                 baru_action2();
@@ -1245,29 +1305,31 @@ android.util.Log.e("hitung:", "4" );
 android.util.Log.e("hitung_total:", "1" );
         if( table==null ) return;
         //if( table.isEditing() && !sender_is_setValue ) table.getCellEditor().stopCellEditing();    //post update ... ini penting
+
+
+        int diskon_by_percent = last_Tdiskon_edit==-87654321 ? 0 : Math.abs( retail.round( (long) sub_total * last_Tdiskon_edit, 100 ) ) ;    //((Float)( sub_total * ((Integer)doc.getProperty("plain_num")) / 100 ) ).intValue();
         //int diskon_by_percent = Math.abs( retail.round( (long) sub_total * ((Integer)Tdiskon_edit.getDocument().getProperty("plain_num")) , 100 ) ) ;    //((Float)( sub_total * ((Integer)doc.getProperty("plain_num")) / 100 ) ).intValue();
-        //Object diskon_obj = Tdiskon.getDocument().getProperty("plain_num");
 android.util.Log.e("hitung_total:", "2" );
-        diskon = Math.abs( Integer.valueOf(Tdiskon.getText().toString().replace(retail.digit_separator,"")) );    //diskon_obj==null ? 0 : Math.abs( (Integer)diskon_obj );
+        diskon = last_Tdiskon==-87654321 ? 0 : Math.abs( last_Tdiskon );
+        //diskon = Math.abs( Integer.valueOf(Tdiskon.getText().toString().replace(retail.digit_separator,"")) );    //diskon_obj==null ? 0 : Math.abs( (Integer)diskon_obj );
 android.util.Log.e("hitung_total:", "3" );
         calculate_disc_percent=false;
 
 //JOptionPane.showMessageDialog( Fpenjualan.this,  "sub_total"+sub_total + "diskon"+diskon + "diskon_obj==null"+(diskon_obj==null) , "Kembali", JOptionPane.INFORMATION_MESSAGE );
         if( sub_total==0 ) if( diskon==0 ) /*if( diskon_obj==null )*/ Tdiskon.setText( "0" ) ;
-/*
         if( sub_total!=0 ) if(calculate_disc_rupiah) if( diskon_by_percent != diskon ) {
                                                          Tdiskon.setText( String.format("%,d", -1*diskon_by_percent) ) ;
                                                          diskon = diskon_by_percent ;
                                                      }
-*/
+
         calculate_disc_percent=true;
 android.util.Log.e("hitung_total:", "4" );
 
         total = sub_total - diskon;
 android.util.Log.e("hitung_total:", "5" );
 
-        ppn = 0;    //CHppn.isSelected() ? retail.round( (long)total*prosentase_ppn, 100 ) : 0 ;
-        //Tppn.setText( String.format("%,d", ppn) ) ;
+        ppn = CHppn.isChecked() ? retail.round( (long)total*prosentase_ppn, 100 ) : 0 ;
+        Tppn.setText( String.format("%,d", ppn) ) ;
 
         int pembulatan = 100;
         try { pembulatan = Integer.valueOf( db.cfg.get("pembulatan_rupiah") );    } catch( Exception e ) {}
@@ -1316,7 +1378,7 @@ android.util.Log.e("hitung_total:", "7" );
             Object[][] table_summary = {
                   { "Sub Total"      , " : Rp. ", Tsub_total.getText()   }
                 , { "Potongan"       , " : Rp. ", Tdiskon.getText()      }
-                //, {"PPN"             , " : Rp. ", Tppn.getText()         }
+                , { "Tax"            , " : Rp. ", Tppn.getText()         }
                                                    //Ltotal_blink.getText().trim() }
                 , {"Total"           , " : Rp. ", String.format("%,d", total_round) }
                                                    //( Lkembali.getText().equals("-") ? "-" : Tdibayar.getText() ) }

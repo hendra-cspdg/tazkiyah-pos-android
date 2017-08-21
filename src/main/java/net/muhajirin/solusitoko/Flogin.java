@@ -130,6 +130,9 @@ public class Flogin extends DialogFragment {
                         retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Laporan Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
                         retail.setting.put( "Maximum Autocomplete Ribuan", "300" );
                         retail.setting.put( "Buka Faktur Baru Setelah Simpan", "ya" );
+                        retail.setting.put( "Aktifkan Print Ulang Transaksi", "ya" );
+                        retail.setting.put( "Aktifkan Edit Rupiah Potongan", "ya" );
+                        retail.setting.put( "Prosentase PPN", "10" );
 
                         //retail.play_wav("sound/plunger.wav");  //yippee.wav   Door Unlock-SoundBible.com-1558114225.wav //
                         setShowsDialog( false );    //setVisible(false);    //supaya ga saru:)
