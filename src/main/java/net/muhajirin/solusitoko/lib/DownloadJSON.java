@@ -91,6 +91,7 @@ if(1==2) return
 
 
 +    "\"status\": 200,"
++    "\"message\": \"Success\","
 
 +    "\"customer\":{\"id\":18,\"username\":\"rafik\",\"phone_number\":\"0893222222\",\"address\":\"jl. heappy nO. 1 & 2\",\"gender\":\"male\"},"
 +    "\"order\":{\"id\":123, \"code\":\"xyz\"},"

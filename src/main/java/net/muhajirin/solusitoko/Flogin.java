@@ -114,7 +114,7 @@ public class Flogin extends DialogFragment {
                         org.json.JSONObject json_data = new org.json.JSONObject(result);
                         if( json_data.has( client_token_is_exist?"access_token":"client_token" ) ) {
                             token = json_data.getString( client_token_is_exist?"access_token":"client_token" );    //{"client_label":"Client A","client_token":"bv8bmzhhPBYZTOppVqREIzT-GgZi8pAU"}
-                            retail.nama = json_data.getString( client_token_is_exist?"user_name":"client_label");
+                            //later >> retail.nama = json_data.getString( client_token_is_exist?"user_name":"client_label");
                         } else {  //others like 'Bad Request'
                             retail.show_error( "\n" + json_data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
                             Blogin.setEnabled(true);
@@ -124,35 +124,18 @@ public class Flogin extends DialogFragment {
                         android.util.Log.e("flogin error: ", "e.toString()="+ e.toString() );
                         //retail.show_error( "\n" + e.toString() + "\n\n\n\n", "JSONException" );
                     }
-                    if( token.length()>0 ) cfg.put( client_token_is_exist ? "access_token" : "client_token", token );
+                    //if( token.length()>0 ) cfg.put( client_token_is_exist ? "access_token" : "client_token", token );
+
+                        //save access_token or client_token to konfigurasi.txt to use later on app next start
+                        retail.write_config( (client_token_is_exist?"Access":"Client") + " Token", token );
 
                     if( client_token_is_exist ) {
-                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Laporan Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
-                        retail.setting.put( "Maximum Autocomplete Ribuan", "300" );
-                        retail.setting.put( "Buka Faktur Baru Setelah Simpan", "ya" );
-                        retail.setting.put( "Aktifkan Print Ulang Transaksi", "ya" );
-                        retail.setting.put( "Aktifkan Edit Rupiah Potongan", "ya" );
-                        retail.setting.put( "Prosentase PPN", "10" );
-
                         //retail.play_wav("sound/plunger.wav");  //yippee.wav   Door Unlock-SoundBible.com-1558114225.wav //
                         setShowsDialog( false );    //setVisible(false);    //supaya ga saru:)
                         retail.after_login(true);
                         dismiss();    //dispose();
-                    } else {    //save client_token to konfigurasi.txt to use later on app next start
-                        java.io.File file = new java.io.File( cfg.get("file_konfigurasi") );
-                        StringBuilder file_content = new StringBuilder();
-                        String line = null;
-                        try {
-                            String newline = "\r\n"; //"\\n";  //kok unix version semua :p >> java.lang.Character newline = java.lang.Character.LINE_SEPARATOR;    //System.lineSeparator()
-                            java.io.BufferedReader br = new java.io.BufferedReader( new java.io.FileReader(file) );    //read all file konfigurasi.txt lines
-                            while ((line = br.readLine()) != null) {
-                                line = line.trim();    //.replaceAll("[ \x0B\f\r]","")
-                                if( line.toLowerCase().startsWith("client token") ) line = "Client Token    : " + token ;    //modify only Client Token line
-                                file_content.append( line + newline );
-                            }
-                            br.close();
-                            java.io.FileWriter writer = new java.io.FileWriter( cfg.get("file_konfigurasi") ); // burn file_content to file konfigurasi.txt
-                            writer.write( file_content.toString() );    writer.flush();    writer.close();
+                    } else {
+
                             android.widget.Toast.makeText( form.getActivity(), "Client Authentication Succeed!", android.widget.Toast.LENGTH_LONG).show();
 
                             //just change the UI :D for user auth
@@ -164,9 +147,6 @@ public class Flogin extends DialogFragment {
                             Blogin.setEnabled(true);
 //Blogin.performClick();
 
-                        } catch (Exception e) {
-                            retail.show_error( "\n" + "Modifikasi File '" +cfg.get("file_konfigurasi")+ "' Gagal!\n" + e.getMessage() + "\n\n\n\n", "Gagal Simpan Client Token" );
-                        }
                     }
                 }
             }.execute(

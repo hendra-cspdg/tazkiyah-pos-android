@@ -387,9 +387,9 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
                                                 table.setRowSelectionInterval(row, row);
                                             } else if( table.getRowCount()>0 ) {
                                                 table.setRowSelectionInterval(row-1, row-1);   //ini harus sesudah diremove:p  else if( table.getRowCount()>0 ) table.setRowSelectionInterval(row+1, row+1);
-                                                hapus_final();
                                                //caller.setEnabled(false);    caller.getIcon().setAlpha(130);
                                             }
+                                            hapus_final();
                                         }
                                     }.execute();
                                 }

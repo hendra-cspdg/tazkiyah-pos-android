@@ -220,7 +220,9 @@ public class retail extends AppCompatActivity {
     static int screen_width, screen_height;
     static float scale_width, scale_height;
     static int backup_SCREEN_ORIENTATION;
+    static Flogin flogin;
     @Override public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) return;    // However, if we're being restored from a previous state, then we don't need to do anything and should return or else we could end up with overlapping fragments.
 
@@ -305,16 +307,34 @@ public class retail extends AppCompatActivity {
             Log.e("retail", "HTTP response cache installation failed:" + e);
         }
 
-        Flogin.newInstance( app_name + "- LOGIN" ).show(fm, "Flogin");    //show login form
+
+        if( db.cfg.get("access_token").trim().length()==0 ) {    //jika belum punya access_token di file konfigurasi.txt, tampilkan interface utk user auth
+            if( flogin==null ) flogin = Flogin.newInstance( app_name + "- LOGIN" );
+            flogin.show(fm, "Flogin");    //Flogin.newInstance( app_name + "- LOGIN" ).show(fm, "Flogin");    //show login form
+        } else
+            after_login(true);
     }
+
+    double longitude, latitude;
 
     static Menu menuBar;
 
     public static void after_login(Boolean logged_in) {    //called by Flogin
-        if( nama.equals("") || !logged_in ) {    //gara2 user tekan keluar di form login....
+        if( /*later nama.equals("") ||*/ !logged_in ) {    //gara2 user tekan keluar di form login....
             System.exit(0);    //f.dispose();
             return;
         }
+        nama=" ";
+
+                        retail.hak_akses = "'Tambah Barang', 'Edit Barang', 'Tambah Pelanggan', 'Penjualan', 'Laporan Penjualan', 'Default Tombol Simpan di Dialog Kembali', 'Otomatis Print/Simpan di Dialog Kembali'" ;    //may got from the db
+                        retail.setting.put( "Maximum Autocomplete Ribuan", "300" );
+                        retail.setting.put( "Buka Faktur Baru Setelah Simpan", "ya" );
+                        retail.setting.put( "Aktifkan Print Ulang Transaksi", "ya" );
+                        retail.setting.put( "Aktifkan Edit Rupiah Potongan", "ya" );
+                        retail.setting.put( "Prosentase PPN", "10" );
+
+        if( menuBar.size()>0 ) return;    //it's just logout then login again
+Log.e("after login", "create menu ") ;
         //by rafraf, grant permission    //since marshmallow
         if( android.os.Build.VERSION.SDK_INT >= 23 && android.support.v4.content.ContextCompat.checkSelfPermission( get_my_app_activity(), android.Manifest.permission.CAMERA ) != android.content.pm.PackageManager.PERMISSION_GRANTED ) {
             android.support.v4.app.ActivityCompat.requestPermissions( get_my_app_activity(), new String[]{ android.Manifest.permission.CAMERA }, 0 );
@@ -686,16 +706,68 @@ public class retail extends AppCompatActivity {
                 , "Tips penggunaan aplikasi ini ... "
             );
 
-            return true; }}, i++ );    final int id = i-1;
+            return true; }}, i++ );    int id = i-1;
         menu.add(menuItem);
 
         if( menu.menuItems.size()>0 ) {  menu.add_to(menuBar);    /*menuBar.add(menu);*/  }
+
+        menuItem = new JMenuItem( "Logout", R.drawable.preferences_system_power_management32, new MenuItem.OnMenuItemClickListener() { @Override public boolean onMenuItemClick(MenuItem item) {
+            new DownloadJSON(){
+                @Override protected void onPostExecute( String result ) {
+                    super.onPostExecute(result);
+                    if( result.startsWith( "Error:" ) ) {
+                        return;
+                    }
+                    try {
+                        org.json.JSONObject json_data = new org.json.JSONObject(result);
+                        if( !json_data.getString( "status" ).equals("200") ) return;
+                    } catch( org.json.JSONException e ) {
+                        android.util.Log.e("flogin error: ", "e.toString()="+ e.toString() );
+                    }
+
+                    write_config( "Access Token", "" );    //delete access_token to konfigurasi.txt to use later on app next start
+
+                    if( flogin==null ) flogin = Flogin.newInstance( app_name + "- LOGIN" );
+                    flogin.show(fm, "Flogin");
+
+                }
+            }.execute( db.cfg.get( "url_user_logout" ) );
+
+            return true; }}, i++ );    id = i-1;
+
+        menuItem.add_to(menuBar);
 
         android.widget.HorizontalScrollView scroll_panel = new android.widget.HorizontalScrollView( get_my_app_context() );
         scroll_panel.addView( p_wrap, new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT ) );
         p_wrap_wrap.addView(scroll_panel, new LinearLayoutCompat.LayoutParams( LinearLayoutCompat.LayoutParams.WRAP_CONTENT, LinearLayoutCompat.LayoutParams.WRAP_CONTENT ) );    //p_wrap_wrap.add(p_wrap,prms);
     }
 
+    static void write_config( String var, String val ) {
+        java.util.Map<String, String> cfg = db.cfg;
+        cfg.put( var.replace(" ","_").toLowerCase(), val );
+        Log.e("write", "2" );
+                        java.io.File file = new java.io.File( cfg.get("file_konfigurasi") );
+                        StringBuilder file_content = new StringBuilder();
+                        String line = null;
+                        try {
+                            String newline = "\r\n"; //"\\n";  //kok unix version semua :p >> java.lang.Character newline = java.lang.Character.LINE_SEPARATOR;    //System.lineSeparator()
+                            java.io.BufferedReader br = new java.io.BufferedReader( new java.io.FileReader(file) );    //read all file konfigurasi.txt lines
+                            while ((line = br.readLine()) != null) {
+                                line = line.trim();    //.replaceAll("[ \x0B\f\r]","")
+                                if( line.toLowerCase().startsWith(var.toLowerCase()) ) line = var + "    : " + val ;    //modify only Access or Client Token line
+if( line.toLowerCase().startsWith(var.toLowerCase()) ) Log.e("write", "3" );
+
+                                file_content.append( line + newline );
+                            }
+                            br.close();
+                            java.io.FileWriter writer = new java.io.FileWriter( cfg.get("file_konfigurasi") ); // burn file_content to file konfigurasi.txt
+                            writer.write( file_content.toString() );    writer.flush();    writer.close();
+
+                        } catch (Exception e) {
+                            retail.show_error( "\n" + "Modifikasi File '" +cfg.get("file_konfigurasi")+ "' Gagal!\n" + e.getMessage() + "\n\n\n\n", "Gagal Simpan Client Token" );
+                        }
+
+    }
 
     static void copy_asset_dir( String src, String dst_dir ) {
         src = src.startsWith(java.io.File.separator) ? src.substring(1) : src;
@@ -753,6 +825,7 @@ public class retail extends AppCompatActivity {
         System.exit(0);
 finish();
     }
+
 
 public static String now_from_db() {
     db.exec( "SELECT now()" );
@@ -938,7 +1011,7 @@ public static Boolean add_row_sync(JTable table) {
     }
     //brg_id adalah index dari Ccode_brg.items unfiltered
     static void _sync_brg(final JCdb Csrc, final int position, final int filter_position) {
-android.util.Log.e("onlistener:", "first Csrc=" + (Csrc==Ccode_brg ? "Ccode" : "Cname" ));
+android.util.Log.e("onlistener:", "first Csrc=" + (Csrc==Ccode_brg ? "Ccode" : "Cname" ) + "  brg_id=" + brg_id  + "  brg_id=" + brg_id + " last_sql_brg=" + last_sql_brg );
         if( brg_id != -13 ) return;  //supaya tidak listen setSelection yg dilakukan method ini.
         if( last_sql_brg.length()==0 ) return;
         in_progress=true ;
@@ -965,7 +1038,7 @@ android.util.Log.e("onlistener:", "5 tbl_brg==null" + (tbl_brg==null) );
                 //Csrc.setVisibility( View.VISIBLE);
             //}});
 
-            Cdst.post(new Runnable() { public void run() {    //well, perlu untuk memastikan clear_filter() dah selesai di remove_editor()    //I can't remember why I did this >> new android.os.Handler().post(new Runnable() { public void run() {    //new android.os.AsyncTask<Void, Void, Void> () {   @Override protected Void doInBackground( Void... v ) {
+            new android.os.Handler().post(new Runnable() { public void run() {    //dia nunggu sangat lama di android nougat >> Cdst    //well, perlu untuk memastikan clear_filter() dah selesai di remove_editor()    //I can't remember why I did this >> new android.os.Handler().post(new Runnable() { public void run() {    //new android.os.AsyncTask<Void, Void, Void> () {   @Override protected Void doInBackground( Void... v ) {
                 //percuma si >> Csrc.dismissDropDown();
                 brg_id = Csrc.items.indexOf( Csrc.getItemAtPosition(position) );    //((jcdb_item)Csrc.getItemAtPosition(position)).get_id();    //position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
 android.util.Log.e("onlistener:", "inside handler  brg_id=" + brg_id );

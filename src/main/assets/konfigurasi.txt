@@ -10,8 +10,7 @@ url order create    : http://api.muhajirin.net/v1/order/create
 url order index     : http://api.muhajirin.net/v1/order/index
 
 Client Token        :
-
-
+Access Token        :
 
 Database : retail
 User     : root
@@ -33,7 +32,7 @@ Font Size di Tabel Transaksi    : 22
 Font Bold di Tabel Transaksi    : ya
 Font Italic di Tabel Transaksi  : ya
 Tinggi Baris di Tabel Transaksi : 90
-Lebar Kode di Tabel Transaksi   : 200
+Lebar Kode di Tabel Transaksi   : 80
 Pembulatan Rupiah    :
 Print Barcode Skala Horizontal      :
 Print Barcode Skala Vertical        :

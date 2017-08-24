@@ -120,15 +120,21 @@ public class Ftransaksi extends Fedit {
     //di JTable aja, pukul rata semua ... tidak hanya di transaksi:p >> final int row_height    = retail.is_number( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) && Integer.valueOf( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) > 16 ? Integer.valueOf( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) : 38;    //defaultnya adalah 16    //32
     int code_width;    //   = retail.is_number( db.cfg.get("lebar_kode_di_tabel_transaksi") ) ? Integer.valueOf( db.cfg.get("lebar_kode_di_tabel_transaksi") ) : 100+15;
     void build_col() {
-android.util.Log.e( "build: ", "5" );
         //barcode sebagai code tu lebar ... db.col_width     = new int[]        {           100, Ttotal.getX()+Ttotal.getWidth()-15 -5 -100-100-75-70-130,          -100,             75,           -70,          -130  ,             0  };   // (-) means not editable:)
         //db.col_width     = new int[]        {         125+20+10, retail.screen_width-15 -5 -125-20-10- 90-75-70-100,           ( retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -70,          -100  ,             0  };   // (-) means not editable:)
 
-        db.col_width     = new int[]        {     code_width, 130 /*blm bisa klo item panjang, dia melebar sendiri, padahal header kagak:p 10000*/,           ( form instanceof Fpenjualan && retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -70,          -100  ,             0  };   // (-) means not editable:)
-        db.col_editor    = new View[]       {      Ccode_brg,                                                   Cname_brg,          null,                null,          null,          null  ,          null  };
-        db.col_label     = new String[]     {         "kode",                                                      "item",       "harga",            "banyak",      "diskon",       "total"  ,       "gambar" };    //don't contact the db, just create my own RowSetMetaData:)
-        db.col_type      = new int[]        { Types.SMALLINT,                                              Types.SMALLINT, Types.INTEGER,      Types.SMALLINT, Types.INTEGER, Types.INTEGER  , Types.VARCHAR  };
-        db.col_precision = new int[]        {              3,                                                           3,             9,                   5,             9,             9  ,           255  };    //ini menentukan jumlah karakter diizinkan
+        android.graphics.Point screen_size = retail.getDisplaySize( form.getActivity().getWindow().getWindowManager().getDefaultDisplay() );
+        int other_width = code_width + 90 + 75 + 75 + 100;
+        int name_width  = 130;
+android.util.Log.e( "build: ", "other_width=" + other_width + " name_width="+ name_width + "  screen_width=" + screen_size.x  );
+        if( name_width+other_width < screen_size.x ) name_width = screen_size.x - other_width  ;
+        if( name_width>other_width-50 ) name_width = name_width -140 ;    //entahlah, aneh kok screen_size.x nya gede bgt!!
+
+        db.col_width     = new int[]        {     code_width, name_width /*130 blm bisa klo item panjang, dia melebar sendiri, padahal header kagak:p 10000*/,           ( form instanceof Fpenjualan && retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -75,          -100  ,             0, 250  };   // (-) means not editable:)
+        db.col_editor    = new View[]       {      Ccode_brg,                                                   Cname_brg,          null,                null,          null,          null  ,          null,         null   };
+        db.col_label     = new String[]     {         "kode",                                                      "item",       "harga",            "banyak",      "diskon",       "total"  ,       "gambar",       "note"  };    //don't contact the db, just create my own RowSetMetaData:)
+        db.col_type      = new int[]        { Types.SMALLINT,                                              Types.SMALLINT, Types.INTEGER,      Types.SMALLINT, Types.INTEGER, Types.INTEGER  ,  Types.VARCHAR, Types.VARCHAR };
+        db.col_precision = new int[]        {              3,                                                           3,             9,                   5,             9,             9  ,            255,           255 };    //ini menentukan jumlah karakter diizinkan
 
         /* if( col_banyak_idx<0 || col_banyak_idx>=db.col_width.length ) col_banyak_idx=3;
         if( col_banyak_idx!=3 ) {    //pindah posisi kolom banyak
@@ -770,7 +776,7 @@ android.util.Log.e( "simpan: ", "6 i=" + i );
             if( r>0 ) {
                 products += ","; product_attributes += ","; product_quantities += ","; product_discounts += ","; product_notes += ",";
             }
-            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += "\"Note "+r+"\"" ;    //"\\\"" + URLEncoder.encode( "Note "+r, "UTF-8" ) + "\\\"";    //"\"" + "Note "+r + "\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
+            products += barang_id; product_attributes += "0"; product_quantities += db.to_db( 3, db.getValueAt(i,3) ); product_discounts += db.to_db( 4, db.getValueAt(i,4) ); product_notes += "\""+db.to_db( 7, db.getValueAt(i,7) ).replace("\"","\\\"")+"\"" ;    //"\\\"" + URLEncoder.encode( "Note "+r, "UTF-8" ) + "\\\"";    //"\"" + "Note "+r + "\"";    //URLEncoder.encode( "\"Note "+r+"\"", "UTF-8" );
 android.util.Log.e( "simpan: ", "7 i=" + i );
             r++;
         }
@@ -781,8 +787,8 @@ android.util.Log.e( "simpan: ", "7 i=" + i );
 android.util.Log.e( "simpan: ", "8" );
                params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
                       + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + URLEncoder.encode( product_notes, "UTF-8" )    //
-                      + "&tax=" + Tppn.getText().toString()
-                      + "&note=" +URLEncoder.encode( "OrderNote", "UTF-8" )
+                      + "&tax=" + Tppn.getText().toString().replace(retail.digit_separator,"")
+                      + "&note=" +URLEncoder.encode( "", "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
                       + "&status=" +"ordered"
                       ;
