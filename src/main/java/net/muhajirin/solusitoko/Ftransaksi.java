@@ -88,7 +88,7 @@ public class Ftransaksi extends Fedit {
     EditText Tdiskon_edit, Tdiskon;
     //JCheckBox CHppn = new JCheckBox("PPN", retail.db.cfg.get("ppn_aktif_secara_default").equals("ya"));
     android.widget.CheckBox CHppn;
-    EditText Tsub_total, Ttotal, Tno_faktur, Tppn;
+    EditText Tsub_total, Ttotal, Tno_faktur, Tppn, Tnote;
     //public JLabel Ltotal_blink = new JLabel();    JLabel Lbanyak_blink = new JLabel("", JLabel.CENTER);
     //JTextField Tpoin;
     //JComboBox Ckontak_agent;
@@ -130,8 +130,19 @@ android.util.Log.e( "build: ", "other_width=" + other_width + " name_width="+ na
         if( name_width+other_width < screen_size.x ) name_width = screen_size.x - other_width  ;
         if( name_width>other_width-50 ) name_width = name_width -140 ;    //entahlah, aneh kok screen_size.x nya gede bgt!!
 
+
+        NumberPicker numberPicker = new NumberPicker( form.getActivity() );    //android.widget.
+        //numberPicker.setOnValueChangedListener( new android.widget.NumberPicker.OnValueChangeListener() { @Override public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+        //}});
+        //numberPicker.setWrapSelectorWheel(true); 
+        //numberPicker.setMinValue(1);// restricted number to minimum value i.e 1
+        //numberPicker.setMaxValue(99);// restricked number to maximum value i.e. 31
+
+
+
+
         db.col_width     = new int[]        {     code_width, name_width /*130 blm bisa klo item panjang, dia melebar sendiri, padahal header kagak:p 10000*/,           ( form instanceof Fpenjualan && retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -75,          -100  ,             0, 250  };   // (-) means not editable:)
-        db.col_editor    = new View[]       {      Ccode_brg,                                                   Cname_brg,          null,                null,          null,          null  ,          null,         null   };
+        db.col_editor    = new View[]       {      Ccode_brg,                                                   Cname_brg,          null,        numberPicker,          null,          null  ,          null,         null   };
         db.col_label     = new String[]     {         "kode",                                                      "item",       "harga",            "banyak",      "diskon",       "total"  ,       "gambar",       "note"  };    //don't contact the db, just create my own RowSetMetaData:)
         db.col_type      = new int[]        { Types.SMALLINT,                                              Types.SMALLINT, Types.INTEGER,      Types.SMALLINT, Types.INTEGER, Types.INTEGER  ,  Types.VARCHAR, Types.VARCHAR };
         db.col_precision = new int[]        {              3,                                                           3,             9,                   5,             9,             9  ,            255,           255 };    //ini menentukan jumlah karakter diizinkan
@@ -163,7 +174,8 @@ android.util.Log.e( "setval: ", "1" );
             if( row_idx<0 ) return;    //ini bisa terjadi saat posting code yg blm ada lalu user pilih tambah item baru yg pada gilirannya akan melakukan posting kedua dengan item baru tsb
             if( to_str( col_idx, getValueAt(row_idx, col_idx).toString().trim() ).equals( to_str(col_idx, val.toString().trim()) ) ) return;
             if( col_idx==3 && Integer.valueOf(val.toString()) < 1 ) {
-                retail.show_error( "Banyak barang harus lebih besar dari 0.\nPerubahan dibatalkan!", "Kesalahan" );
+                hapus();
+                //retail.show_error( "Banyak barang harus lebih besar dari 0.\nPerubahan dibatalkan!", "Kesalahan" );
                 //table.requestFocus();
                 return;
             }
@@ -466,7 +478,7 @@ android.util.Log.e( "after edit: ", "8" );
 android.util.Log.e( "penjual: ", "8 edit_potongan_aktif" + edit_potongan_aktif  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
 
 
-        Tppn = new EditText(form.getActivity());    Tppn.setText("0");    Tppn.setEnabled(false);    Tppn.setMinWidth(min_width+20);    Tppn.setGravity( Gravity.CENTER_VERTICAL | Gravity.LEFT );
+        Tppn = new EditText(form.getActivity());    Tppn.setText("0");    Tppn.setEnabled(false);    Tppn.setMinWidth(min_width-20);    Tppn.setGravity( Gravity.CENTER_VERTICAL | Gravity.LEFT );
         Tppn.setHint( "" );    Tppn.setBackgroundColor( disabled_background_color );    Tppn.setTextSize(18f);    Tppn.setTextColor( android.graphics.Color.LTGRAY );    //0xff060018
         TL = new TextInputLayout(form.getActivity());    TL.addView( Tppn, prms_tv );
 
@@ -499,10 +511,6 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
         //final int row_height    = retail.is_number( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) && Integer.valueOf( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) > 16 ? Integer.valueOf( db.cfg.get("tinggi_baris_di_tabel_transaksi") ) : 38;    //defaultnya adalah 16    //32
 
 
-
-
-
-
         Ttotal = new EditText(form.getActivity());    Ttotal.setText("0");    Ttotal.setEnabled(false);     Ttotal.setMinWidth(min_width+40);    //Ttotal.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Ttotal.setHint( "Total" );    Ttotal.setTextColor( android.graphics.Color.GREEN );    Ttotal.setBackgroundColor( disabled_background_color );    Ttotal.setTextSize(28f);    //0xff060018
         TL = new TextInputLayout(form.getActivity());    TL.addView( Ttotal, prms_tv );
@@ -525,11 +533,11 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
         jp_sub.addView( Lname_agent, prms_sub );
 */
 
-        Cname_agent = JCdb.newInstance(false, "", form.getActivity());    /*new AutoCompleteTextView(form.getActivity());*/    Cname_agent.setMinWidth(min_width+40);    //Cname_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Cname_agent = JCdb.newInstance(false, "", form.getActivity());    /*new AutoCompleteTextView(form.getActivity());*/    Cname_agent.setMinWidth(min_width);    //Cname_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Cname_agent.setHint( agent );    Cname_agent.setTextColor( android.graphics.Color.YELLOW );    Cname_agent.setTextSize(18f);
         Cname_agent.setGravity( Gravity.TOP );
         //Cname_agent.setAdapter( new ArrayAdapter<String>( form.getActivity(), android.R.layout.simple_spinner_item, new ArrayList<String>() ) );
-        LinearLayoutCompat.LayoutParams prms_sub = new LinearLayoutCompat.LayoutParams( 150, 30 );
+        //LinearLayoutCompat.LayoutParams prms_sub = new LinearLayoutCompat.LayoutParams( 150, 30 );
         //jp_sub.addView( Cname_agent, prms_sub );
 
         footer_panel.addView( Cname_agent, prms );    //footer_panel.addView( jp_sub, prms );
@@ -545,10 +553,10 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
         jp_sub.addView( Lcode_agent, prms_sub );
 */
 
-        Ccode_agent = JCdb.newInstance(false, "", form.getActivity());    Ccode_agent.setMinWidth(min_width-20);    //Ccode_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Ccode_agent = JCdb.newInstance(false, "", form.getActivity());    Ccode_agent.setMinWidth(min_width-40);    //Ccode_agent.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Ccode_agent.setHint( "Id" );    Ccode_agent.setTextColor( android.graphics.Color.YELLOW );    Ccode_agent.setTextSize(18f);
         Ccode_agent.setGravity( Gravity.TOP );
-        prms_sub = new LinearLayoutCompat.LayoutParams( 150, 10 );
+        //prms_sub = new LinearLayoutCompat.LayoutParams( 150, 10 );
         //jp_sub.addView( Ccode_agent, prms_sub );
 
         footer_panel.addView( Ccode_agent, prms );    //footer_panel.addView( jp_sub, prms );
@@ -639,6 +647,15 @@ android.util.Log.e("onlistener:", "6");
 
 
 
+        Tnote = new EditText(form.getActivity());    Tnote.setMinWidth(min_width);    Tnote.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+        Tnote.setHint( "Note" );    /*Tnote.setTextSize(18f);*/    Tnote.setTextColor( android.graphics.Color.YELLOW );    //0xff060018
+        TL = new TextInputLayout(form.getActivity());    TL.addView( Tnote, prms_tv );
+        footer_panel.addView( TL, prms );
+
+
+
+
+
 android.util.Log.e( "penjual db.col_width: ", ""+db.col_width.length  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
         if( col_banyak_idx<0 || col_banyak_idx>=db.col_width.length ) col_banyak_idx=3;
         //if( col_banyak_idx!=3 ) db.column_model.moveColumn(3,col_banyak_idx);    //pindah posisi kolom banyak
@@ -678,8 +695,8 @@ android.util.Log.e( "penjual: ", "13"  + ( form.getActivity().getCurrentFocus()=
         if( retail.convert_null(retail.setting.get("Aktifkan Multi Form Transaksi")).toLowerCase().equals("ya") ) Bbaru.setToolTipText("[Shift+F5] - Buka Window Baru | [Alt+F5] - Pindah Antar Window");
         */
 
-        form.menu.add( Menu.NONE, 10,   6, "Simpan" );    Bsimpan = form.menu.getItem(0);
-        form.menu.add( Menu.NONE,  9,   7, "Baru" );    Bbaru = form.menu.getItem(1);
+        form.menu.add( Menu.NONE, 10,   6, "Save For Later" );    Bsimpan = form.menu.getItem(0);
+        form.menu.add( Menu.NONE,  9,   7, "New Order" );    Bbaru = form.menu.getItem(1);
         if( retail.hak_akses.indexOf("'Refresh Barang di Fitur Transaksi'") >= 0 ) {  form.menu.add( Menu.NONE,  8,    8, "Refresh" );    Brefresh = form.menu.getItem(2);  }
         if( retail.hak_akses.indexOf("'Edit Barang di Fitur Transaksi'")    >= 0 ) {  form.menu.add( Menu.NONE,  7,    9, "Edit Barang" );    Bedit_brg = form.menu.getItem(3);  }
         if( retail.hak_akses.indexOf("'Tambah Barang di Fitur Transaksi'")  >= 0 ) {  form.menu.add( Menu.NONE,  6,   10, "Tambah Barang" );    Btambah_brg = form.menu.getItem(4);  }
@@ -788,9 +805,9 @@ android.util.Log.e( "simpan: ", "8" );
                params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
                       + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + URLEncoder.encode( product_notes, "UTF-8" )    //
                       + "&tax=" + Tppn.getText().toString().replace(retail.digit_separator,"")
-                      + "&note=" +URLEncoder.encode( "", "UTF-8" )
+                      + "&note=" +URLEncoder.encode( Tnote.getText().toString(), "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
-                      + "&status=" +"ordered"
+                      + "&status=" + ( baru_action ? "ordered" : "saved" )
                       ;
 android.util.Log.e( "simpan: ", "9" );
         } catch ( java.io.UnsupportedEncodingException ex) {
@@ -826,7 +843,7 @@ android.util.Log.e(api_table+": ", "4");
 android.util.Log.e( "simpan berhasil: ", "VERSION.SDK_INT kok 15?" + android.os.Build.VERSION.SDK_INT + " Tno_faktur.getText()=" + Tno_faktur.getText().toString() );
                         Bsimpan.setEnabled(false);    //gara2 di atas:)
 
-                        //if( android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT )
+                        if( android.os.Build.VERSION.SDK_INT >= 16 )   //android.os.Build.VERSION_CODES.KITKAT )
                         new android.os.Handler().post(new Runnable() { public void run() {
  retail.print( title_header(), table_summary(), db );    //if( retail.db.cfg.get("otomatis_print") )
                         }});
@@ -952,6 +969,7 @@ android.util.Log.e( "simpan berhasil: ", "VERSION.SDK_INT kok 15?" + android.os.
             //reset_gambar();
             //jgn, karena di desain saat ini, "dialog kembali" ditutup sebelum ngeprint >> Tdibayar.setText("");
             //Tdiskon_edit.setText("0");
+            Tnote.setText("");
             Tdiskon.setText("0");    //unfully tested:) >> entah kenapa ini ga ikut ngereset:)
 
             hitung_sub_total();
@@ -1231,7 +1249,7 @@ android.util.Log.e("ftransaksi:", "tambah_brg 4" );
 //        new android.os.Handler().postDelayed(new Runnable() { public void run() {    //biar removeeditor dll kerja dulu, otherwise saat klik baru dan Ya di konfirmasi simpan, proses simpan keganggu oleh thread remove editor
             if( super.onMenuItemClick(item) ) return true;    //jika sudah terhandle oleh super class
             switch( item.getItemId() ) {
-                case 10: simpan();          return true;
+                case 10: simpan(false);     return true;
                 case  9: baru();            return true;
                 case  8: refresh_brg();     return true;
                 case  7: edit_brg();        return true;

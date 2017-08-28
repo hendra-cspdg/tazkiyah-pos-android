@@ -105,8 +105,18 @@ public class JTable extends RecyclerView {    //why I named it JTable while it's
     @Override public void onScrollStateChanged( int state ) {
                 if( state!=RecyclerView.SCROLL_STATE_DRAGGING || (ViewGroup)getFocusedChild()==null ) return;   //This callback will also be called if visible item range changes after a layout calculation. In that case, dx and dy will be 0.
                 View cur_focus = ((ViewGroup)((ViewGroup)getFocusedChild()).getFocusedChild()).getFocusedChild();    //this.getActivity.getCurrentFocus();    //ato loop db_col_editor lalu cek visibilitynya?
+
+//android.util.Log.e("onScrollStateChanged:", "1 cur_focus instanceof Lay" );
+
+//                ?? cur_focus = ((ViewGroup)((ViewGroup)getFocusedChild()).getFocusedChild()).getFocusedChild();
+
+
                 if( !( cur_focus instanceof ViewGroup ) ) return;    //sometimes i get no viewgroup when i longclick on banyak then double click with scrolling horizontal on diskon
                 cur_focus = ((ViewGroup)cur_focus).getFocusedChild();    //this.getActivity.getCurrentFocus();    //ato loop db_col_editor lalu cek visibilitynya?
+
+//untested:
+                if( cur_focus!=null && cur_focus.getParent() instanceof NumberPicker ) cur_focus = (ViewGroup)cur_focus.getParent() ;
+
                 android.util.Log.e("onscroll:", "cur_focus!=null="+ (cur_focus!=null)  );
                 if( cur_focus!=null && cur_focus.getParent() instanceof android.widget.ViewSwitcher ) {
                     final android.widget.ViewSwitcher col_switcher_this = ((android.widget.ViewSwitcher) cur_focus.getParent()) ;
@@ -184,7 +194,8 @@ android.util.Log.e("onConstructor:", "1" );
                             db.editor_barcode_target = -1;    //reset aja, aneh sebenarnya direset di sini :p
                         }
 
-                        db.col_editor[i].setOnFocusChangeListener(remove_editor_when_lost_focus);
+                        if( db.col_editor[i] instanceof NumberPicker ) ((NumberPicker)db.col_editor[i]).editText.setOnFocusChangeListener(remove_editor_when_lost_focus);
+                        else db.col_editor[i].setOnFocusChangeListener(remove_editor_when_lost_focus);
                         //hanya detect hardware key!!! >> db.col_editor[i].setOnKeyListener(cancel_when_back_pressed);
                         db.col_editor[i].setId(i);         //str.setClickable(false);    //str.setEnabled(false);
 
@@ -214,14 +225,18 @@ android.util.Log.e("onConstructor:", "1" );
 
         String getCellEditorValue( View editor ) {
             String ret="";
-            if( editor instanceof JCdb     ) {
+//            if( editor instanceof JCdb     ) {
 //android.util.Log.e("getCellEditorValue:", "((JCdb)editor).getSelectedItemPosition()=" + ((JCdb)editor).getSelectedItemPosition()  );
 //((JCdb)editor).setText("");
 //((JCdb)editor).showDropDown();
 //((JCdb)editor).performFiltering( "", 0 );
-}
+//}
 
-            if( editor instanceof JCdb     ) {
+            if( editor instanceof NumberPicker ) {    //android.widget.
+android.util.Log.e("getCellEditorValue:", "1");
+                ret = String.valueOf( ((NumberPicker)editor).getValue() );
+                return ret;
+            } else if( editor instanceof JCdb     ) {
                 //return //((JCdb)editor).getText().toString();    //
 android.util.Log.e("getCellEditorValue:", "1");
 //pindah ke remove_editor >> ((JCdb)editor).clear_filter();
@@ -239,9 +254,14 @@ android.util.Log.e("getCellEditorValue:", "end" );
             return "";
         }
         void remove_editor( View v, Boolean post_update ) {
-android.util.Log.e("onremove:", "1" );
-            final android.widget.ViewSwitcher col_switcher_this = ((android.widget.ViewSwitcher) v.getParent()) ;    //col_switcher[v.getId()];
-android.util.Log.e("onremove:", "col_switcher_this!=null="+ (col_switcher_this!=null)  );
+android.util.Log.e("onremove:", "1 " );
+            //View parent = (View) v.getParent() ;
+
+            //final android.widget.ViewSwitcher col_switcher_this = (android.widget.ViewSwitcher) v.getParent() ;    //col_switcher[v.getId()];
+android.util.Log.e("onremove:", "2xx" );
+            final android.widget.ViewSwitcher col_switcher_this = (android.widget.ViewSwitcher) ((View)( v.getParent()!=null && v.getParent() instanceof NumberPicker ? v.getParent() : v )).getParent() ;    //col_switcher[v.getId()];
+//android.util.Log.e("onremove:", "parent instanceOf NumberPicker"+ (  v.getParent()!=null && v.getParent().getParent()!=null &&  v.getParent().getParent() instanceof NumberPicker )  + (   v.getParent()!=null && v.getParent().getParent()!=null &&  v.getParent().getParent().getParent()!=null &&  v.getParent().getParent().getParent() instanceof NumberPicker )    + (   v.getParent()!=null && v.getParent().getParent()!=null &&  v.getParent().getParent().getParent()!=null &&  v.getParent().getParent().getParent().getParent()!=null &&  v.getParent().getParent().getParent().getParent()!=null &&  v.getParent().getParent().getParent().getParent().getParent() instanceof NumberPicker )  );
+            //if( parent instanceof NumberPicker ) col_switcher_this = ((android.widget.ViewSwitcher) parent.getParent()) ;
             if( col_switcher_this!=null && col_switcher_this.getDisplayedChild()==1 ) { 
 android.util.Log.e("onremove:", "2"  );
                 TextView col_text = (TextView) col_switcher_this.getChildAt(0);
@@ -268,7 +288,15 @@ android.util.Log.e("onremove:", "10"  );
         }
         View.OnFocusChangeListener remove_editor_when_lost_focus = new View.OnFocusChangeListener() { @Override public void onFocusChange( View v, boolean hasFocus ) {
             android.util.Log.e("onfocus:", "hasFocus:"+ hasFocus );    //ingat: lost focus terjadi setelah onclick di cell lain!!!
-            if( hasFocus ) return;
+            if( hasFocus ) {
+
+                        //if( db.col_editor[i] instanceof NumberPicker ) ((NumberPicker)db.col_editor[i]).editText.setOnFocusChangeListener(remove_editor_when_lost_focus);
+
+
+
+
+                return;
+            }
             remove_editor(v);
         }};
 
@@ -607,9 +635,16 @@ android.util.Log.e("onlongclick:", "before show_next" );
                 parent.showNext();
 android.util.Log.e("onlongclick:", "after show_next" );
 
-                final String cur_value = ((TextView)v).getText().toString();
+                String cur_value = ((TextView)v).getText().toString();    //final String cur_value = ((TextView)v).getText().toString();
 android.util.Log.e("onlongclick:", "44444" );
-                if( col_editor[c] instanceof JCdb ) {
+
+                if( col_editor[c] instanceof NumberPicker ) {    //android.widget.
+                    final NumberPicker editor = (NumberPicker)col_editor[c];
+android.util.Log.e("onlongclick: ", "NumberPicker before cur_value" + cur_value );
+                    editor.setValue( Integer.valueOf(cur_value) );
+android.util.Log.e("onlongclick: ", "NumberPicker after cur_value" + cur_value );
+                            editor.editText.requestFocusFromTouch();
+                } else if( col_editor[c] instanceof JCdb ) {
                     //retail.brg_id = -1;    //agar listener tak aktif
                         final JCdb editor = (JCdb)col_editor[c];
 android.util.Log.e("onlongclick: ", "Jcdb before  Selectedpos=" + ((JCdb)col_editor[c]).getSelectedItemPosition()   + "  cur_value" + cur_value + "   count=" + editor.getAdapter().getCount()  );

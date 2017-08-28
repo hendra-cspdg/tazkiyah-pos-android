@@ -58,7 +58,7 @@ public class Flaporan extends Fedit {
     public void init_table() {
         db.enable_filter = true;
         db.col_width     = new int[]        {          -140,       -70-30,           -105+27, -120-20/*(scrollpane.getWidth()-5 -140-70-105-60-65-50-0-70  -15)*/,           -60,            -65,           -50,             0,           -70,              0,             0,               0,             0  };   // (-) means not editable:)    //biarin aja kelebaran agar muncul horizontal scrollbar, jelek:p
-        db.col_label     = new String[]     {        "code", "updated_at",              "id",                                           "product",       "price",     "quantity",        "disc.",      "gambar",       "total", "total_price",         "ppn", "diskon_faktur",    "sub_total" };    //jgn "tgl._faktur" krn di laporan retur, seharusnya tanggal retur:)
+        db.col_label     = new String[]     {        "code", "updated_at",          "action",                                           "product",       "price",     "quantity",        "disc.",      "gambar",       "total", "total_price",         "ppn", "diskon_faktur",    "sub_total" };    //jgn "tgl._faktur" krn di laporan retur, seharusnya tanggal retur:)
         db.col_type      = new int[]        { Types.VARCHAR,   Types.DATE,     Types.VARCHAR,                                       Types.VARCHAR, Types.INTEGER, Types.SMALLINT, Types.INTEGER, Types.VARCHAR, Types.INTEGER,  Types.TINYINT, Types.TINYINT,   Types.TINYINT, Types.INTEGER  };
     }
     @Override Boolean build_sql() {
@@ -278,29 +278,30 @@ debug+="9";
                     for( int i=0; i<jArray.length(); i++ ) {
                         org.json.JSONObject jtable = jArray.getJSONObject(i);
                         for( int c=0; c<db.col_width.length; c++ ) {  //klo ga gini, kebanyakan try{} ntar
-android.util.Log.e("lihat:", "1 c=" + c );
+//android.util.Log.e("lihat:", "1 c=" + c );
                             if(col_type[c]==0) col_type[c] = db.metaData.getColumnType(i+1);
                             String field = db.col_label[c];
-android.util.Log.e("lihat:", "2 c=" + c + " field="+field );
+//android.util.Log.e("lihat:", "2 c=" + c + " field="+field );
                             if( field.equals("code") || field.equals("unit_price") || field.equals("discount") ) rs_row[c] = jtable.getString( field );
                             else if( field.equals("ppn") ) rs_row[c] = jtable.getInt( "tax" );
                             else if( field.equals("updated_at") ) rs_row[c] = new SimpleDateFormat("d MMM yyyy").format( jtable.getLong( field )  * 1000L );
                             else if( field.equals("product") ) {
-android.util.Log.e("lihat:", "3 c=" + c + " field="+field );
+//android.util.Log.e("lihat:", "3 c=" + c + " field="+field );
                                 org.json.JSONArray jArray2 = new org.json.JSONArray( jtable.getString("items") );
                                 for( int i2=0; i2<jArray2.length(); i2++ ) {
-android.util.Log.e("lihat:", "4 c=" + c + " i2="+i2 );
+//android.util.Log.e("lihat:", "4 c=" + c + " i2="+i2 );
                                     org.json.JSONObject jtable2 = jArray2.getJSONObject(i2);
-android.util.Log.e("lihat:", "5 c=" + c + " i2="+i2 );
-                                    rs_row[c-1] = jtable2.getString( "product_id" );
+//android.util.Log.e("lihat:", "5 c=" + c + " i2="+i2 );
+                                    rs_row[c-1] = jtable.getString( "status" );
+                                    rs_row[c-1] = rs_row[c-1].equals("saved") ? "> UPDATE" :  "> RETUR" ;
                                     rs_row[c]   = jtable2.getString( "product_label" );
                                     rs_row[c+1] = jtable2.getInt( "unit_price" );
                                     rs_row[c+2] = jtable2.getInt( "quantity" );
                                     rs_row[c+3] = jtable2.getInt( "discount" );
                                     rs_row[c+5] = jtable2.getInt("unit_price") * jtable2.getInt("quantity");
-android.util.Log.e("lihat:", "6 c=" + c + " i2="+i2 );
+//android.util.Log.e("lihat:", "6 c=" + c + " i2="+i2 );
                                     db.addRow(false, db.getRowCount(), rs_row,col_type, false);
-android.util.Log.e("lihat:", "7 c=" + c + " i2="+i2 );
+//android.util.Log.e("lihat:", "7 c=" + c + " i2="+i2 );
                                 }
                             }
 

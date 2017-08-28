@@ -73,7 +73,7 @@ public class Flogin extends DialogFragment {
         Bdatabase.setHint( "Silahkan klik untuk mengubah setting!" );
         prms = new LayoutParams( (int) (100 *retail.scale_width ), (int) (80 *retail.scale_height ) );
         prms.setMargins( 10, 7, 10, 0 );
-        prms.gravity = Gravity.RIGHT;    panel.addView( Bdatabase, prms );
+        prms.gravity = Gravity.RIGHT;    //panel.addView( Bdatabase, prms );
 
         Blogin    = new AppCompatButton(this.getActivity());
         Blogin.setText( "Login" );
