@@ -55,12 +55,13 @@ public class Fpenjualan extends Ftransaksi {
     static Fpenjualan form;
     public Fpenjualan() { super(); }
     public static Fpenjualan newInstance(String modul) {
-        return newInstance(modul, "") ;
+        return Fpenjualan.newInstance(modul, "", null) ;
     }
-    public static Fpenjualan newInstance(String modul /*, Object parent_*/, final String barcode_init_ ) {
+    public static Fpenjualan newInstance(String modul /*, Object parent_*/, final String barcode_init_, final ArrayList<ArrayList>init ) {
+    //public static Fpenjualan newInstance(String modul) {
         form = new Fpenjualan();
-        Ftransaksi.newInstance(modul, form);
-        barcode_init = barcode_init_;
+        Ftransaksi.newInstance(modul, form, init);
+        //barcode_init = barcode_init_;
         form.modul = modul;    //"Edit Data Barang";
         return form;
     }
@@ -73,7 +74,7 @@ public class Fpenjualan extends Ftransaksi {
         Tdibayar = new EditText(form.getActivity());    Tdibayar.setMinWidth(min_width);    Tdibayar.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Tdibayar.setHint( "Dibayar" );    Tdibayar.setInputType( InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL );
         TextInputLayout TL = new TextInputLayout(form.getActivity());    TL.addView( Tdibayar, prms_tv );
-        toolbar.addView( TL, prms );
+        if( !retur ) toolbar.addView( TL, prms );
         //footer_panel.addView( TL, prms );
         //Tdibayar.setName("Tdibayar");    //supaya bisa dipanggil getName()nya di retail :p
         Tdibayar.setOnFocusChangeListener(retail.add_ribuan_when_lost_focus);
@@ -140,7 +141,7 @@ android.util.Log.e( "penjual: ", "6"  + ( form.getActivity().getCurrentFocus()==
         Lkembali = new EditText(form.getActivity());    Lkembali.setText("0");    Lkembali.setEnabled(false);    Lkembali.setMinWidth(min_width);    Lkembali.setGravity( Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
         Lkembali.setHint( "Kembali" );    Lkembali.setBackgroundColor( disabled_background_color );    Lkembali.setTextSize(28f);    Lkembali.setTextColor( android.graphics.Color.GREEN );    //0xff060018
         TL = new TextInputLayout(form.getActivity());    TL.addView( Lkembali, prms_tv );
-        toolbar.addView( TL, prms );
+        if( !retur ) toolbar.addView( TL, prms );
         //footer_panel.addView( TL, prms );
 android.util.Log.e( "penjual: ", "7"  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
 
@@ -174,6 +175,7 @@ android.util.Log.e( "penjual: ", "16"  + ( form.getActivity().getCurrentFocus()=
 
 android.util.Log.e( "penjual: ", "17"  /*+ ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ) */ );
 //( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 )indowToken(), 0 );
+
 
 
 

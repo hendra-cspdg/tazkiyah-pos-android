@@ -162,7 +162,6 @@ public class Flogin extends DialogFragment {
                 Fconfig.newInstance(retail.app_name + "- Konfigurasi").show(retail.fm, "Fconfig");
         }});
 
-
 //Blogin.performClick();
 
         prms = new LayoutParams( LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT );

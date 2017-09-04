@@ -3,11 +3,13 @@
 url client login    : http://api.muhajirin.net/v1/client/login
 url user login      : http://api.muhajirin.net/v1/user/login
 url user logout     : http://api.muhajirin.net/v1/user/logout
+url user setting    : http://api.muhajirin.net/v1/user/setting
 url product index   : http://api.muhajirin.net/v1/product/index
 url customer index  : http://api.muhajirin.net/v1/customer/index
 url customer create : http://api.muhajirin.net/v1/customer/create
 url order create    : http://api.muhajirin.net/v1/order/create
 url order index     : http://api.muhajirin.net/v1/order/index
+url order retur     : http://api.muhajirin.net/v1/order/retur
 
 Client Token        :
 Access Token        :

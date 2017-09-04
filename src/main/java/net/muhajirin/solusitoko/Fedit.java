@@ -358,11 +358,11 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
             if( name.length()==0 && c>0 ) name = db.getStringAt( selected_row, c );    //c adalah kolom kedua yg visible
 
             final String confirm = count==1 ? "\nData baris ke-" + (selected_row+1) + " (" +name+ ")" : "\n" + count + " baris data" ;
-            new android.os.AsyncTask<Void, Void, Integer> () {
-                    @Override protected Integer doInBackground( Void... v ) {
-                        return retail.show_confirm2( confirm + " ingin dihapus?\n\n\n\n", "Konfirmasi" );
-                    } @Override protected void onPostExecute( Integer resp ) {
-                        if( resp!=0 ) return;
+            //no confirmation >> new android.os.AsyncTask<Void, Void, Integer> () {
+            //no confirmation >>         @Override protected Integer doInBackground( Void... v ) {
+            //no confirmation >>             return retail.show_confirm2( confirm + " ingin dihapus?\n\n\n\n", "Konfirmasi" );
+            //no confirmation >>         } @Override protected void onPostExecute( Integer resp ) {
+            //no confirmation >>             if( resp!=0 ) return;
                         //if( table.isEditing() ) table.getCellEditor().cancelCellEditing();    //jika tidak di sini, post editing terjadi setelah didelete ... lah?! aneh :)
                         for( int i=0; i<count; i++ ) {
                             final int row = selected_row;    //table.getSelectedRow();
@@ -395,8 +395,8 @@ import static android.view.GestureDetector.SimpleOnGestureListener;
                                 }
                             }.execute();
                         }    //end of for
-                    }
-            }.execute();
+            //no confirmation >>         }
+            //no confirmation >> }.execute();
     }
 
 
@@ -727,13 +727,14 @@ android.util.Log.e("edit: ", "6" );
         final LinearLayoutManager lm = (LinearLayoutManager) table.getLayoutManager();
         form.getDialog().setOnKeyListener( new android.content.DialogInterface.OnKeyListener() {    //@Override public void onCancel( android.content.DialogInterface dialog ) { }    //doesn't exist >> @Override public void onBackPressed() {}
             @Override public boolean onKey( android.content.DialogInterface dialog, int keyCode, KeyEvent event ) {
-                if( keyCode == KeyEvent.KEYCODE_BACK ) android.util.Log.e("onbackpressed:", "awal" );                    //jika table isediting ... cancel update
+                //if( keyCode == KeyEvent.KEYCODE_BACK ) android.util.Log.e("onbackpressed:", "awal event.getAction() == KeyEvent.ACTION_UP:" + (event.getAction() == KeyEvent.ACTION_UP) + " !event.isCanceled():" + !event.isCanceled() + "  form != null:" + (form != null) + "  form.getDialog().isShowing():" + (form != null&&form.getDialog().isShowing()) );
                 if( retail.scan_cancelled ) {
+android.util.Log.e("onbackpressed:", "scan_cancelled" );
                     retail.scan_cancelled = false;
                     return true;
-                } else if( keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && form != null && form.getDialog().isShowing() ) {
+                } else if( keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && ((android.app.Dialog)dialog).isShowing() ) {    //} else if( keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled() && form != null && form.getDialog().isShowing() ) {
 android.util.Log.e("onbackpressed:", "1111" );                    //jika table isediting ... cancel update
-                    View cur_focus = form.getDialog().getCurrentFocus();    //getActivity()
+                    View cur_focus = ((android.app.Dialog)dialog).getCurrentFocus();    //form.getDialog().getCurrentFocus();    //getActivity()
                     android.util.Log.e("onbackpressed:", "cur_focus!=null="+ (cur_focus!=null) + "   cur_focus.getParent()!=null="+ (cur_focus.getParent()!=null)  );
                     if( cur_focus!=null && cur_focus.getParent()!=null )
                         if( cur_focus.getParent() instanceof android.widget.ViewSwitcher ) {
@@ -745,7 +746,7 @@ android.util.Log.e("onbackpressed:", "1111" );                    //jika table i
                             }
                         }
                     close();
-                } else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_CAMERA ) && form != null && form.getDialog().isShowing() && db.is_editable ) {
+                } else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_CAMERA ) && ((android.app.Dialog)dialog).isShowing() && db.is_editable ) {    //} else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_CAMERA ) && form != null && form.getDialog().isShowing() && db.is_editable ) {
                     int cc=0;
 android.util.Log.e("key:", "detected ");
                     for( int i=table.getRowCount()-1; i>=0; i-- )
@@ -778,7 +779,7 @@ android.util.Log.e("camera:", "4");
 
                             return true;
                         }
-                } else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_POWER ) && form != null && form.getDialog().isShowing() ) {
+                } else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_POWER ) && ((android.app.Dialog)dialog).isShowing() ) {    //} else if( ( keyCode == KeyEvent.KEYCODE_VOLUME_DOWN || keyCode == KeyEvent.KEYCODE_POWER ) && form != null && form.getDialog().isShowing() ) {
                     android.util.Log.e("key logcat:", "detected ");
                     StringBuilder log=new StringBuilder();
                     try{

@@ -386,11 +386,13 @@ static: bisa diakses sebagai elemen class, tidak harus object.
         put( "url_client_login"             , "" );
         put( "url_user_login"               , "" );
         put( "url_user_logout"              , "" );
+        put( "url_user_setting"             , "" );
         put( "url_product_index"            , "" );
         put( "url_customer_index"           , "" );
         put( "url_customer_create"          , "" );
         put( "url_order_create"             , "" );
         put( "url_order_index"              , "" );
+        put( "url_order_retur"              , "" );
         put( "client_token"             , "" );
         put( "access_token"             , "" );
 

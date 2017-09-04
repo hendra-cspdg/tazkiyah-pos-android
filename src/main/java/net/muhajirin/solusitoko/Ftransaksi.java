@@ -104,9 +104,12 @@ public class Ftransaksi extends Fedit {
 //    android.os.CountDownTimer timer_kembalian;
     String last_refresh = "";
 
-    static Ftransaksi form;
+
+    int order_id = -1;    Boolean retur = false;
+
+    static Ftransaksi form;    static ArrayList<ArrayList>init;
     //public Ftransaksi() { super(); }
-    public static void newInstance(String modul, Ftransaksi form ) {
+    public static void newInstance(String modul, Ftransaksi form, ArrayList<ArrayList>init ) {
         Fedit.newInstance(modul, form);
         Ftransaksi.form=form;
         //if( form instanceof Fpembelian ) {
@@ -114,6 +117,7 @@ public class Ftransaksi extends Fedit {
         //} else {
             modul_table = "jual";    agent = "Customer";   stok_sign = "-1*";    //pelanggan
         //} 
+        Ftransaksi.init=init;
     }
     static String modul_table, agent, stok_sign;
     String sql_hapus_item;
@@ -137,15 +141,17 @@ android.util.Log.e( "build: ", "other_width=" + other_width + " name_width="+ na
         //numberPicker.setWrapSelectorWheel(true); 
         //numberPicker.setMinValue(1);// restricted number to minimum value i.e 1
         //numberPicker.setMaxValue(99);// restricked number to maximum value i.e. 31
-
-
-
-
-        db.col_width     = new int[]        {     code_width, name_width /*130 blm bisa klo item panjang, dia melebar sendiri, padahal header kagak:p 10000*/,           ( form instanceof Fpenjualan && retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -75,          -100  ,             0, 250  };   // (-) means not editable:)
+        db.col_width     = new int[]        {     code_width, name_width /*130 blm bisa klo item panjang, dia melebar sendiri, padahal header kagak:p 10000*/,           ( form instanceof Fpenjualan && retail.hak_akses.indexOf("'Edit Harga di Fitur Penjualan'") >= 0 ? 1 : -1 ) * 90,                  75,           -75,          -100  ,             0, 50  };   // (-) means not editable:)
         db.col_editor    = new View[]       {      Ccode_brg,                                                   Cname_brg,          null,        numberPicker,          null,          null  ,          null,         null   };
         db.col_label     = new String[]     {         "kode",                                                      "item",       "harga",            "banyak",      "diskon",       "total"  ,       "gambar",       "note"  };    //don't contact the db, just create my own RowSetMetaData:)
         db.col_type      = new int[]        { Types.SMALLINT,                                              Types.SMALLINT, Types.INTEGER,      Types.SMALLINT, Types.INTEGER, Types.INTEGER  ,  Types.VARCHAR, Types.VARCHAR };
         db.col_precision = new int[]        {              3,                                                           3,             9,                   5,             9,             9  ,            255,           255 };    //ini menentukan jumlah karakter diizinkan
+
+        if( init==null ) return;
+        ArrayList<Object> row = init.get(0);
+        retur = row.get(2).toString().toLowerCase().contains( "retur" );
+        if( retur ) for( int i=0; i<db.col_width.length; i++ ) if( i!=3 && db.col_width[i]>0 ) db.col_width[i] *= -1;    //not editable but quantity
+
 
         /* if( col_banyak_idx<0 || col_banyak_idx>=db.col_width.length ) col_banyak_idx=3;
         if( col_banyak_idx!=3 ) {    //pindah posisi kolom banyak
@@ -173,7 +179,7 @@ android.util.Log.e( "setval: ", "1" );
             //System.out.println( " getValueAt(row_idx, col_idx).toString() = " +getValueAt(row_idx, col_idx).toString() );
             if( row_idx<0 ) return;    //ini bisa terjadi saat posting code yg blm ada lalu user pilih tambah item baru yg pada gilirannya akan melakukan posting kedua dengan item baru tsb
             if( to_str( col_idx, getValueAt(row_idx, col_idx).toString().trim() ).equals( to_str(col_idx, val.toString().trim()) ) ) return;
-            if( col_idx==3 && Integer.valueOf(val.toString()) < 1 ) {
+            if( !retur && col_idx==3 && Integer.valueOf(val.toString()) < 1 ) {
                 hapus();
                 //retail.show_error( "Banyak barang harus lebih besar dari 0.\nPerubahan dibatalkan!", "Kesalahan" );
                 //table.requestFocus();
@@ -249,17 +255,17 @@ android.util.Log.e( "setval: 1", "col_idx=" + col_idx );
                 int harga  = col_idx==2 ? val_int : getIntAt(row_idx, 2);    //ini diperlukan karena super.setvalue() ada dalam asyncthread sehingga tabel belum terupdate >> col_idx==2?val_int:getIntAt(row_idx, 2)
 android.util.Log.e( "setval: 2", "col_idx=" + col_idx );
                 int banyak = col_idx==3 ? val_int : getIntAt(row_idx, 3);
-android.util.Log.e( "setval: 3", getValueAt(row_idx, 0).toString() + "  col_idx=" + col_idx );
+android.util.Log.e( "setval: 3", getValueAt(row_idx, 0).toString() + "  bid=" + bid );
                 if(col_idx==3) bid = Ccode_brg.my_index_of( getValueAt(row_idx, 0).toString() )  ;    //user ngedit manual ...
-android.util.Log.e( "setval: ", "col_idx=" + col_idx );
+android.util.Log.e( "setval: 4", "harga=" + harga + "   banyak=" + banyak  );
                 int diskon = bid<0 ? 0 : retail.get_diskon( diskon_brg.get(bid), harga, banyak );
-android.util.Log.e( "setval: ", "col_idx=" + col_idx );
+android.util.Log.e( "setval: 5", "col_idx=" + col_idx );
                 super.setValueAt( false, diskon, row_idx, 4 );    //jika harga dan banyak berubah, diskon harus berubah juga
-android.util.Log.e( "setval: ", "col_idx=" + col_idx );
+android.util.Log.e( "setval: 6", "col_idx=" + col_idx );
                 int total_i = harga * banyak - diskon ;
                 //int total_i = retail.round( (long) getIntAt(row_idx, 2) * (100 - getIntAt(row_idx, 4)) * getIntAt(row_idx, 3) , 100 );
                 if( total_i<0 ) {   //exceed int max: 2.147.483.647  .. sebetulnya ini blm bs detect klo dia pas 2.147.483.647 krn total_i akan samadengan 0 :D .. luweh
-android.util.Log.e( "setval: ", "col_idx=" + col_idx );
+android.util.Log.e( "setval: 7", "col_idx=" + col_idx );
                     retail.show_error( "Total harga terlalu besar.", "Kesalahan" );
                     total_i=0;
                 }               //false, perlu agar jangan bikin thread baru agar hitung_sub_total valid
@@ -631,7 +637,7 @@ android.util.Log.e("onlistener:", "6");
             LayoutParams prms2 = new LayoutParams( 50, 50 );
             //prms.setMargins( 10, 7, 10, 0 );
             prms2.gravity = Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL ;
-            footer_panel.addView( Btambah_agn, prms2 );
+            if( !retur ) footer_panel.addView( Btambah_agn, prms2 );
 
             //Btambah_agn.setBackgroundColor(0x5500ff00);
             //Btambah_agn.setCompoundDrawablesWithIntrinsicBounds( 0, icon_path, 0, 0 ) ;
@@ -724,7 +730,6 @@ android.util.Log.e( "penjual: ", "18"  /*+ ( form.getActivity().getCurrentFocus(
             refresh_agn();
         }});
 
-
         return ret;
     }
 
@@ -759,7 +764,7 @@ android.util.Log.e( "simpan 1st: ", " Tno_faktur.getText()=" + no_faktur_text);
 
 
         final String api_table = "order";
-        String url   = "url_" +api_table+ "_create";
+        String url   = "url_" +api_table+ "_" + ( retur?"retur":"create" );
 
 /*
 "outlet_id","value": "1",
@@ -802,13 +807,20 @@ android.util.Log.e( "simpan: ", "7 i=" + i );
 //        String params = "";
 //        try {
 android.util.Log.e( "simpan: ", "8" );
-               params = "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
+
+               params = retur ?
+                      "order_id=" +order_id
+                      + "&order_item=" +products+ "&returned_quantity=" +product_quantities
+                      :
+                      "outlet_id=1&customer_id=" +URLEncoder.encode( String.valueOf( Ccode_agent.my_key_of( Ccode_agent.getText().toString() )), "UTF-8" )
                       + "&products=" +products+ "&product_attributes=" +product_attributes+ "&product_quantities=" +product_quantities+ "&product_discounts=" +product_discounts+ "&product_notes=" + URLEncoder.encode( product_notes, "UTF-8" )    //
                       + "&tax=" + Tppn.getText().toString().replace(retail.digit_separator,"")
                       + "&note=" +URLEncoder.encode( Tnote.getText().toString(), "UTF-8" )
                       + "&discount=" + Math.abs( Integer.valueOf( Tdiskon.getText().toString().replace(retail.digit_separator,"") ))
                       + "&status=" + ( baru_action ? "ordered" : "saved" )
                       ;
+
+
 android.util.Log.e( "simpan: ", "9" );
         } catch ( java.io.UnsupportedEncodingException ex) {
             android.util.Log.e("oncharset: ", "error: " + ex.toString() );
@@ -1030,6 +1042,66 @@ android.util.Log.e("ftransaksi:", "tambah_agn 3" );
         //fc=null;
     }
 
+
+
+
+
+
+    void init_order() {
+            if( init==null ) return;
+//            new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
+                int ix=0;
+                for( final ArrayList<Object> row : init ) {
+                    final int i=ix;
+                    //table.post(new Runnable() { @Override public void run() {
+
+                    String name_brg = row.get(3).toString();
+                    retail.brg_id = Cname_brg.my_index_of(name_brg);    //krn gue malas ngeset Ccode_brg.setSelection(x) :p
+
+//android.util.Log.e("init: ", "2 name_brg=" + name_brg + "  Ccode_brg.getItemCount()=" + Ccode_brg.getItemCount()  );
+                    db.setValueAt_sync( false, Ccode_brg.getItemAt(retail.brg_id).toString(), i, 0 );    //code product
+                    db.setValueAt_sync( false, row.get(5), i, 3 );    //qty
+                    db.setValueAt_sync( false, name_brg, i, 1 );    //nama product
+                    db.setValueAt_sync( false, row.get(4), i, 2 );    //price
+                    db.setValueAt_sync( false, row.get(6), i, 4 );    //diskon
+                    db.setValueAt_sync( false, row.get(8), i, 5 );    //total
+                    db.setValueAt_sync( false, row.get(13), i, 7 );    //product_note
+
+                    if( !retur || i<init.size()-1 ) db.addRow(false);
+
+                    //}});
+
+
+                    if( ix==0 ) {
+                        order_id = Integer.valueOf( row.get(0).toString() );
+                        //retur = row.get(2).toString().toLowerCase().contains( "retur" );
+                        if( retur ) {
+                            CHppn.setEnabled(false);
+                            Tdiskon.setEnabled(false);
+                            Tdiskon_edit.setEnabled(false);
+                            Tnote.setEnabled(false);
+                            Cname_agent.setEnabled(false);
+                            Ccode_agent.setEnabled(false);
+                        }
+                        CHppn.setChecked( row.get(10).toString().length()>1 );    //tax
+                        Tdiskon.setText( row.get(11).toString() );    //discount
+                        Tnote.setText( row.get(15).toString() );    //note
+                        final String name_agent = row.get(14).toString();
+                        Cname_agent.setText( name_agent );    //customer
+                        Ccode_agent.post(new Runnable() { @Override public void run() {
+                            Ccode_agent.setText( Ccode_agent.getItemAt( Cname_agent.my_index_of(name_agent) ).toString() );    //customer_id
+                        }});
+                    }
+
+                    ix++;
+                }
+
+                hitung_sub_total(true);
+                table.getAdapter().notifyDataSetChanged();
+
+//            }});
+
+    }
     void refresh_agn() {
         refresh_agn("");
     }
@@ -1040,35 +1112,22 @@ android.util.Log.e("ftransaksi:", "tambah_agn 3" );
         new DownloadJSON(){
             @Override protected void onPostExecute( String result ) {
                 super.onPostExecute(result);
-android.util.Log.e(api_table+": ", "1");
                 if( result.startsWith( "Error:" ) ) return;
-android.util.Log.e(api_table+": ", "2");
-
                 try {
                     org.json.JSONObject data = new org.json.JSONObject(result);
-android.util.Log.e(api_table+": ", "3");
-
                     if( !data.has( api_table ) ) {
                         retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
                         return;
                     }
-android.util.Log.e(api_table+": ", "4");
                     agent_id = 0;    //supaya itemlistener tidak listen setSelectedIndex yg dilakukan program di bawah ini.
                     int temp_selectedItem = Cname_agent.getListSelection();
                     if( temp_selectedItem<0 ) temp_selectedItem=0;
-android.util.Log.e(api_table+": ", "5");
                     ArrayAdapter Cname_agent_adapter = (ArrayAdapter) Cname_agent.getAdapter();
-                    Ccode_agent.items.clear();
-android.util.Log.e(api_table+": ", "6");
-    Cname_agent_adapter.clear();
-android.util.Log.e(api_table+": ", "7");
+                    Ccode_agent.items.clear();    Cname_agent_adapter.clear();
                     int init_idx = -1;
                     Cname_agent.items.add( new jcdb_item( 0, "" ) );    //Cname_agent_adapter.add( "" );
-android.util.Log.e(api_table+": ", "8");
                     Ccode_agent.items.add( new jcdb_item( 0, "" ) );    //sebaiknya di table customer ada minimal 1 customers yaitu: umum    //( -1, "" )    //as long as I remember, I never use Ccode_agent.get_id() and Cname_agent.get_id(), then I can use it to save originate position while filtering:p
-android.util.Log.e(api_table+": ", "9");
                     org.json.JSONArray jArray = new org.json.JSONArray( data.getString(api_table) );
-android.util.Log.e(api_table+": ", "10");
                     for( int i=0; i<jArray.length(); i++ ) {
                         org.json.JSONObject jtable = jArray.getJSONObject(i);
                         Cname_agent.items.add( new jcdb_item( jtable.getInt("id"), jtable.getString("username") ) );    //Cname_agent_adapter.add( jtable.getString( "username" ) );
@@ -1078,10 +1137,11 @@ android.util.Log.e(api_table+": ", "10");
                     }
 
                     Cname_agent_adapter.notifyDataSetChanged();    ((ArrayAdapter)Ccode_agent.getAdapter()).notifyDataSetChanged();
-android.util.Log.e("ongetagent:", " 42 name_agent.getCount()" + Cname_agent_adapter.getCount() + " name_agent.items.getCount()" + Cname_agent_adapter.getCount()  + " name_agent.getAdapter().getCount()" + Cname_agent_adapter.getCount() );
                     if( init_idx>=0 ) Cname_agent.setSelection(init_idx);    else Cname_agent.setSelection(temp_selectedItem);
                     agent_id = -13;
-android.util.Log.e("ongetagent:", "   after setselection "   + "    Ccode_agent.getCount()" + Ccode_agent.getCount()  );
+
+                    init_order();
+
                     } catch( Exception e ) {    //org.json.JSONException 
                         db.err_msg += "\nMaaf, Data \"" +api_table+ "\" gagal diinisialisasi!\n\n\n(" + e.toString() + ")";
                         retail.show_error( db.err_msg, "Pembacaan Data \"" +api_table+ "\"" );
@@ -1326,17 +1386,14 @@ android.util.Log.e("hitung:", "4" );
         hitung_total(false);
     }
     void hitung_total( Boolean sender_is_setValue ) {
-android.util.Log.e("hitung_total:", "1" );
         if( table==null ) return;
         //if( table.isEditing() && !sender_is_setValue ) table.getCellEditor().stopCellEditing();    //post update ... ini penting
 
 
         int diskon_by_percent = last_Tdiskon_edit==-87654321 ? 0 : Math.abs( retail.round( (long) sub_total * last_Tdiskon_edit, 100 ) ) ;    //((Float)( sub_total * ((Integer)doc.getProperty("plain_num")) / 100 ) ).intValue();
         //int diskon_by_percent = Math.abs( retail.round( (long) sub_total * ((Integer)Tdiskon_edit.getDocument().getProperty("plain_num")) , 100 ) ) ;    //((Float)( sub_total * ((Integer)doc.getProperty("plain_num")) / 100 ) ).intValue();
-android.util.Log.e("hitung_total:", "2" );
         diskon = last_Tdiskon==-87654321 ? 0 : Math.abs( last_Tdiskon );
         //diskon = Math.abs( Integer.valueOf(Tdiskon.getText().toString().replace(retail.digit_separator,"")) );    //diskon_obj==null ? 0 : Math.abs( (Integer)diskon_obj );
-android.util.Log.e("hitung_total:", "3" );
         calculate_disc_percent=false;
 
 //JOptionPane.showMessageDialog( Fpenjualan.this,  "sub_total"+sub_total + "diskon"+diskon + "diskon_obj==null"+(diskon_obj==null) , "Kembali", JOptionPane.INFORMATION_MESSAGE );
@@ -1347,30 +1404,23 @@ android.util.Log.e("hitung_total:", "3" );
                                                      }
 
         calculate_disc_percent=true;
-android.util.Log.e("hitung_total:", "4" );
-
         total = sub_total - diskon;
-android.util.Log.e("hitung_total:", "5" );
-
         ppn = CHppn.isChecked() ? retail.round( (long)total*prosentase_ppn, 100 ) : 0 ;
         Tppn.setText( String.format("%,d", ppn) ) ;
 
         int pembulatan = 100;
         try { pembulatan = Integer.valueOf( db.cfg.get("pembulatan_rupiah") );    } catch( Exception e ) {}
-android.util.Log.e("hitung_total:", "6" );
-
         total += ppn ;    //total = Tdiskon.getText().equals("") ? 0 : Integer.valueOf(Tdiskon.getText());
         total_round = retail.round( (long)total, pembulatan) * pembulatan;    //total_round = Math.round(2/3) * 100; //(total/100)
         Ttotal.setText( retail.numeric_format.format(total_round) ) ;
         //if(1==1) return;
-android.util.Log.e("hitung_total:", "7" );
 
 /*
         Ltotal_blink.setText( " " + String.format("%,d", total_round) );
         Lbanyak_blink.setText( String.valueOf(banyak_total) );
 */
     
-        Bsimpan.setEnabled( total_round>0 );    
+        Bsimpan.setEnabled( total_round>0 || retur );    
 /* di Fpenjualan
         hitung_kembalian( Tdibayar.getText().toString() );
         poin = (int) Math.floor( total_round / harga_poin );

@@ -98,60 +98,6 @@ if(1==2) return
 //+    "\"order\":{\"id\":31,\"customer_id\":null,\"outlet_id\":1,\"code\":\"GTM3E\",\"tax\":\"0.00\",\"discount\":\"0.00\",\"total_price\":\"14000.00\",\"status\":\"ordered\",\"delivery_time\":null,\"note\":\"\",\"created_at\":1503954618,\"updated_at\":1503954619},\"items\":[{\"id\":30,\"order_id\":31,\"product_id\":9,\"product_label\":\"Lemon Tea\",\"product_attribute_id\":null,\"quantity\":\"2.00\",\"discount\":\"0.00\",\"unit_price\":\"7000.00\",\"status\":\"paid\",\"note\":\"\",\"created_at\":1503954619,\"updated_at\":1503954619}]},"
 
 
-/*
-{"status":200,"orders":[{"id":4,"outlet_id":1,"customer":{"id":
-null,"username":""},"items":[{"id":1,"product_id":10,"product_label":"Cappucino","pro
-duct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","uni
-t_price":"11000.00","note":""},{"id":2,"product_id":7,"product_label":"Teh Tarik","pr
-oduct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","un
-it_price":"9000.00","note":""}],"code":"739WJ","tax":"0.00","discount":"0.00","total_
-price":"20000.00","status":"ordered","note":"","created_at":1502568182,"updated_at":1
-502568182},{"id":5,"outlet_id":1,"customer":{"id":null,"username":""},"items":[{"id":
-3,"product_id":10,"product_label":"Cappucino","product_attribute_id":null,"attribute_
-label":"","quantity":"1.00","discount":"0.00","unit_price":"11000.00","note":""},{"id
-":4,"product_id":6,"product_label":"Pastel","product_attribute_id":null,"attribute_la
-bel":"","quantity":"1.00","discount":"0.00","unit_price":"4500.00","note":""}],"code"
-:"PG4FM","tax":"0.00","discount":"0.00","total_price":"15500.00","status":"ordered","
-note":"","created_at":1502568277,"updated_at":1502568278},{"id":6,"outlet_id":1,"cust
-omer":{"id":null,"username":""},"items":[{"id":5,"product_id":10,"product_label":"Cap
-pucino","product_attribute_id":null,"attribute_label":"","quantity":"3.00","discount"
-:"0.00","unit_price":"11000.00","note":""},{"id":6,"product_id":9,"product_label":"Le
-mon Tea","product_attribute_id":null,"attribute_label":"","quantity":"4.00","discount
-":"0.00","unit_price":"7000.00","note":""}],"code":"XAA3N","tax":"0.00","discount":"0
-.00","total_price":"61000.00","status":"ordered","note":"","created_at":1502575875,"u
-pdated_at":1502575875},{"id":7,"outlet_id":1,"customer":{"id":4,"username":"Kris Bone
-"},"items":[{"id":7,"product_id":11,"product_label":"Susu Coklat","product_attribute_
-id":null,"attribute_label":"","quantity":"3.00","discount":"0.00","unit_price":"8000.
-00","note":""},{"id":8,"product_id":5,"product_label":"Risoles","product_attribute_id
-":null,"attribute_label":"","quantity":"6.00","discount":"0.00","unit_price":"5000.00
-","note":""}],"code":"N3DWW","tax":"0.00","discount":"0.00","total_price":"54000.00",
-"status":"ordered","note":"","created_at":1502576040,"updated_at":1502576040},{"id":1
-0,"outlet_id":1,"customer":{"id":null,"username":""},"items":[{"id":9,"product_id":10
-,"product_label":"Cappucino","product_attribute_id":null,"attribute_label":"","quanti
-ty":"1.00","discount":"0.00","unit_price":"11000.00","note":""},{"id":10,"product_id"
-:5,"product_label":"Risoles","product_attribute_id":null,"attribute_label":"","quanti
-ty":"1.00","discount":"0.00","unit_price":"5000.00","note":""}],"code":"PHTAY","tax":
-"0.00","discount":"0.00","total_price":"16000.00","status":"ordered","note":"","creat
-ed_at":1502579634,"updated_at":1502579635},{"id":11,"outlet_id":1,"customer":{"id":nu
-ll,"username":""},"items":[{"id":11,"product_id":10,"product_label":"Cappucino","prod
-uct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","unit
-_price":"11000.00","note":""},{"id":12,"product_id":11,"product_label":"Susu Coklat",
-"product_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00",
-"unit_price":"8000.00","note":""}],"code":"AHMWM","tax":"0.00","discount":"0.00","tot
-al_price":"19000.00","status":"ordered","note":"","created_at":1502580133,"updated_at
-":1502580133},{"id":12,"outlet_id":1,"customer":{"id":2,"username":"Amr Ma'ruf "},"it
-ems":[{"id":13,"product_id":10,"product_label":"Cappucino","product_attribute_id":nul
-l,"attribute_label":"","quantity":"1.00","discount":"0.00","unit_price":"11000.00","n
-ote":""},{"id":14,"product_id":8,"product_label":"Es Jeruk","product_attribute_id":nu
-ll,"attribute_label":"","quantity":"1.00","discount":"0.00","unit_price":"8000.00","n
-ote":""}],"code":"6HPNK","tax":"0.00","discount":"0.00","total_price":"8000.00","stat
-us":"ordered","note":"","created_at":1502580713,"updated_at":1503396287},{"id":13,"ou
-tlet_id":1,"customer":{"id":24,"username":"John Saputra"},"items":[{"id":15,"product_
-id":9
-*/
-
-
-
 +    "\"customers\":["
 +        "{"
         +    "\"id\":1,"
@@ -401,6 +347,69 @@ id":9
 +        "}"
 +    "],"
 
+/*
+E/onapi:  ( 5440): 17 {"status":200,"message":"Return process is done","order":{"id":
+33,"customer_id":null,"outlet_id":1,"code":"RCJF9","tax":"0.00","discount":"0.00","to
+tal_price":"22000.00","status":"ordered","delivery_time":null,"note":"notes dss","cre
+ated_at":1503956863,"updated_at":1503956863},"items":[{"id":32,"order_id":33,"product
+_id":10,"product_label":"Cappucino","product_attribute_id":null,"quantity":"2.00","di
+scount":"0.00","unit_price":"11000.00","status":"paid","note":"","created_at":1503956
+863,"updated_at":1503956863}]}
+*/
+
+
+/*
+{"status":200,"orders":[{"id":4,"outlet_id":1,"customer":{"id":
+null,"username":""},"items":[{"id":1,"product_id":10,"product_label":"Cappucino","pro
+duct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","uni
+t_price":"11000.00","note":""},{"id":2,"product_id":7,"product_label":"Teh Tarik","pr
+oduct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","un
+it_price":"9000.00","note":""}],"code":"739WJ","tax":"0.00","discount":"0.00","total_
+price":"20000.00","status":"ordered","note":"","created_at":1502568182,"updated_at":1
+502568182},{"id":5,"outlet_id":1,"customer":{"id":null,"username":""},"items":[{"id":
+3,"product_id":10,"product_label":"Cappucino","product_attribute_id":null,"attribute_
+label":"","quantity":"1.00","discount":"0.00","unit_price":"11000.00","note":""},{"id
+":4,"product_id":6,"product_label":"Pastel","product_attribute_id":null,"attribute_la
+bel":"","quantity":"1.00","discount":"0.00","unit_price":"4500.00","note":""}],"code"
+:"PG4FM","tax":"0.00","discount":"0.00","total_price":"15500.00","status":"ordered","
+note":"","created_at":1502568277,"updated_at":1502568278},{"id":6,"outlet_id":1,"cust
+omer":{"id":null,"username":""},"items":[{"id":5,"product_id":10,"product_label":"Cap
+pucino","product_attribute_id":null,"attribute_label":"","quantity":"3.00","discount"
+:"0.00","unit_price":"11000.00","note":""},{"id":6,"product_id":9,"product_label":"Le
+mon Tea","product_attribute_id":null,"attribute_label":"","quantity":"4.00","discount
+":"0.00","unit_price":"7000.00","note":""}],"code":"XAA3N","tax":"0.00","discount":"0
+.00","total_price":"61000.00","status":"ordered","note":"","created_at":1502575875,"u
+pdated_at":1502575875},{"id":7,"outlet_id":1,"customer":{"id":4,"username":"Kris Bone
+"},"items":[{"id":7,"product_id":11,"product_label":"Susu Coklat","product_attribute_
+id":null,"attribute_label":"","quantity":"3.00","discount":"0.00","unit_price":"8000.
+00","note":""},{"id":8,"product_id":5,"product_label":"Risoles","product_attribute_id
+":null,"attribute_label":"","quantity":"6.00","discount":"0.00","unit_price":"5000.00
+","note":""}],"code":"N3DWW","tax":"0.00","discount":"0.00","total_price":"54000.00",
+"status":"ordered","note":"","created_at":1502576040,"updated_at":1502576040},{"id":1
+0,"outlet_id":1,"customer":{"id":null,"username":""},"items":[{"id":9,"product_id":10
+,"product_label":"Cappucino","product_attribute_id":null,"attribute_label":"","quanti
+ty":"1.00","discount":"0.00","unit_price":"11000.00","note":""},{"id":10,"product_id"
+:5,"product_label":"Risoles","product_attribute_id":null,"attribute_label":"","quanti
+ty":"1.00","discount":"0.00","unit_price":"5000.00","note":""}],"code":"PHTAY","tax":
+"0.00","discount":"0.00","total_price":"16000.00","status":"ordered","note":"","creat
+ed_at":1502579634,"updated_at":1502579635},{"id":11,"outlet_id":1,"customer":{"id":nu
+ll,"username":""},"items":[{"id":11,"product_id":10,"product_label":"Cappucino","prod
+uct_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00","unit
+_price":"11000.00","note":""},{"id":12,"product_id":11,"product_label":"Susu Coklat",
+"product_attribute_id":null,"attribute_label":"","quantity":"1.00","discount":"0.00",
+"unit_price":"8000.00","note":""}],"code":"AHMWM","tax":"0.00","discount":"0.00","tot
+al_price":"19000.00","status":"ordered","note":"","created_at":1502580133,"updated_at
+":1502580133},{"id":12,"outlet_id":1,"customer":{"id":2,"username":"Amr Ma'ruf "},"it
+ems":[{"id":13,"product_id":10,"product_label":"Cappucino","product_attribute_id":nul
+l,"attribute_label":"","quantity":"1.00","discount":"0.00","unit_price":"11000.00","n
+ote":""},{"id":14,"product_id":8,"product_label":"Es Jeruk","product_attribute_id":nu
+ll,"attribute_label":"","quantity":"1.00","discount":"0.00","unit_price":"8000.00","n
+ote":""}],"code":"6HPNK","tax":"0.00","discount":"0.00","total_price":"8000.00","stat
+us":"ordered","note":"","created_at":1502580713,"updated_at":1503396287},{"id":13,"ou
+tlet_id":1,"customer":{"id":24,"username":"John Saputra"},"items":[{"id":15,"product_
+id":9
+*/
+
 
 +    "\"orders\": ["
 +        "{"
@@ -568,7 +577,7 @@ id":9
         +    "\"outlet_id\": 1,"
         +    "\"customer\": {"
             +    "\"id\": null,"
-            +    "\"username\": \"\""
+            +    "\"username\": \"Sumiati\""
     +        "},"
         +    "\"items\": ["
         +        "{"
@@ -578,9 +587,9 @@ id":9
                 +    "\"product_attribute_id\": null,"
                 +    "\"attribute_label\": \"\","
                 +    "\"quantity\": \"1.00\","
-                +    "\"discount\": \"0.00\","
+                +    "\"discount\": \"100.00\","
                 +    "\"unit_price\": \"11000.00\","
-                +    "\"note\": \"\""
+                +    "\"note\": \"capuc\""
         +        "},"
         +        "{"
                 +    "\"id\": 10,"
@@ -591,15 +600,15 @@ id":9
                 +    "\"quantity\": \"1.00\","
                 +    "\"discount\": \"0.00\","
                 +    "\"unit_price\": \"5000.00\","
-                +    "\"note\": \"\""
+                +    "\"note\": \"risss\""
         +        "}"
         +    "],"
         +    "\"code\": \"PHTAY\","
-        +    "\"tax\": \"0.00\","
-        +    "\"discount\": \"0.00\","
+        +    "\"tax\": \"10.00\","
+        +    "\"discount\": \"200.00\","
         +    "\"total_price\": \"16000.00\","
         +    "\"status\": \"ordered\","
-        +    "\"note\": \"\","
+        +    "\"note\": \"note s\","
         +    "\"created_at\": 1502579634,"
         +    "\"updated_at\": 1502579635"
 +        "},"

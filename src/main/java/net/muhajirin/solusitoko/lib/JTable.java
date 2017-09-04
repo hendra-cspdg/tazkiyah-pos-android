@@ -198,7 +198,6 @@ android.util.Log.e("onConstructor:", "1" );
                         else db.col_editor[i].setOnFocusChangeListener(remove_editor_when_lost_focus);
                         //hanya detect hardware key!!! >> db.col_editor[i].setOnKeyListener(cancel_when_back_pressed);
                         db.col_editor[i].setId(i);         //str.setClickable(false);    //str.setEnabled(false);
-
                         db.col_width[i] = (int) ( db.col_width[i] * retail.scale_width ) ;     //untested, klo di oncreateview kok bikin masalah
 
                     }
@@ -437,6 +436,8 @@ android.util.Log.e("onremove:", "10"  );
                         col_switcher[i] = new android.widget.ViewSwitcher(context);
                         //bikin masalah ni ...ninggalin jejak gitu di layar (walo sudah pake asynctask sekalipun) >> user.setInAnimation( android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_in) );    user.setOutAnimation( android.view.animation.AnimationUtils.loadAnimation(context, android.R.anim.fade_out) );
 
+
+                        if( db.getColumnName(i).toLowerCase().contains("note") ) prms = new LayoutParams( 250, height );
                         col_switcher[i].addView( col[i], -1, prms );
 
                         prms = new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );
@@ -450,7 +451,7 @@ android.util.Log.e("onremove:", "10"  );
             }
 
 
-//android.util.Log.e("screen_width: ", "screen_width=" + retail.screen_width  + "   screen_height=" + retail.screen_height );
+//android.util.Log.e("oncreate screen_width: col.length=", col.length + "   screen_width=" + retail.screen_width  + "   screen_height=" + retail.screen_height );
 
             //panel_root.addView( panel, new LayoutParams( 200, LayoutParams.MATCH_PARENT ) );
             //row_view.addView( panel_root, new RelativeLayout.LayoutParams( RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT ) );
@@ -497,8 +498,8 @@ android.util.Log.e("onremove:", "10"  );
         }
 
         public void select_row( int row_idx ) {
+//android.util.Log.e( "row_idx :", ""+row_idx + "   selected_row :" + ""+selected_row );
             if( row_idx==selected_row ) return;
-//android.util.Log.e("select_row :", ""+row_idx );
             if( row_idx>=0 && Bhapus!=null && Bhapus.isVisible() ) Bhapus.setEnabled(true);
             final int old_selected_row = selected_row;
             final int new_selected_row = row_idx;
@@ -603,7 +604,11 @@ android.util.Log.e("onremove:", "10"  );
             */
 
             //int last_selected_row = -13, selected_row = -13;
-            View.OnLongClickListener show_editor = new View.OnLongClickListener() { @Override public boolean onLongClick(View v) {
+            //View.OnLongClickListener show_editor = new View.OnLongClickListener() { @Override public boolean onLongClick(View v) {
+                //return true;
+            //}};
+
+            void show_editor( View v ) {
                 select_row( getAdapterPosition() );
                 //android.util.Log.e("row:", ""+ vh.getAdapterPosition() );
                 //v.setEnabled(true);
@@ -623,7 +628,7 @@ android.util.Log.e("onremove:", "10"  );
                 //ga iso manggil parent class object:p >> Row_holder row_holder = (Row_holder) parent.getParent().getParent().getParent();
                 if( parent.getChildCount()==1 ) {
                     remove_editor( col_editor[c] );
-                    parent.addView( col_editor[c], -1, new LayoutParams( db.col_width[c], height ) );
+                    parent.addView( col_editor[c], -1, new LayoutParams( ( db.getColumnName(c).toLowerCase().contains("note") ? 250 : db.col_width[c] ), height ) );
                 }
                 //last_selected_row = selected_row ;
                 //selected_row = row_holder.getLayoutPosition();    //getAdapterPosition()    //itemListener.recyclerViewListClicked(v, this.getPosition());
@@ -689,9 +694,11 @@ android.util.Log.e("onlongclick: ", "after performClick" );
                 }
 
                     }}, 300);
-                return true;
-            }};
+            }
 
+            View.OnClickListener show_editor = new View.OnClickListener() { @Override public void onClick(View v) {
+                show_editor(v);
+            }};
             View.OnClickListener scan_listener_on_double_click = new View.OnClickListener() { @Override public void onClick(View v) {    //on doubleclick :p
                 retail.barcode_target = (TextView) v;
                 //luweh, toh dia masi harus mengarahkan barcode ke tengah camera hp >> if( barcode_target.getText().toString().equals("") )
@@ -700,7 +707,7 @@ android.util.Log.e("ondoubbleclick:", "aa v.getTag() ==null=" + (v.getTag() ==nu
 android.util.Log.e("ondoubbleclick:", "aa v.getTag() instanceof Object[]=" + (v.getTag() instanceof Object[]) );
 //if( v.getTag() instanceof Object[] ) android.util.Log.e("ondoubbleclick:", "(long) ((Object[])v.getTag())[0]=" + ((long) ((Object[])v.getTag())[0]) );
                 if( v.getTag() instanceof Object[] && !(v.getTag() instanceof View) /* << dipake oleh retail.onActivityResult saat continues scan*/  && System.currentTimeMillis() - (long) ((Object[])v.getTag())[0] < 1000 )  retail.scan();
-                else select_row( getAdapterPosition() );    //to set selected row for highliting and enable deleting
+                else show_editor(v);    //select_row( getAdapterPosition() );    //to set selected row for highliting and enable deleting
 android.util.Log.e("ondoubbleclick:", "bb" );
                 Object[] tag = new Object[] { System.currentTimeMillis(), db, getAdapterPosition() };
 android.util.Log.e("ondoubbleclick:", "cc" );
@@ -710,21 +717,53 @@ android.util.Log.e("ondoubbleclick:", "cc" );
                 select_row( getAdapterPosition() );
             }};
 
+            //Boolean Row_holder_reused = false;
             public Row_holder( View row_view ) {
                 super(row_view);
+
+/*
+if( Row_holder_reused ) android.util.Log.e("on row holder:", "not first" );
+if( Row_holder_reused ) return;
+Row_holder_reused = true;
+android.util.Log.e("on row holder:", "first.. well, it's always first!!! " );
+*/
+
                 col = new TextView[db.col_width.length];    int shift=0;
+
                 for( int i=0; i<db.col_width.length; i++ ) {
                     if( db.col_width[i]==0 ) {  shift++;    continue;  }
                     ViewGroup parent = (ViewGroup) ((ViewGroup) row_view).getChildAt(0);
                     View v = parent.getChildAt(i-shift);
                     if( db.col_width[i]>0 ) {
                         col[i] = (TextView) ((ViewGroup) v).getChildAt(0);    //it is inside my ViewSwitcher
-                        col[i].setOnLongClickListener(show_editor);
+                        //col[i].setOnLongClickListener(show_editor);
                         if( col_editor[i].getTag()!=null && col_editor[i].getTag().toString().equals("barcode target") ) col[i].setOnClickListener(scan_listener_on_double_click);
-                        else col[i].setOnClickListener(select_row);
+                        else col[i].setOnClickListener(show_editor);    //col[i].setOnClickListener(select_row);
                     } else {
                         col[i] = (TextView) v;
-                        col[i].setOnClickListener(select_row);
+                        if( db.col_label[i].contains("action") ) {    //very much hardcoded :p
+                            col[i].setOnClickListener(new View.OnClickListener() {    @Override public void onClick(View v) {
+                                int selected = getAdapterPosition();
+                                select_row(selected);
+                                final String action = ((TextView)v).getText().toString().trim();
+                                if( action.length()>0 ) {
+                                    ArrayList<ArrayList> init = new ArrayList<ArrayList>();    //perlu diinitiate agar (at least) rows.size() di getRowCount tidak return null :p
+                                    for( int r=selected; r<db.getRowCount(); r++ ) {
+android.util.Log.e( "action: ", "1 r=" + r );
+                                        ArrayList<Object> row = db.rows.get(r);
+                                        if( r>selected && row.get(0).toString().length()>0 ) break;    //jika kolom 0 (order code) ada isinya, berarti itu adalah faktur yg lain, then break
+                                        init.add(row);
+                                    }
+                                    final ArrayList<ArrayList> init_ = init;
+                                    new android.os.Handler().post(new Runnable() { @Override public void run() {
+android.util.Log.e( "click: ", "11 to view ftransaksi" );
+                                        Fpenjualan.newInstance(retail.app_name + "- " + action, "", init_).show(retail.fm, "Fpenjualan");
+android.util.Log.e( "click: ", "12 to view ftransaksi" );
+                                    }});
+                                }
+                            }});
+                        } else
+                            col[i].setOnClickListener(select_row);
                     }
                 }
 

@@ -57,9 +57,9 @@ public class Flaporan extends Fedit {
 
     public void init_table() {
         db.enable_filter = true;
-        db.col_width     = new int[]        {          -140,       -70-30,           -105+27, -120-20/*(scrollpane.getWidth()-5 -140-70-105-60-65-50-0-70  -15)*/,           -60,            -65,           -50,             0,           -70,              0,             0,               0,             0  };   // (-) means not editable:)    //biarin aja kelebaran agar muncul horizontal scrollbar, jelek:p
-        db.col_label     = new String[]     {        "code", "updated_at",          "action",                                           "product",       "price",     "quantity",        "disc.",      "gambar",       "total", "total_price",         "ppn", "diskon_faktur",    "sub_total" };    //jgn "tgl._faktur" krn di laporan retur, seharusnya tanggal retur:)
-        db.col_type      = new int[]        { Types.VARCHAR,   Types.DATE,     Types.VARCHAR,                                       Types.VARCHAR, Types.INTEGER, Types.SMALLINT, Types.INTEGER, Types.VARCHAR, Types.INTEGER,  Types.TINYINT, Types.TINYINT,   Types.TINYINT, Types.INTEGER  };
+        db.col_width     = new int[]        {          -140,       -70-30,           -105+27, -120-20/*(scrollpane.getWidth()-5 -140-70-105-60-65-50-0-70  -15)*/,           -60,            -65,           -50,             0,           -70,          -120,           -50,           -90,             0,           -100,           -78,          -100 };   // (-) means not editable:)    //biarin aja kelebaran agar muncul horizontal scrollbar, jelek:p
+        db.col_label     = new String[]     {          "id", "updated_at",        "> action",                                                           "product",       "price",     "quantity",       "disc.",      "gambar",       "total", "total_price",         "tax",    "discount",   "sub_total", "product_note",    "customer",        "note" };    //jgn "tgl._faktur" krn di laporan retur, seharusnya tanggal retur:)
+        db.col_type      = new int[]        { Types.VARCHAR,   Types.DATE,     Types.VARCHAR,                                                       Types.VARCHAR, Types.INTEGER, Types.SMALLINT, Types.INTEGER, Types.VARCHAR, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER, Types.INTEGER,  Types.VARCHAR, Types.VARCHAR, Types.VARCHAR };
     }
     @Override Boolean build_sql() {
 android.util.Log.e( "build: ", "1" );
@@ -216,6 +216,22 @@ android.util.Log.e( "click: ", "18" );
 
 */
 
+/*
+android.util.Log.e( "penjual: ", "16666 "  + (form.table.col == null) );
+
+        form.table.adapter.panel.post(new Runnable() { @Override public void run() {
+android.util.Log.e( "penjual: ", "16666 still null "  + (form.table.col == null) );
+        form.table.col[2].setOnClickListener(new View.OnClickListener() {    @Override public void onClick(View v) {
+            new android.os.Handler().post(new Runnable() { @Override public void run() {
+android.util.Log.e( "click: ", "11 to view ftransaksi" );
+                 Fpenjualan.newInstance(retail.app_name + "- Order").show(retail.fm, "Fpenjualan");
+android.util.Log.e( "click: ", "12 to view ftransaksi" );
+            }});
+        }});
+
+        }});
+
+*/
 
 android.util.Log.e( "penjual: ", "17"  + ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) ));
 
@@ -224,8 +240,42 @@ android.util.Log.e( "penjual: ", "17"  + ( form.getActivity().getCurrentFocus()=
         //    lihat();
         //}});
 
+    final Fedit formf = super.form;
+
         new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
             lihat();    //Blihat.performClick();
+
+/*
+
+android.util.Log.e( "penjual: ", "16666 "  + (form.table.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (form.table.adapter.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (formf.table.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (formf.table.adapter.col == null) );
+
+        new android.os.Handler().postDelayed(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
+        //form.table.adapter.col[2].post(new Runnable() { @Override public void run() {
+android.util.Log.e( "penjual: ", "16666 still null "  + (form.table.col == null) );
+
+android.util.Log.e( "penjual: ", "16666 "  + (form.table.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (form.table.adapter.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (formf.table.col == null) );
+android.util.Log.e( "penjual: ", "16666 "  + (formf.table.adapter.col == null) );
+
+        form.table.adapter.col[2].setOnClickListener(new View.OnClickListener() {    @Override public void onClick(View v) {
+            new android.os.Handler().post(new Runnable() { @Override public void run() {
+android.util.Log.e( "click: ", "11 to view ftransaksi" );
+                 Fpenjualan.newInstance(retail.app_name + "- Order").show(retail.fm, "Fpenjualan");
+android.util.Log.e( "click: ", "12 to view ftransaksi" );
+            }});
+        }});
+
+        }}, 10000);
+
+
+*/
+
+
+
         }});
 
         return ret;
@@ -282,26 +332,31 @@ debug+="9";
                             if(col_type[c]==0) col_type[c] = db.metaData.getColumnType(i+1);
                             String field = db.col_label[c];
 //android.util.Log.e("lihat:", "2 c=" + c + " field="+field );
-                            if( field.equals("code") || field.equals("unit_price") || field.equals("discount") ) rs_row[c] = jtable.getString( field );
-                            else if( field.equals("ppn") ) rs_row[c] = jtable.getInt( "tax" );
+                            if( field.equals("id") || field.equals("note") ) rs_row[c] = jtable.getString( field );
+                            else if( field.equals("unit_price") || field.equals("discount") || field.equals("tax") || field.equals("total_price") ) rs_row[c] = jtable.getInt( field );
                             else if( field.equals("updated_at") ) rs_row[c] = new SimpleDateFormat("d MMM yyyy").format( jtable.getLong( field )  * 1000L );
-                            else if( field.equals("product") ) {
+                            else if( field.contains("action") )   rs_row[c] = jtable.getString( "status" ).equals("saved") ? "> UPDATE" :  "> RETUR" ;
+                            else if( field.equals("customer") )   rs_row[c] = jtable.getJSONObject("customer").getString("username");
+                            if( c==db.col_width.length-1 ) {    //should be last executed to place addRow    //else if( field.equals("product") ) {
+                                int k=3;
 //android.util.Log.e("lihat:", "3 c=" + c + " field="+field );
                                 org.json.JSONArray jArray2 = new org.json.JSONArray( jtable.getString("items") );
                                 for( int i2=0; i2<jArray2.length(); i2++ ) {
 //android.util.Log.e("lihat:", "4 c=" + c + " i2="+i2 );
                                     org.json.JSONObject jtable2 = jArray2.getJSONObject(i2);
 //android.util.Log.e("lihat:", "5 c=" + c + " i2="+i2 );
-                                    rs_row[c-1] = jtable.getString( "status" );
-                                    rs_row[c-1] = rs_row[c-1].equals("saved") ? "> UPDATE" :  "> RETUR" ;
-                                    rs_row[c]   = jtable2.getString( "product_label" );
-                                    rs_row[c+1] = jtable2.getInt( "unit_price" );
-                                    rs_row[c+2] = jtable2.getInt( "quantity" );
-                                    rs_row[c+3] = jtable2.getInt( "discount" );
-                                    rs_row[c+5] = jtable2.getInt("unit_price") * jtable2.getInt("quantity");
+                                    //rs_row[c-1] = i2>0 ? "" : ( jtable.getString( "status" ).equals("saved") ? "> UPDATE" :  "> RETUR" ) ;
+                                    //rs_row[c-1] = jtable.getString( "status" );    rs_row[c-1] = rs_row[c-1].equals("saved") ? "> UPDATE" :  "> RETUR" ;
+                                    rs_row[k]   = jtable2.getString( "product_label" );
+                                    rs_row[k+1] = jtable2.getInt( "unit_price" );
+                                    rs_row[k+2] = jtable2.getInt( "quantity" );
+                                    rs_row[k+3] = jtable2.getInt( "discount" );
+                                    rs_row[k+5] = jtable2.getInt("unit_price") * jtable2.getInt("quantity") - jtable2.getInt( "discount" );
+                                    rs_row[k+10] = jtable2.getString("note");
 //android.util.Log.e("lihat:", "6 c=" + c + " i2="+i2 );
                                     db.addRow(false, db.getRowCount(), rs_row,col_type, false);
 //android.util.Log.e("lihat:", "7 c=" + c + " i2="+i2 );
+                                    for( int x=0; x<db.col_width.length; x++ ) if( x!=k && x!=k+1 && x!=k+2 && x!=k+3 && x!=k+5 && x!=k+10 ) rs_row[x] = "" ;    //don't show the fakturs column value on the second row and below
                                 }
                             }
 
@@ -313,9 +368,9 @@ debug+="11";
                         //calculating the summary
                         disc_item += jtable.getLong("discount");    //retail.round( (long) db.rs.getInt(5) * db.rs.getInt("diskon") * db.rs.getInt(6) , 100 ) ;    //ada si resiko kecil banget jika pembulatannya pas tengah2:p ... tp masa ada harga kelipatan di bawah 100?! ... ada aja si klo di supermarket:D
 debug+="12" ;
-                        if( !last_no_faktur.equals( jtable.getString( "code" ) ) /*|| jtable2.getLong( "unit_price" )==-1 */ ) {    //bisa berisi no_faktur atau faktur.id
+                        //ini masih percuma >> if( !last_no_faktur.equals( jtable.getString( "code" ) ) /*|| jtable2.getLong( "unit_price" )==-1 */ ) {    //bisa berisi no_faktur atau faktur.id
 debug+="13";
-                            last_no_faktur    = jtable.getString( "code" );
+                            //ini masih percuma >> last_no_faktur    = jtable.getString( "code" );
 debug+="14";
                             sub_total_faktur += jtable.getInt( "total_price" );
 debug+="15";
@@ -326,8 +381,10 @@ debug+="17";
                             total_faktur     += jtable.getInt( "total_price" ) ;
 debug+="18";
                             //if( jtable.getLong( "unit_price" )==-1 ) disc_sign = (byte) 1 ;
+
 debug+="19";
-                        } else if( ((TextInputLayout)Ttotal.getParent()).getHint().equals("Laba Rugi") )
+                        //ini masih percuma >> } else
+                        if( ((TextInputLayout)Ttotal.getParent()).getHint().equals("Laba Rugi") )
                             total_faktur     += jtable.getInt( "total_price" ) ;    //cappe deeeh:)
                     }
 debug+="21";
