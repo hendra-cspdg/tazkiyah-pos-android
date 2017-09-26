@@ -1024,7 +1024,7 @@ import org.apache.commons.codec.binary.Base64;
     }
 
     public Class getColumnClass(int column) {    //ga bisa:  throws SQLException
-        if( col_editor[column] != null ) if( col_editor[column] instanceof JCdb ) return String.class;   //supaya tidak right align :p
+        if( col_editor[column] != null ) if( col_editor[column] instanceof JCdb || col_editor[column] instanceof JCEdb ) return String.class;   //supaya tidak right align :p
 
         switch( col_type[column] ) {
 //? is_android ...
@@ -1098,7 +1098,7 @@ import org.apache.commons.codec.binary.Base64;
     }
     public String to_str(int col_idx, Object val) {
         String value = val.toString().trim();
-        if( col_editor[col_idx] instanceof JCdb )   return value;
+        if( col_editor[col_idx] instanceof JCdb || col_editor[col_idx] instanceof JCEdb )   return value;
         //di pattern_Filter aja deh :p  >> if( getColumnName(col_idx).equals("Kode") ) value = retail.ean13(value);
         switch( col_type[col_idx] ) {
             case Types.TINYINT : return value.equals("")?"0":Integer.valueOf(value).toString();
@@ -1115,6 +1115,7 @@ import org.apache.commons.codec.binary.Base64;
     public String to_db(int col_idx, Object val) {
         //nop, i've used paramaterized val ... if (val == null) return "null";
         if( col_editor[col_idx] instanceof JCdb )    return ((Object)((JCdb)col_editor[col_idx]).my_key_of(val.toString())).toString();    //val = 1 + ((JCdb)col_editor[col_idx]).my_index_of(val.toString());
+        else if( col_editor[col_idx] instanceof JCEdb )    return ((Object)((JCEdb)col_editor[col_idx]).my_key_of(val.toString())).toString();    //val = 1 + ((JCdb)col_editor[col_idx]).my_index_of(val.toString());
         else                                         return to_str(col_idx, val);
     }
     public int getIntAt(int row_idx, int col_idx) {
@@ -1430,18 +1431,18 @@ android.util.Log.e("removeRow_sync: ", "4");
 	    //int type_  = type[i];
             //what u will see not what u get:)
 // is_android ... col_editor[i] saya set di JTable with if( db.col_editor[i]==null ) db.col_editor[i] = new EditText(my_activity);
-            if( col_editor[i] != null && col_editor[i] instanceof JCdb    /*!(col_editor[i] instanceof android.widget.EditText) */  ) {
-                if( col_editor[i] instanceof JCdb/*android.widget.Spinner*/ ) {
+            if( col_editor[i] != null && ( col_editor[i] instanceof JCdb || col_editor[i] instanceof JCEdb )    /*!(col_editor[i] instanceof android.widget.EditText) */  ) {
+                if( col_editor[i] instanceof JCdb || col_editor[i] instanceof JCEdb /*android.widget.Spinner*/ ) {
 //debug+="4";
 
                     if( obj.toString().equals("") ) {
 //debug+="4a";
-                        obj = col_editor[0] != null && col_editor[0] instanceof JCdb ? 0 : 1;    //agak lucu kan pake ngecek col_editor[0] dulu:D >> //tapi tetap di hak akses modul itu bisa diisi kosong oleh user << lah, otherwise ... malah ngelock by duplikat error :p >> paksa foreignkey selalu terisi .. unfully checked :) .. hm di edit hak akses modul jadi ga bisa nyimpan krn setvalue mendetect perubahan value ....
+                        obj = col_editor[0] != null && col_editor[0] instanceof JCdb || col_editor[0] instanceof JCEdb ? 0 : 1;    //agak lucu kan pake ngecek col_editor[0] dulu:D >> //tapi tetap di hak akses modul itu bisa diisi kosong oleh user << lah, otherwise ... malah ngelock by duplikat error :p >> paksa foreignkey selalu terisi .. unfully checked :) .. hm di edit hak akses modul jadi ga bisa nyimpan krn setvalue mendetect perubahan value ....
 //debug+="4b ";
 //debug+="4b (Integer)obj=" + (Integer)obj + "   ((JCdb)col_editor[i]).getCount()=" + ((JCdb)col_editor[i]).getCount();
-                        obj = ((JCdb)col_editor[i]).getItemAt( (Integer)obj - 1 );
+                        obj = col_editor[i] instanceof JCdb ? ((JCdb)col_editor[i]).getItemAt( (Integer)obj - 1 ) : ((JCEdb)col_editor[i]).getItemAt( (Integer)obj - 1 ) ;
                     } else
-                        obj = ((JCdb)col_editor[i]).my_jcdb_item_of_key( (Integer)obj );    //kayaknya lambat deh >> obj = ((JCdb)col_editor[i]).my_item_of_key( Integer.valueOf(obj.toString()) );
+                        obj = col_editor[i] instanceof JCdb ? ((JCdb)col_editor[i]).my_jcdb_item_of_key( (Integer)obj ) : ((JCEdb)col_editor[i]).my_jcdb_item_of_key( (Integer)obj ) ;    //kayaknya lambat deh >> obj = ((JCdb)col_editor[i]).my_item_of_key( Integer.valueOf(obj.toString()) );
 //debug+="4c";
 
                     //if( obj.toString().equals("") ) obj = col_editor[0] instanceof JComboBox ? 0 : 1;    //agak lucu kan pake ngecek col_editor[0] dulu:D >> //tapi tetap di hak akses modul itu bisa diisi kosong oleh user << lah, otherwise ... malah ngelock by duplikat error :p >> paksa foreignkey selalu terisi .. unfully checked :) .. hm di edit hak akses modul jadi ga bisa nyimpan krn setvalue mendetect perubahan value ....

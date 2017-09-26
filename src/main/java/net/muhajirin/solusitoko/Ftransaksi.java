@@ -42,7 +42,7 @@ import android.text.InputType;
 import java.net.URLEncoder;
 
 public class Ftransaksi extends Fedit {
-    JCdb Ccode_brg, Cname_brg;    ArrayList<Integer> harga_brg;    ArrayList<String> diskon_brg, gambar_brg;
+    JCdb Ccode_brg;    JCEdb Cname_brg;    ArrayList<Integer> harga_brg;    ArrayList<String> diskon_brg, gambar_brg;
 //ItemListener sync_brg;
     //JCdb Ccode_brg  = retail.Ccode_brg;    JCdb Cname_brg  = retail.Cname_brg;    int[] harga_brg  = retail.harga_brg;    int[] diskon_brg = retail.diskon_brg;    String[] gambar_brg = retail.gambar_brg;
     //JCdb Ccode_brg  = new JCdb("");    JCdb Cname_brg  = new JCdb("");    int[] harga_brg  = {};    int[] diskon_brg = {};    String[] gambar_brg = {};
@@ -325,7 +325,7 @@ android.util.Log.e( "build: ", "8" );
 
 android.util.Log.e( "build: ", "9 Cname_brg==null" + ( Cname_brg==null) );
         //untested >> harusnya kan udah di get_brg?! >>
- Cname_brg.setOnItemClickListener(retail.sync_brg);    Ccode_brg.setOnItemClickListener(retail.sync_brg);
+//???? Cname_brg.setOnItemClickListener(retail.sync_brg);    Ccode_brg.setOnItemClickListener(retail.sync_brg);
 
 android.util.Log.e( "build: ", "10" );
 
@@ -522,6 +522,9 @@ android.util.Log.e( "penjual: ", "9" + ( form.getActivity().getCurrentFocus()==n
         TL = new TextInputLayout(form.getActivity());    TL.addView( Ttotal, prms_tv );
         prms.setMargins( 0, 7, 0, 0 );
         toolbar.addView( TL, prms );
+
+
+
 
 
         /*LayoutParams prms_right = new LayoutParams( LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT );
@@ -723,8 +726,6 @@ android.util.Log.e( "penjual: ", "17"  /*+ ( form.getActivity().getCurrentFocus(
 android.util.Log.e( "penjual: ", "18"  /*+ ( form.getActivity().getCurrentFocus()==null ? "" : ""+ ((android.view.inputmethod.InputMethodManager) form.getActivity().getSystemService( android.app.Activity.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(form.getActivity().getCurrentFocus().getWindowToken(), 0 ) )*/);
 
         //Lkembali.performClick();    //form.table.col[0].requestFocus();    //Tdibayar.requestFocus();    retail.hideSoftKeyboard( (android.app.Activity) form.getActivity() );    //entah kenapa softkeyboardnya muncul:p
-
-
 
         new android.os.Handler().post(new Runnable() { @Override public void run() {    //Ccode_brg.post(new Runnable() { @Override public void run() {
             refresh_agn();
@@ -1203,6 +1204,7 @@ android.util.Log.e("after_get_brg: ", "2 i=" + i);
 android.util.Log.e("after_get_brg: ", "3");
             int code_id = Ccode_brg.my_filtered_index_of(code);
 android.util.Log.e("after_get_brg: ", "4");
+
             int name_id = Cname_brg.my_filtered_index_of(name);
             if( name_id != code_id && !( code_id >= 0 && name_id >= 0 && retail.convert_null(retail.setting.get("Duplikasi Nama Barang")).toLowerCase().equals("ya") ) )    //don't check if allowing duplicate name    //jika index nama barang dan index code barang tidak sama (termasuk jika salah satu indexnya = -1)
                      if( name_id >= 0 ) db.setValueAt( ( Ccode_brg.getItemAt(name_id).toString() ), i, 0 );    //jika nama barang valid, tapi code barang tidak valid, update code barang

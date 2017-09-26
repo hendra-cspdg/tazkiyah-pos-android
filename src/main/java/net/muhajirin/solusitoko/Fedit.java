@@ -800,11 +800,6 @@ android.util.Log.e("camera:", "4");
                 }
 
 
-
-
-
-
-
                 return false;
             }
         });

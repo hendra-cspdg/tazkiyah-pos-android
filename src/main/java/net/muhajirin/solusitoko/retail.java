@@ -308,6 +308,54 @@ public class retail extends AppCompatActivity {
         }
 
 
+
+
+
+//    new Thread(new Runnable() { public void run() {
+android.util.Log.e( "gps: ", "1" );
+        final android.location.LocationManager lm = (android.location.LocationManager)getSystemService(android.content.Context.LOCATION_SERVICE); 
+android.util.Log.e( "gps: ", "2" );
+        android.location.Location location = lm.getLastKnownLocation(android.location.LocationManager.GPS_PROVIDER);
+android.util.Log.e( "gps: ", "3" );
+        if( location!=null ) {
+android.util.Log.e( "gps: ", "41" );
+            longitude = location.getLongitude();
+            latitude = location.getLatitude();
+            android.widget.Toast.makeText( get_my_app_activity(), "Get Location Succeed From getLastKnownLocation()!\nlongitude: " + longitude + "\nlatitude: " + latitude, android.widget.Toast.LENGTH_LONG).show();
+        } else {
+android.util.Log.e( "gps: ", "42" );
+            final android.location.LocationListener locationListener = new android.location.LocationListener() {
+                public void onLocationChanged(android.location.Location location) {
+android.util.Log.e( "gps: ", "onloactionchanged" );
+                    longitude = location.getLongitude();
+                    latitude = location.getLatitude();
+                    lm.removeUpdates(this);
+                    android.widget.Toast.makeText( get_my_app_activity(), "Get Location Succeed From Listener!\nlongitude: " + longitude + "\nlatitude: " + latitude, android.widget.Toast.LENGTH_LONG).show();
+                }
+                public void onProviderDisabled(String provider) {
+android.util.Log.e( "gps: ", "onProviderDisabled" );
+                    android.widget.Toast.makeText( get_my_app_activity(), "GPS provider disabled!", android.widget.Toast.LENGTH_LONG).show();
+                }
+                public void onProviderEnabled(String provider) {}
+                public void onStatusChanged(String provider, int status, Bundle extras) {}
+            };
+android.util.Log.e( "gps: ", "5" );
+            try{
+                lm.requestLocationUpdates(android.location.LocationManager.GPS_PROVIDER, 20000, 100, locationListener);     //requestLocationUpdates (String provider, long minTime, float minDistance, LocationListener listener)
+            } catch( java.lang.IllegalArgumentException e ) {
+                android.widget.Toast.makeText( get_my_app_activity(), "GPS provider is null or doesn't exist on this device!", android.widget.Toast.LENGTH_LONG).show();
+                android.util.Log.e("gps error: ", "e.toString()="+ e.toString() );
+            }
+
+android.util.Log.e( "gps: ", "6" );
+        }
+
+//    }}).start();
+
+
+
+
+
         if( db.cfg.get("access_token").trim().length()==0 ) {    //jika belum punya access_token di file konfigurasi.txt, tampilkan interface utk user auth
             if( flogin==null ) flogin = Flogin.newInstance( app_name + "- LOGIN" );
             flogin.show(fm, "Flogin");    //Flogin.newInstance( app_name + "- LOGIN" ).show(fm, "Flogin");    //show login form
@@ -722,7 +770,7 @@ Log.e("after login", "create menu ") ;
                         org.json.JSONObject json_data = new org.json.JSONObject(result);
                         if( !json_data.getString( "status" ).equals("200") ) return;
                     } catch( org.json.JSONException e ) {
-                        android.util.Log.e("flogin error: ", "e.toString()="+ e.toString() );
+                        android.util.Log.e("logout error: ", "e.toString()="+ e.toString() );
                     }
 
                     write_config( "Access Token", "" );    //delete access_token to konfigurasi.txt to use later on app next start
@@ -1002,26 +1050,34 @@ public static Boolean add_row_sync(JTable table) {
     }
 
 
-    protected static JCdb Ccode_brg;    protected static JCdb Cname_brg;    protected static ArrayList<Integer> harga_brg = new ArrayList<Integer>();    protected static ArrayList<String> diskon_brg = new ArrayList<String>();    protected static ArrayList<String> gambar_brg = new ArrayList<String>();
+    protected static JCdb Ccode_brg;    protected static JCEdb Cname_brg;    protected static ArrayList<Integer> harga_brg = new ArrayList<Integer>();    protected static ArrayList<String> diskon_brg = new ArrayList<String>();    protected static ArrayList<String> gambar_brg = new ArrayList<String>();
     protected static int brg_id;
     protected static JTable tbl_brg;
-
-    static void _sync_brg(final JCdb Csrc, final int position) {
+    static void _sync_brg(final Object Csrc, int position) {
         _sync_brg(Csrc, position, 0);
     }
     //brg_id adalah index dari Ccode_brg.items unfiltered
-    static void _sync_brg(final JCdb Csrc, final int position, final int filter_position) {
+    static void _sync_brg(final Object Csrc, final int position, final int filter_position) {
+
 android.util.Log.e("onlistener:", "first Csrc=" + (Csrc==Ccode_brg ? "Ccode" : "Cname" ) + "  brg_id=" + brg_id  + "  brg_id=" + brg_id + " last_sql_brg=" + last_sql_brg );
         if( brg_id != -13 ) return;  //supaya tidak listen setSelection yg dilakukan method ini.
         if( last_sql_brg.length()==0 ) return;
         in_progress=true ;
 
+        /*
+        if( Csrc!=Ccode_brg ) {    //for sub variant2, find the corresponding position
+            position_ = JCEdb.real_position( Csrc, position_ );
+            Csrc=Cname_brg;
+        }
+        final int position = position_ ;
+        */
+
 android.util.Log.e("onlistener:", "1 brg_id=" + brg_id  + "   position=" + position   );
             //JCdb Csrc = (JCdb)parent;    //e.getItemSelectable();
 android.util.Log.e("onlistener:", "3 brg_id=" + brg_id  + "   position=" + position    );
             //if( Csrc.isShowing() && e.getStateChange()!=ItemEvent.SELECTED ) return;   //Csrc.isShowing() perlu utk mengakomodir removeeditor
-            final JCdb Cdst   = Csrc==Cname_brg ? Ccode_brg : Cname_brg ;
-            final int col_dst = Csrc==Cname_brg ? 0 : 1 ;
+            final Object Cdst = Csrc instanceof JCEdb ? Ccode_brg : Cname_brg ;
+            final int col_dst = Csrc instanceof JCEdb ? 0 : 1 ;
 android.util.Log.e("onlistener:", "5 tbl_brg==null" + (tbl_brg==null) );
             //int col_src = (col_dst+1)%2;
             final db_connection db = (db_connection) tbl_brg.getModel();
@@ -1030,7 +1086,9 @@ android.util.Log.e("onlistener:", "5 tbl_brg==null" + (tbl_brg==null) );
             //brg_id perlu diset sebelum thread baru agar hitung_sub_total bisa deteksi klo listener in progress!!
             //klo item sudah ada, pengelompokan harus terjadi di akhir (saat setvalue di bawah) biar bisa menghapus row terakhir >> brg_id = position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
             brg_id = -12;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
-            Csrc.setSelectedItemPosition(position);    //to used by remove editor (untested for others)
+
+            if( Csrc instanceof JCdb ) ((JCdb)Csrc).setSelectedItemPosition(position);    //to used by remove editor (untested for others)
+            else                     ((JCEdb) Csrc).setSelectedItemPosition(position);    //to used by remove editor (untested for others)
 //            Csrc.clear_filter();
             //Csrc.post(new Runnable() { public void run() {
                 //Csrc.setVisibility( View.INVISIBLE);
@@ -1040,32 +1098,44 @@ android.util.Log.e("onlistener:", "5 tbl_brg==null" + (tbl_brg==null) );
 
             new android.os.Handler().post(new Runnable() { public void run() {    //dia nunggu sangat lama di android nougat >> Cdst    //well, perlu untuk memastikan clear_filter() dah selesai di remove_editor()    //I can't remember why I did this >> new android.os.Handler().post(new Runnable() { public void run() {    //new android.os.AsyncTask<Void, Void, Void> () {   @Override protected Void doInBackground( Void... v ) {
                 //percuma si >> Csrc.dismissDropDown();
-                brg_id = Csrc.items.indexOf( Csrc.getItemAtPosition(position) );    //((jcdb_item)Csrc.getItemAtPosition(position)).get_id();    //position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
+                brg_id = Csrc instanceof JCEdb ? Cname_brg.selected_index : Ccode_brg.items.indexOf( Ccode_brg.getItemAtPosition(position) );    //((jcdb_item)Csrc.getItemAtPosition(position)).get_id();    //position;    //Csrc.getSelectedItemPosition();    //Csrc.isShowing() ? Csrc.getSelectedIndex() : Csrc.my_index_of(db.getValueAt(row, col_src).toString());
 android.util.Log.e("onlistener:", "inside handler  brg_id=" + brg_id );
 android.util.Log.e("onlistener:", "inside handler  db.getValueAt(row, col_dst).toString()=" + db.getValueAt(row, col_dst).toString() );
-android.util.Log.e("onlistener:", "inside handler  Cdst.my_index_of( )=" + Cdst.my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) );
-            if( brg_id != Cdst.my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) ) {
-android.util.Log.e("onlistener:", "555 brg_id=" + brg_id  + " Cdst.getCount()" + Cdst.getCount() );
+//android.util.Log.e("onlistener:", "inside handler  Cdst.my_index_of( )=" + Cdst.my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) );
+            int brg_id_test = Cdst instanceof JCdb ? ((JCdb)Cdst).my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) : ((JCEdb)Cdst).my_filtered_index_of( db.getValueAt(row, col_dst).toString() ) ;
+android.util.Log.e("onlistener:", "brg_id_test=" + brg_id_test );
+
+            if( brg_id != brg_id_test ) {
+//android.util.Log.e("onlistener:", "555 brg_id=" + brg_id  + " Cdst.getCount()" + Cdst.getCount() );
 //android.util.Log.e("onlistener:", "Cdst.getItemAt(brg_id).toString()=" + Cdst.getItemAt(brg_id).toString() );
             //Csrc.clear_filter();
                 //Csrc.setSelectedItemPosition(filter_position);
                 //int bid = brg_id;
                 //brg_id = -12;    //supaya harga, total, dkk tidak terset dua kali oleh Fpenjualan.setValue
-                db.setValueAt( false, ( brg_id==-1 ? "" : Cdst.items.get(brg_id).toString() ), row, col_dst );    //Cdst.getItemAt(brg_id)    //brg_id==-1 bisa terjadi jika baru mulai ngedit tapi user mencet Esc
+android.util.Log.e("onlistener:", "before value");
+android.util.Log.e("onlistener:", "Csrc instanceof JCEdb =" + (Csrc instanceof JCEdb) );
+                String value = Cdst instanceof JCdb ? ((JCdb)Cdst).getItemAtPosition(brg_id).toString() : ((JCEdb)Cdst).getItemAtPosition(brg_id).toString() ;
+android.util.Log.e("onlistener:", "value=" + value );
+                db.setValueAt( false, ( brg_id==-1 ? "" : value ), row, col_dst );    //Cdst.getItemAt(brg_id)    //brg_id==-1 bisa terjadi jika baru mulai ngedit tapi user mencet Esc
                 //db.setValueAt( ( brg_id==-1 ? "" : gambar_brg.get(brg_id)                ), row, 6       );
 android.util.Log.e("onlistener:", "after set dst value"  );
 
                 in_progress=false ;
             }
             brg_id = -13;
-android.util.Log.e("onlistener last:", "   brg_id=" + brg_id + "  Selectedpos=" + Cdst.getSelectedItemPosition()   );
+//android.util.Log.e("onlistener last:", "   brg_id=" + brg_id + "  Selectedpos=" + Cdst.getSelectedItemPosition()   );
             }});    //    return null;    }}.execute();
+
 
     }
     static android.widget.AdapterView.OnItemClickListener sync_brg = new android.widget.AdapterView.OnItemClickListener() {    //android.widget.AdapterView.OnItemSelectedListener sync_brg = new android.widget.AdapterView.OnItemSelectedListener() {
         @Override public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {    //public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+android.util.Log.e("onlistener:", "view.getTag()==null" + (view.getTag()==null) );
+            if( view.getTag()==null ) return;    //abaikan saat klik product dengan attribut
 android.util.Log.e("onlistener:", "aa1");
-            JCdb Csrc = parent.getAdapter()==Ccode_brg.getAdapter() ? Ccode_brg : Cname_brg;
+            Object Csrc = parent.getAdapter()==Ccode_brg.getAdapter() ? Ccode_brg : Cname_brg;
+            int key = Integer.valueOf(view.getTag().toString()) ;
+            position = ( Csrc instanceof JCdb ? ((JCdb)Csrc).my_index_of_key(key) : ((JCEdb) Csrc).my_index_of_key(key) );    //later: need to optimize
             int filter_position = position;
             //Csrc.setSelectedItemPosition(position);    //to used by remove editor
 //biarlah selalu tetap dalam kondisi terfilter!!! >> position = ((jcdb_item)parent.getItemAtPosition(position)).get_id();     //Csrc.getAdapter().getPosition( ((EditText)Csrc).getText().toString() );    //.getfilter().getItem(position)    //krn position di atas adalah position setelah terfilter :p
@@ -1073,10 +1143,10 @@ android.util.Log.e("onlistener:", "aa1");
 android.util.Log.e("onlistener:", "aa2");
             _sync_brg( Csrc, position, filter_position );
 android.util.Log.e("onlistener:", "aa3");
+
         }
         //public void onNothingSelected(android.widget.AdapterView<?> parent) {}
     };	
-
 
     public static int get_diskon_check( int banyak, int qty_idx, String[] diskon_arr ) {
         if( banyak<=0 || qty_idx<=0 ) return 0;
@@ -1116,7 +1186,8 @@ android.util.Log.e("ongetbrg00:", "   brg_id=" + brg_id + "  Selectedpos=" + Cco
             //percuma >> Cname_brg.addItemListener(sync_brg);  Ccode_brg.addItemListener(sync_brg);
             return;
         }
-            if( Ccode_brg==null ) {    Ccode_brg  = JCdb.newInstance(false, "", (AppCompatActivity)get_my_app_context());    Cname_brg  = JCdb.newInstance(false, "", (AppCompatActivity)get_my_app_context());    /*just_created=true;*/    }  //hrs di sini .. klo gak, dia ga ngerender as look&feel (nimbus) :p
+
+            if( Ccode_brg==null ) {    Ccode_brg  = JCdb.newInstance(false, "", (AppCompatActivity)get_my_app_context());    Cname_brg  = JCEdb.newInstance(false, "", (AppCompatActivity)get_my_app_context());    /*just_created=true;*/    }  //hrs di sini .. klo gak, dia ga ngerender as look&feel (nimbus) :p
             if( harga_brg==null ) {
                 harga_brg = new ArrayList<Integer>();    diskon_brg = new ArrayList<String>();    gambar_brg = new ArrayList<String>();
             }
@@ -1138,31 +1209,27 @@ android.util.Log.e("get_brg json: ", "2");
                             retail.show_error( "\n" + data.getString("message") + "\n\n\n\n", "Koneksi Gagal" );
                             return;
                         }
+android.util.Log.e("get_brg json: ", "3");
                         reset_brg();
-                        Cname_brg.items.add( new jcdb_item( 0, "" ) );    //( -1, "" )    //as long as I remember, I never use Ccode_brg.get_id() and Cname_brg.get_id(), then I can use it to save originate position while filtering:p
+                        org.json.JSONArray jArray = new org.json.JSONArray( "[" + "{\"id\": 0,\"price\": \"0.00\",\"label\": \"\",\"attributes\": []}," + data.getString( "products" ).substring(1) );
+android.util.Log.e("get_brg json: ", "6");
+                        Cname_brg.adapter.items = jArray;    Cname_brg.items = Cname_brg.adapter.items;
+android.util.Log.e("get_brg json: ", "7");
+                        //Cname_brg.adapter.items.put(0, new org.json.JSONObject( "{\"id\": 0,\"price\": \"0.00\",\"label\": \"\",\"attributes\": []}" ));    //Cname_brg.items.add( new jcdb_item( 0, "" ) );    //( -1, "" )    //as long as I remember, I never use Ccode_brg.get_id() and Cname_brg.get_id(), then I can use it to save originate position while filtering:p
+android.util.Log.e("get_brg json: ", "4");
                         Ccode_brg.items.add( new jcdb_item( 0, "" ) );
                         harga_brg.add(0);
                         diskon_brg.add("");
                         gambar_brg.add("");
-                        org.json.JSONArray jArray = new org.json.JSONArray( data.getString( "products" ) );
-                        for( int i=0; i<jArray.length(); i++ ) {
-                            org.json.JSONObject product = jArray.getJSONObject(i);
-                            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
-                            if( attributes.length()>0 ) continue;    //sementara, abaikan product dgn attributes
-                            Cname_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "label" ) ) );    //i+1
-                            Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "id" ) ) );    //barcode //i+1
-                            harga_brg.add( product.getInt( "price" ) );
-                            diskon_brg.add("0");
-                            gambar_brg.add("");
-                        }
-
-                        Cname_brg.adapter.notifyDataSetChanged();    Ccode_brg.adapter.notifyDataSetChanged();
+android.util.Log.e("get_brg json: ", "5");
+                        fill_brg( jArray );
+//??                        Cname_brg.adapter.notifyDataSetChanged();
+                        Ccode_brg.adapter.notifyDataSetChanged();
 android.util.Log.e("ongetbrg:", " 42 Code_brg.getCount()" + Ccode_brg.getAdapter().getCount() + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount()  + " Code_brg.getAdapter().getCount()" + Ccode_brg.getAdapter().getCount() );
-android.util.Log.e("ongetbrg:", " 42 name_brg.getCount()" + Cname_brg.getAdapter().getCount() + " name_brg.items.getCount()" + Cname_brg.getAdapter().getCount()  + " name_brg.getAdapter().getCount()" + Cname_brg.getAdapter().getCount() );
                         Ccode_brg.setSelection(0);    Cname_brg.setSelection(0);    //supaya ItemListener aktif saat item pertama dipilih....
                         brg_id = -13;
 android.util.Log.e("ongetbrg:", "   brg_id=" + brg_id + "  Selectedpos=" + Ccode_brg.getSelectedItemPosition()   + "    Ccode_brg.getCount()" + Ccode_brg.getAdapter().getCount() );
-                        Cname_brg.setOnItemClickListener(sync_brg);/*ribet amat idup lo >> new AutoCompleteTextViewClickListener(Cname_brg,sync_brg) */    Ccode_brg.setOnItemClickListener(sync_brg);
+                        //Cname_brg.setOnItemClickListener(sync_brg);/*ribet amat idup lo >> new AutoCompleteTextViewClickListener(Cname_brg,sync_brg) */    Ccode_brg.setOnItemClickListener(sync_brg);
 android.util.Log.e("ongetbrg:", "   after setlistener "   + "    Ccode_brg.getCount()" + Ccode_brg.getCount()  );
                         last_sql_brg = sql;
 
@@ -1178,6 +1245,28 @@ android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=n
             }.execute( db.cfg.get( "url_product_index" ) );
     }
 
+
+    public static void fill_brg( org.json.JSONArray jArray, int price ) {
+        try {
+        for( int i=0; i<jArray.length(); i++ ) {
+            org.json.JSONObject product = jArray.getJSONObject(i);
+            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
+            if( attributes.length()>0 ) fill_brg( attributes, price+product.getInt( "price" ) ) ;
+            else {
+                Ccode_brg.items.add( new jcdb_item( product.getInt("id"), product.getString( "id" ) ) );    //barcode //i+1
+                harga_brg.add( price+product.getInt( "price" ) );
+                diskon_brg.add("0");
+                gambar_brg.add("");
+            }
+        }
+        } catch( org.json.JSONException e ) {
+                        android.util.Log.e("fill_brg error: ", "e.toString()="+ e.toString() );
+        }
+    }
+    public static void fill_brg( org.json.JSONArray jArray ) {
+        fill_brg( jArray, 0 );
+    }
+
     public static void reset_brg() {
         //untested:p >> if( last_sql_brg.isEmpty() ) return;
         //untested: Ccode_brg=null;    Cname_brg=null;    //biarin:p >> tidak bijaksana
@@ -1187,7 +1276,8 @@ android.util.Log.e("ongetbrg:", "   Ftransaksi.form!=null" + (Ftransaksi.form!=n
             Cname_brg.setOnItemClickListener(null);    Ccode_brg.setOnItemClickListener(null);
             //Ccode_brg.my_removeAllItems();    Cname_brg.my_removeAllItems();    //
             //Ccode_brg.clear_filter();    Cname_brg.clear_filter();
-            Ccode_brg.items.clear();    Cname_brg.items.clear();
+            Ccode_brg.items.clear();    
+//????????? Cname_brg.items.clear();
         }
         harga_brg.clear();    diskon_brg.clear();    gambar_brg.clear();    //harga_brg=null;    diskon_brg=null;    gambar_brg=null;
     }
@@ -1574,8 +1664,506 @@ class jcdb_item {
 
 
 
+
+
+
+
+
+class JCEdb extends android.widget.ExpandableListView {
+    static JCEdb jcedb;    AppCompatActivity act;
+    ExpandableListAdapter adapter;
+    public static JCEdb newInstance( Boolean async, String table, final AppCompatActivity act ) {
+android.util.Log.e("jcedb: ", "1");
+        //if( android.os.Build.VERSION.SDK_INT < 11 )
+        jcedb = new JCEdb(async, table, act, 1);
+//        after_create(jcedb);
+        return jcedb;
+        //else                                 return new JCEdb(async, table, act, true);
+    }
+    public static JCEdb newInstance( String table, final AppCompatActivity act ) {
+        //if( android.os.Build.VERSION.SDK_INT < 11 )
+        jcedb = new JCEdb(true, table, act, 1);
+//        after_create(jcedb);
+        return jcedb;
+        //else                                 return new JCEdb(true, table, act, true);
+    }
+    public static JCEdb newInstance( Boolean async, String table, final AppCompatActivity act, int threshold ) {
+android.util.Log.e("jcedb: ", "1");
+        //if( android.os.Build.VERSION.SDK_INT < 11 )
+        jcedb = new JCEdb(async, table, act, threshold);
+//        after_create(jcedb);
+        return jcedb;
+        //else                                 return new JCEdb(async, table, act, true);
+    }
+    public static JCEdb newInstance( String table, final AppCompatActivity act, int threshold ) {
+        //if( android.os.Build.VERSION.SDK_INT < 11 )
+        jcedb = new JCEdb(true, table, act, threshold );
+//        after_create(jcedb);
+        return jcedb;
+        //else                                 return new JCEdb(true, table, act, true);
+    }
+
+
+
+    public static JCEdb newInstance( Boolean async, String table, final android.support.v4.app.FragmentActivity act ) {
+        return newInstance( async, table, (AppCompatActivity) act );
+    }
+    public static JCEdb newInstance( String table, final android.support.v4.app.FragmentActivity act ) {
+        return newInstance( table, (AppCompatActivity) act );
+    }
+    public static JCEdb newInstance( Boolean async, String table, final android.support.v4.app.FragmentActivity act, int threshold ) {
+        return newInstance( async, table, (AppCompatActivity) act, threshold );
+    }
+    public static JCEdb newInstance( String table, final android.support.v4.app.FragmentActivity act, int threshold ) {
+        return newInstance( table, (AppCompatActivity) act, threshold );
+    }
+
+    public void after_create() {
+android.util.Log.e("after_create: ", "1" );
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+android.util.Log.e("after_create: ", "2" );
+        adapter = new ExpandableListAdapter( (android.content.Context) act/*, groupIndicator*/ ) ;
+        //android.graphics.drawable.Drawable groupIndicator = new android.graphics.drawable.ColorDrawable( android.graphics.Color.TRANSPARENT );
+
+
+android.util.Log.e("after_create: ", "adapter" );
+        //setIndicatorBounds( 30, 0 );
+        //setGroupIndicator(groupIndicator);
+
+        //new android.os.Handler().postDelayed(new Runnable() { public void run() {
+        //adapter.
+post(new Runnable() { public void run() {
+android.util.Log.e("before_set: ", "adapter" );
+        setAdapter( adapter );
+android.util.Log.e("after_set: ", "adapter" );
+        }});
+        //}},2000);
+
+
+
+
+
+        setOnGroupClickListener(new android.widget.ExpandableListView.OnGroupClickListener() { @Override public boolean onGroupClick( android.widget.ExpandableListView parent, View view, int groupPosition, long id ) {
+            view = ((ViewGroup)view).getChildAt(0);    //to get the textview object
+android.util.Log.e("onlistener:", "view.getTag()==null" + (view.getTag()==null) );
+            if( view.getTag()==null ) return false;    //abaikan saat klik product dengan attribut
+android.util.Log.e("onlistener:", "aa1 view.getTag().toString()=" + view.getTag().toString() );
+            int key = Integer.valueOf(view.getTag().toString()) ;
+            int position = retail.Cname_brg.my_index_of_key(key);    //later: need to optimize
+android.util.Log.e("onlistener:", "aa1aa key=" + key + "  position=" + position );
+            int filter_position = position;
+
+android.util.Log.e("onlistener:", "aa2");
+            retail._sync_brg( retail.Cname_brg, position, filter_position );
+android.util.Log.e("onlistener:", "aa3");
+
+//            Toast.makeText((android.content.Context) act, "grup clicked", Toast.LENGTH_SHORT).show();
+            return false;
+        }});
+
+
+        setOnChildClickListener(new android.widget.ExpandableListView.OnChildClickListener() { @Override public boolean onChildClick( android.widget.ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
+            view = ((ViewGroup)view).getChildAt(0);    //to get the textview object
+android.util.Log.e("onlistener:", "view.getTag()==null" + (view.getTag()==null) );
+            if( view.getTag()==null ) return false;    //abaikan saat klik product dengan attribut
+android.util.Log.e("onlistener:", "aa1");
+            int key = Integer.valueOf(view.getTag().toString()) ;
+            int position = retail.Cname_brg.my_index_of_key(key);    //later: need to optimize
+            int filter_position = position;
+
+android.util.Log.e("onlistener:", "aa2");
+            retail._sync_brg( retail.Cname_brg, position, filter_position );
+android.util.Log.e("onlistener:", "aa3");
+
+//            Toast.makeText((android.content.Context) act, "child clicked", Toast.LENGTH_SHORT).show();
+
+            return false;
+        }});
+
+
+
+        setOnItemClickListener( new android.widget.AdapterView.OnItemClickListener() {    @Override public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+            Toast.makeText((android.content.Context) act, "ONITEMCLICK clicked", Toast.LENGTH_SHORT).show();
+        }});
+
+
+
+
+/*
+android.util.Log.e("after_create: ", "3" );
+
+
+
+
+
+
+
+
+
+
+		setOnGroupExpandListener(new android.widget.ExpandableListView.OnGroupExpandListener() {
+
+			@Override
+			public void onGroupExpand(int groupPosition) {
+android.util.Log.e("setOnGroupExpandListener: ", "1" );
+				Toast.makeText((android.content.Context) act,
+						"listDataHeader.get(groupPosition)" + " Expanded",
+						Toast.LENGTH_SHORT).show();
+			}
+		});
+
+
+
+        setOnItemClickListener( new android.widget.AdapterView.OnItemClickListener() {    //perlu utk lakukan setSelectedItemPosition
+            @Override public void onItemClick(android.widget.AdapterView<?> parent, View view, int position, long id) {
+android.util.Log.e("jcedb setonitemclicklistener: ", "position before: " + position);
+
+
+                position = items.indexOf( parent.getItemAtPosition(position) );    //((android.widget.ArrayAdapter)getAdapter()).getPosition( ((jcdb_item)parent.getItemAtPosition(position)) );
+android.util.Log.e("jcedb setonitemclicklistener: ", "position after: " + position);
+                setSelectedItemPosition(position);
+            }
+            //public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+*/
+
+android.util.Log.e("after_create: ", "4" );
+
+
+
+/* later: to show list before typing
+
+myView.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus)
+                myView.showDropDown();
+
+        }
+    });
+
+    myView.setOnTouchListener(new OnTouchListener() {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            myView.showDropDown();
+
+            //to show keyboard? >> autocomptv.requestFocus();
+            return false;
+        }
+    });
+
+
+//maybe with this? >> OnTextChangeListener say afterTextChanged, when length = 0
+
+*/
+
+
+    }
+
+
+    public JCEdb( Boolean async, String table, final AppCompatActivity act, int threshold ) {
+        super( (android.content.Context) act );
+        //super( (android.content.Context) act );
+
+android.util.Log.e("jcedb: ", "BuildConfig.VERSION_CODE " + BuildConfig.VERSION_CODE + "    Build.VERSION.SDK_INT " + android.os.Build.VERSION.SDK_INT   );
+        this.act=act;
+        create( async, table, act, threshold );
+    }
+
+/*
+    public void clear_filter() {
+//setText("");
+//showDropDown();
+        //performFiltering("", 0);
+        adapter.getFilter().filter(null);
+        adapter.notifyDataSetChanged();
+    }
+*/
+
+    org.json.JSONArray items;    //ArrayList<jcdb_item> items;
+    public void create( final Boolean async, String table, final AppCompatActivity act, int threshold ) {
+try{
+
+android.util.Log.e("jcedb create: ", "1a");
+        //items = new ArrayList<jcdb_item>();
+android.util.Log.e("jcedb create: ", "1b");
+
+
+
+
+
+        if( !table.equals("") ) {
+
+android.util.Log.e("jcedb create: ", "!table.equals('')" );
+
+            /*setClickable(true);*/    setFocusable(true);    setFocusableInTouchMode(true);    //utk mentrigger col_editor lostfocus agar col_editor tersebut terremove
+
+            String sql;
+            if( table.indexOf(" ")>0 ) {
+                   sql = table;    table = "";
+            } else
+                   sql = "SELECT id, name FROM " + table + " ORDER BY id" ;
+
+            final String final_sql = sql,  final_table = table;
+                    create_sync( final_table, final_sql );
+
+        } else {
+
+            android.util.Log.e("jcedb create: ", "last -2");
+
+            after_create();
+
+        }
+
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        //jcedb.setAdapter(adapter);
+android.util.Log.e("jcedb create: ", "last");
+
+            } catch (Exception e) {
+android.util.Log.e("jcedb create: ", "error: " + e);
+
+retail.show_error("jcedb create: error: " + e, "errrr");
+
+            }
+
+    }
+
+    public void create_sync( final String table, final String sql ) {
+
+android.util.Log.e("jcedb create: ", "333");
+            final db_connection db = retail.db; //hanya alias aja:p agar ga kepanjangan
+
+            new android.os.AsyncTask<Void, Void, Void> () {
+                @Override protected Void doInBackground( Void... v ) {
+                    db.exec(sql);
+                    //try { while( db.in_progress ) java.lang.Thread.sleep(100); } catch (InterruptedException e1) {}
+                    return null;
+                }
+                @Override protected void onPostExecute( Void v ) {
+
+
+
+android.util.Log.e("jcedb create: ", "4");
+            if( !db.err_msg.equals("") ) return;
+android.util.Log.e("jcedb create: ", "5");
+
+
+//String debug="";
+            try {
+//debug+="1 sql=" + sql;
+////////                while( db.rs.next() ) items.add( new jcdb_item( db.rs.getInt(1), db.rs.getString(2) )  );
+//debug+="3";
+                db.rs.close();
+//debug+="4";
+                //items.add( new jcdb_item( 7, "testtt" )  );
+
+        after_create();
+
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+//        jcdb.setAdapter(adapter);
+
+            } catch (Exception e) { //numpang2 pake db.err_msg :D
+                db.err_msg += "From jcedb create" + "\nMaaf, Data \""+ retail.toTitleCase(table) +"\" gagal diinisiasi!\n\n\n(" + e + ")";
+            }
+
+                }
+            }.execute();
+
+
+    }
+
+
+    int selected_index=-1;
+
+    public jcdb_item getItemAtPosition_( org.json.JSONArray jArray, int start_idx, String start_text, int idx ) {
+        start_text += (start_text.length()>0?" - ":"");
+        try {
+        for( int i=0; i<jArray.length(); i++ ) {
+            org.json.JSONObject product = jArray.getJSONObject(i);
+            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
+            if( attributes.length()>0 ) {
+android.util.Log.e("getItemAtPosition_: ", "2 attributes.length()=" + attributes.length() );
+                jcdb_item ret = getItemAtPosition_( attributes, start_idx, start_text + product.getString( "label" ), idx );
+                if( ret.get_id()!=-1 ) return ret;    //kok aneh?! >> if( !ret.equals( new jcdb_item( -1, "" ) ) ) 
+                else  start_idx += attributes.length();
+            } else {
+                if( start_idx == idx ) android.util.Log.e("getItemAtPosition_: ", "start_idx == idx=" + idx );
+                if( start_idx == idx ) return new jcdb_item( product.getInt("id"), start_text + product.getString( "label" ) );
+                start_idx ++ ;
+            }
+        }
+        } catch( org.json.JSONException e ) {
+                        android.util.Log.e("getItemAtPosition_ error: ", "e.toString()="+ e.toString() );
+        }
+
+        return new jcdb_item( -1, "" );    //getAdapter().getItem(i)
+    }
+    public jcdb_item getItemAtPosition(int idx) {
+        return getItemAtPosition_( items, 0, "", idx );
+    }
+
+    public int getSelectedItemPosition() {
+        return selected_index;    //items.indexOf( getSelectedItem() );    //return getListSelection();    //return selected_idx;
+    }
+
+    public void setSelectedItemPosition(int i) {
+        selected_index = i;
+        //int selected_key = ((jcdb_item) items.get(i) ).get_id;
+        //my_index_of_key(selected_key);
+        //setListSelection(i);    //selected_idx = i;
+    }
+    public void setSelection(int i) {
+        setSelectedItemPosition(i);
+    }
+    public jcdb_item getSelectedItem() {
+        return getItemAtPosition(selected_index);    //(jcdb_item) getItemAt(0);    //getListSelection()
+    }
+
+    public int getItemCount_( org.json.JSONArray jArray ) {
+        int count = jArray.length();
+        try {
+        for( int i=0; i<jArray.length(); i++ ) {
+            org.json.JSONObject product = jArray.getJSONObject(i);
+            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
+            if( attributes.length()>0 ) count += getItemCount_( attributes ) - 1;
+        }
+        } catch( org.json.JSONException e ) {
+                        android.util.Log.e("getItemCount_ error: ", "e.toString()="+ e.toString() );
+        }
+        return count;
+    }
+    public int getItemCount() {
+        return getItemCount_(items);    //items.length();    //size();    //getCount();
+    }
+    public int getCount() {
+        //if( getAdapter()==null ) return 0;
+        return getItemCount();    //getAdapter().getCount();
+    }
+
+
+    public void my_selectWithKeyChar(char chr) {    //if( !getItemAtPosition(i).toString().equals("") ) perlu, otherwise ... dia (silently) error pas item empty
+        for( int i=0; i<getCount(); i++ )
+            if( !getItemAtPosition(i).toString().equals("") ) if( Character.toUpperCase(chr) == Character.toUpperCase( getItemAtPosition(i).toString().charAt(0) )) {
+                setSelection(i);   break;
+            }
+    }
+    public Object[] my_item_of(String search, Boolean filtered) {
+        Object[] ret = new Object[] {-1, null};
+        search=search.trim();
+//is_android... kutambahin dummy item "" krn dia tak bisa disetSelection(-1), tetap ngeset ke 0 saat showdropdownlist >>        if( search.equals("") ) return ret;
+        //aku mo modif retail.is_number() utk mengexclude "." dan ".." tapi takutnya beresiko mempengaruhi callers yg lain :D
+        Boolean is_number = search.indexOf(retail.digit_separator)!=0 && search.indexOf(retail.digit_separator+retail.digit_separator)<0 && retail.is_number(search);
+        jcdb_item combo_item=null;    String combo_string="";
+        int count = getItemCount() ;
+        for( int i=count-1; i>=0; i-- ) {    //<<later to optimize    //jika nama barang boleh duplicate, baca yg terakhir aja >> for( int i=0; i<getItemCount(); i++ ) {
+            //biar faster, ganti jadi yg di bawah ?! >> if( !getItemAtPosition(i).toString().equals("") ) if( search.toUpperCase().equals( getItemAtPosition(i).toString().toUpperCase() ) )
+            //combo_item = getItemAtPosition(i).toString();
+            combo_item = (jcdb_item) ( getItemAtPosition(i) );
+            combo_string = combo_item.toString();
+            //bialin ... if( combo_item.equals("") ) continue;
+            if( !is_number ) {
+                search=search.toUpperCase();
+                combo_string = combo_string.toUpperCase();
+            }
+            if( search.equals(combo_string) ) {
+                ret = new Object[] {i, combo_item};
+                break;
+            }
+        }
+        return ret;
+    }
+    public Object[] my_item_of(String search) {
+        return my_item_of(search, false);
+    }
+
+    public int my_filtered_index_of(String search) {
+        return my_index_of(search);
+    }
+
+    public int my_index_of(String search) {
+        return Integer.valueOf( my_item_of(search)[0].toString() );
+    }
+    public int my_key_of(String search) {
+        jcdb_item item = (jcdb_item)my_item_of(search)[1];
+        return ( item==null ? -1 : item.get_id() );
+    }
+
+    public Object[] my_item_of_key(int search) {
+        Object[] ret = new Object[] {-1, null};
+        jcdb_item combo_item=null;
+        for( int i=0; i<getCount(); i++ ) {
+            combo_item = (jcdb_item)getItemAtPosition(i);
+            if( search==combo_item.get_id() ) {
+                ret = new Object[] {i, combo_item};
+                break;
+            }
+        }
+        return ret;
+    }
+    public int my_index_of_key(int search) {
+        return Integer.valueOf( my_item_of_key(search)[0].toString() );
+    }
+    public jcdb_item my_jcdb_item_of_key(int search) {
+        return (jcdb_item) my_item_of_key(search)[1];
+    }
+    public String my_string_of_key(int search) {
+        return my_item_of_key(search)[1].toString();
+    }
+    public void my_setSelectedItem(String search) {
+        int index = my_index_of( search );
+        //biar ajalah ngeset ke -1 >> if( index>=0 )
+        //android.util.Log.e("on my_setSelectedItem index:", index + "  search:" + search + "   brg_id=" + retail.brg_id + " getSelectedItemPosition()=" + getSelectedItemPosition() );
+        setSelection(index);    //klo tanpa if( index>=0 ) , dia ngeset ke ??
+    }
+// is_android ...
+    public Object getItemAt(int search) {
+        return search<0 ? null : getItemAtPosition(search);    //my_item_of_key(search)[1];
+    }
+
+
+
+/* ribet, pake tag aja!!!
+
+    public static int real_position( android.widget.ExpandableListView Csrc, int position ) {
+        int count = start_count + jArray.length();
+
+        org.json.JSONArray jArray = retail.Cname_brg.adapter.items;    //Csrc.getAdapter().items;
+        for( int i=0; i<jArray.length(); i++ ) {
+            if( i==position ) return start_idx + position;
+            org.json.JSONObject product = jArray.getJSONObject(i);
+            org.json.JSONArray attributes = new org.json.JSONArray( product.getString( "attributes" ) );
+            for( int a=0; a<attributes.length(); a++ ) {
+                if( i+a==position ) return start_idx + position;
+                org.json.JSONObject product = attributes.getJSONObject(a);
+                org.json.JSONArray attributes2 = new org.json.JSONArray( product.getString( "attributes" ) );
+                if( attributes2.length()>0 ) return getItemAtPosition_( jArray, start_idx, idx );
+            }
+
+
+
+            //Csrc=Cname_brg;
+        }
+
+
+    }
+
+
+*/
+
+
+}
+
+
+
+
+
+
+
 class JCdb extends android.widget.AutoCompleteTextView {    //MultiAutoCompleteTextView    //android.widget.Spinner { //fill the combobox with the value from db...
-    static JCdb jcdb;
+    static JCdb jcdb;    Boolean multi_level=false;    AppCompatActivity act;
     public static JCdb newInstance( Boolean async, String table, final AppCompatActivity act ) {
 android.util.Log.e("jcdb: ", "1");
         //if( android.os.Build.VERSION.SDK_INT < 11 )
@@ -1626,6 +2214,7 @@ android.util.Log.e("jcdb: ", "1");
 android.util.Log.e("after_create: ", "1" );
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 android.util.Log.e("after_create: ", "2" );
+
         setAdapter(adapter);
 android.util.Log.e("after_create: ", "3" );
         setOnItemClickListener( new android.widget.AdapterView.OnItemClickListener() {    //perlu utk lakukan setSelectedItemPosition
@@ -1638,6 +2227,39 @@ android.util.Log.e("jcdb setonitemclicklistener: ", "position after: " + positio
             //public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
 android.util.Log.e("after_create: ", "4" );
+
+
+
+
+/* later: to show list before typing
+
+myView.setOnFocusChangeListener(new OnFocusChangeListener() {
+
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (hasFocus)
+                myView.showDropDown();
+
+        }
+    });
+
+    myView.setOnTouchListener(new OnTouchListener() {
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            myView.showDropDown();
+
+            //to show keyboard? >> autocomptv.requestFocus();
+            return false;
+        }
+    });
+
+
+//maybe with this? >> OnTextChangeListener say afterTextChanged, when length = 0
+
+*/
+
+
     }
 
 
@@ -1647,6 +2269,8 @@ android.util.Log.e("after_create: ", "4" );
 android.util.Log.e("jcdb: ", "BuildConfig.VERSION_CODE " + BuildConfig.VERSION_CODE + "    Build.VERSION.SDK_INT " + android.os.Build.VERSION.SDK_INT   );
         mode_dropdown = android.os.Build.VERSION.SDK_INT >= 11 ;
 android.util.Log.e("jcdb: ", "editor.mode_dropdown " + mode_dropdown );
+
+        this.act=act;
         create( async, table, act, threshold );
     }
 /*
@@ -1678,6 +2302,16 @@ android.util.Log.e("jcdb create: ", "1 threshold=" + threshold);
 android.util.Log.e("jcdb create: ", "1a");
         items = new ArrayList<jcdb_item>();
 android.util.Log.e("jcdb create: ", "1b");
+
+
+
+
+
+
+
+
+
+
         adapter = new android.widget.ArrayAdapter<jcdb_item>( act, android.R.layout.simple_spinner_item, items ) {    //ArrayList<jcdb_item> items = new ArrayList<jcdb_item>();
             @Override public android.widget.Filter getFilter() {
                 return contains_filter;
@@ -1748,6 +2382,9 @@ android.util.Log.e("jcdb create: ", "!table.equals('')" );
             String sql;
             if( table.indexOf(" ")>0 ) {
                    sql = table;    table = "";
+
+                   multi_level = table.indexOf("gambar FROM barang")>0 ;    //sementara
+
             } else
                    sql = "SELECT id, name FROM " + table + " ORDER BY id" ;
 
@@ -1964,6 +2601,8 @@ android.util.Log.e("jcdb create: ", "5");
     public Object getItemAt(int search) {
         return search<0 ? null : getItemAtPosition(search);    //my_item_of_key(search)[1];
     }
+
+
 }
 
 /*

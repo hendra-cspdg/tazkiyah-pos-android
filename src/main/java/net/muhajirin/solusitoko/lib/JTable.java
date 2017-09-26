@@ -235,21 +235,21 @@ android.util.Log.e("onConstructor:", "1" );
 android.util.Log.e("getCellEditorValue:", "1");
                 ret = String.valueOf( ((NumberPicker)editor).getValue() );
                 return ret;
-            } else if( editor instanceof JCdb     ) {
+            } else if( editor instanceof JCdb || editor instanceof JCEdb     ) {
                 //return //((JCdb)editor).getText().toString();    //
 android.util.Log.e("getCellEditorValue:", "1");
 //pindah ke remove_editor >> ((JCdb)editor).clear_filter();
-android.util.Log.e("getCellEditorValue:", "count=" + ((JCdb)editor).getAdapter().getCount()  );    //getSelectedItemPosition() di sini dlm keadaan masih terfilter()
-            ret = ((JCdb)editor).getText().toString().trim();    //String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString());    //getSelectedItem()
-            if( ((JCdb)editor).my_index_of(ret) < 0 ) ret="";
-//android.util.Log.e("getCellEditorValue:", "return=" + String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getItem( ((JCdb)editor).getSelectedItemPosition() ) ).toString())  );
+//android.util.Log.e("getCellEditorValue:", "count=" + ((JCdb)editor).getAdapter().getCount()  );    //getSelectedItemPosition() di sini dlm keadaan masih terfilter()
+            ret = editor instanceof JCdb ? ((JCdb)editor).getText().toString().trim() : ((jcdb_item)((JCEdb)editor).getSelectedItem()).toString();    //getSelectedItem()
+            if( editor instanceof JCdb && ((JCdb)editor).my_index_of(ret) < 0 ) ret="";
+            if( editor instanceof JCEdb && ((JCEdb)editor).my_index_of(ret) < 0 ) ret="";
+//android.util.Log.e("getCellEditorValue:", "return=" + String.valueOf(((jcdb_item)((JCdb)editor).getAdapter().getSelectedItem().toString())  );
                 return ret;
             } else if( editor instanceof EditText ) {
                 ret = ((EditText)editor).getText().toString();
                 if( db.getColumnName( editor.getId() ).toLowerCase().contains("harga") ) ret = retail.add_ribuan(ret);
                 return ret;
             }
-android.util.Log.e("getCellEditorValue:", "end" );
             return "";
         }
         void remove_editor( View v, Boolean post_update ) {
@@ -268,7 +268,8 @@ android.util.Log.e("onremove:", "3"  );
                 View editor = (View) col_switcher_this.getChildAt(1);
 android.util.Log.e("onremove:", "4"  );
                 //no, listener doesn't: jika editor adalah jcdb dan punya listener sync_brg: let listener do setvalue rather then this remove_editor!!! so, set post_update=false >>   if( editor instanceof JCdb && ((android.widget.AdapterView)editor).getOnItemSelectedListener()==retail.sync_brg ) post_update = false;
-                Boolean async = editor instanceof JCdb && ((android.widget.AutoCompleteTextView)editor).getOnItemClickListener()==retail.sync_brg  ? false : true ;
+                Boolean async = editor instanceof JCdb && ((android.widget.AutoCompleteTextView)editor).getOnItemClickListener()==retail.sync_brg || editor instanceof JCEdb ? false : true ;
+                //Boolean async = ( editor instanceof JCdb || editor instanceof JCEdb ) && ((android.widget.AutoCompleteTextView)editor).getOnItemClickListener()==retail.sync_brg  ? false : true ;
 android.util.Log.e("onremove:", "5"  );
                 //berat >> android.util.Log.e("removing :", "async=" + async + "   editor!!! db.setValueAt( " + getCellEditorValue(editor) + " ,  " + Integer.valueOf(editor.getTag().toString()) + " ,  " + editor.getId() );
 android.util.Log.e("onremove:", "6"  );
@@ -609,10 +610,12 @@ android.util.Log.e("onremove:", "10"  );
             //}};
 
             void show_editor( View v ) {
+android.util.Log.e("show_editor:", "1" );
                 select_row( getAdapterPosition() );
                 //android.util.Log.e("row:", ""+ vh.getAdapterPosition() );
                 //v.setEnabled(true);
 
+android.util.Log.e("show_editor:", "2" );
                 /*
                 ViewGroup parent = (ViewGroup) v.getParent();
                 final int index = parent.indexOfChild(v);
@@ -624,19 +627,31 @@ android.util.Log.e("onremove:", "10"  );
                 */
 
                 final android.widget.ViewSwitcher parent = (android.widget.ViewSwitcher) v.getParent();
+
+android.util.Log.e("show_editor:", "3" );
                 final int c = v.getId()/* - 1000*/;
+
+android.util.Log.e("show_editor:", "4" );
                 //ga iso manggil parent class object:p >> Row_holder row_holder = (Row_holder) parent.getParent().getParent().getParent();
                 if( parent.getChildCount()==1 ) {
+
+android.util.Log.e("show_editor:", "5" );
                     remove_editor( col_editor[c] );
-                    parent.addView( col_editor[c], -1, new LayoutParams( ( db.getColumnName(c).toLowerCase().contains("note") ? 250 : db.col_width[c] ), height ) );
+
+android.util.Log.e("show_editor:", "6" );
+                    parent.addView( col_editor[c], -1, new LayoutParams( ( db.getColumnName(c).toLowerCase().contains("note") ? 250 : db.col_width[c] ), col_editor[c] instanceof JCEdb ? 300 : height ) );
+
+android.util.Log.e("show_editor:", "7" );
                 }
+
+android.util.Log.e("show_editor:", "8" );
                 //last_selected_row = selected_row ;
                 //selected_row = row_holder.getLayoutPosition();    //getAdapterPosition()    //itemListener.recyclerViewListClicked(v, this.getPosition());
 android.util.Log.e("onlongclick:", "c="+ c + "  parent.getChildCount()=" + parent.getChildCount()  + "  getLayoutPosition()=" + getLayoutPosition() + "   getAdapterPosition()=" + getAdapterPosition() );
                 col_editor[c].setTag( getAdapterPosition() );    //selected_row    //getLayoutPosition()    //to use in remove_editor to apply change to db
 
 android.util.Log.e("onlongclick:", "before show_next" );
-                if( col_editor[c] instanceof JCdb ) retail.brg_id = -1;    //agar listener tak aktif >> somehow, showNext() yg pertamakali utk JCdb ini mengaktifkan listener:p
+                if( col_editor[c] instanceof JCdb || col_editor[c] instanceof JCEdb ) retail.brg_id = -1;    //agar listener tak aktif >> somehow, showNext() yg pertamakali utk JCdb ini mengaktifkan listener:p
                 parent.showNext();
 android.util.Log.e("onlongclick:", "after show_next" );
 
@@ -649,7 +664,7 @@ android.util.Log.e("onlongclick: ", "NumberPicker before cur_value" + cur_value 
                     editor.setValue( Integer.valueOf(cur_value) );
 android.util.Log.e("onlongclick: ", "NumberPicker after cur_value" + cur_value );
                             editor.editText.requestFocusFromTouch();
-                } else if( col_editor[c] instanceof JCdb ) {
+                } else if( col_editor[c] instanceof JCdb ) {    //gmn klo JCEdb??
                     //retail.brg_id = -1;    //agar listener tak aktif
                         final JCdb editor = (JCdb)col_editor[c];
 android.util.Log.e("onlongclick: ", "Jcdb before  Selectedpos=" + ((JCdb)col_editor[c]).getSelectedItemPosition()   + "  cur_value" + cur_value + "   count=" + editor.getAdapter().getCount()  );
@@ -672,17 +687,17 @@ android.util.Log.e("onlongclick: ", "Jcdb after  Selectedpos=" + ((JCdb)col_edit
 
 */
                     new android.os.Handler().postDelayed(new Runnable() { @Override public void run() {
-                if( col_editor[c] instanceof JCdb ) {
+                if( col_editor[c] instanceof JCdb || col_editor[c] instanceof JCEdb ) {
                     //new android.os.Handler().post(new Runnable() { @Override public void run() {
-                        final JCdb editor = (JCdb)col_editor[c];
 /*
+                        final JCdb editor = (JCdb)col_editor[c];
                             editor.my_setSelectedItem(cur_value);
                             //editor.items.notifyDataSetChanged();
                         new android.os.Handler().postDelayed(new Runnable() { public void run() {
                             editor.requestFocusFromTouch();
 */
 android.util.Log.e("onlongclick: ", "before performClick" );
-if( !editor.mode_dropdown ) android.util.Log.e("onlongclick: ", "editor.mode_dropdown " + editor.mode_dropdown );
+//if( !editor.mode_dropdown ) android.util.Log.e("onlongclick: ", "editor.mode_dropdown " + editor.mode_dropdown );
 //                            if( !editor.mode_dropdown ) editor.performClick();    //supaya list item langsung muncul
 android.util.Log.e("onlongclick: ", "after performClick" );
                             retail.brg_id = -13;    //agar listener tak aktif
@@ -694,6 +709,11 @@ android.util.Log.e("onlongclick: ", "after performClick" );
                 }
 
                     }}, 300);
+
+
+
+android.util.Log.e("onlongclick:", "555555" );
+
             }
 
             View.OnClickListener show_editor = new View.OnClickListener() { @Override public void onClick(View v) {
